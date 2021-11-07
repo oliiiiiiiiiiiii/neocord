@@ -22,7 +22,7 @@
 
 from __future__ import annotations
 
-class Colour:
+class Color:
     """
     A class that wraps the integer color values in (r, g, b) like form.
 
@@ -32,7 +32,7 @@ class Colour:
     This class is used to represent the color of entities sent by Discord
     like roles, embeds, banners etc.
 
-    An alias ``Color`` is also available for this class.
+    An alias ``Colour`` is also available for this class.
 
     Parameters
     ----------
@@ -66,4 +66,4 @@ class Colour:
     def __repr__(self):
         return 'Colour({r}, {g}, {b})'.format(r=self.r, g=self.g, b=self.b)
 
-Color = Colour
+Colour = Color
