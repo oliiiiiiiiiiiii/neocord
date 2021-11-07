@@ -24,6 +24,7 @@ from __future__ import annotations
 from typing import Optional, TYPE_CHECKING
 
 from neocord.models.base import DiscordModel
+from neocord.dataclasses.flags.user import UserFlags
 
 if TYPE_CHECKING:
     from neocord.api.state import State
@@ -58,6 +59,11 @@ class BaseUser(DiscordModel):
         self._banner = data.get("banner", None)
         self._accent_colour = data.get("accent_color", None)
         self._public_flags = data.get("public_flags", 0)
+
+    @property
+    def public_flags(self) -> UserFlags:
+        """:class:`UserFlags: Returns the public flags of a user."""
+        return UserFlags(value=self._public_flags)
 
     def __repr__(self):
         return (
