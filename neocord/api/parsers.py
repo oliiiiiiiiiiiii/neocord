@@ -19,6 +19,7 @@
 # SOFTWARE.
 
 from __future__ import annotations
+from neocord.typings.guild import Guild
 from typing import Any, Callable, Dict, List, Optional, TYPE_CHECKING
 
 from neocord.models.user import ClientUser
@@ -30,6 +31,7 @@ import copy
 if TYPE_CHECKING:
     from neocord.api.state import State
     from neocord.typings.user import User as UserPayload
+    from neocord.typings.guild import Guild as GuildPayload
 
     EventPayload = Dict[str, Any]
 
@@ -77,9 +79,46 @@ class Parsers:
 
         if user is None:
             logger.debug(f'USER_UPDATE was sent with an unknown user {event["id"]}, Discarding.')
+            return
 
         before = copy.copy(user)
         user._update(event)
 
         # user: after
         self.dispatch('user_update', before, user)
+
+    def parse_guild_create(self, event: GuildPayload):
+        guild = self.state.add_guild(event)
+        if self.state.client.is_ready():
+            # we assume that guild is joined since client is ready.
+            self.dispatch('guild_join', guild)
+
+        self.dispatch('guild_create', guild)
+
+    def parse_guild_update(self, event: GuildPayload):
+        guild = self.state.get_guild(int(event['id']))
+        if guild is None:
+            logger.debug(f'GUILD_UPDATE was sent with an unknown guild {event["id"]}, Discarding.')
+            return
+
+
+        before = copy.copy(guild)
+        guild._update(event)
+
+        # guild: after
+        self.dispatch('guild_update', before, guild)
+
+    def parse_guild_delete(self, event: GuildPayload):
+        guild = self.state.get_guild(int(event['id']))
+        if guild is None:
+            logger.debug(f'GUILD_UPDATE was sent with an unknown guild {event["id"]}, Discarding.')
+            return
+
+        if not 'available' in event:
+            # the user was removed from guild.
+            self.dispatch('guild_leave', guild)
+        else:
+            self.dispatch('guild_available', guild)
+
+        self.state.pop_guild(guild.id)
+        self.dispatch('guild_delete', guild)

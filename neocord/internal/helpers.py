@@ -49,7 +49,7 @@ def get_image_data(data: Optional[bytes]) -> Optional[str]:
 
 def get_snowflake(data: Any, key: str) -> Optional[int]:
     try:
-        return int(data['key'])
+        return int(data[key])
     except:
         return
 

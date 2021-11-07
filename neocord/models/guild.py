@@ -106,10 +106,10 @@ class Guild(DiscordModel):
         'max_members', 'max_video_channel_users', 'vanity_url_code', 'description',
         'preferred_locale', 'approximate_member_count', 'approximate_presence_count',
         'id', 'owner_id', 'afk_channel_id', 'widget_channel_id', 'application_id',
-        'system_channel_id', 'rules_channel_id', 'public_updates_channel_id', '_system_channel_flags',
+        'system_channel_id', 'rules_channel_id', 'public_updates_channel_id', 'system_channel_flags',
         '_joined_at', 'verification_level', 'default_message_notifications', 'explicit_content_filter',
         'mfa_level', 'premium_tier', 'nsfw_level', '_icon', '_splash', '_banner', '_discovery_splash',
-        'welcome_screen', 'features'
+        'welcome_screen', 'features', '_roles'
     )
 
     def __init__(self, data: GuildPayload, state: State):

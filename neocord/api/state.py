@@ -27,11 +27,13 @@ from neocord.internal.mixins import ClientPropertyMixin
 from neocord.internal.logger import logger
 from neocord.api.parsers import Parsers
 from neocord.models.user import User
+from neocord.models.guild import Guild
 
 if TYPE_CHECKING:
     from neocord.core import Client
     from neocord.models.user import ClientUser
     from neocord.typings.user import User as UserPayload
+    from neocord.typings.guild import Guild as GuildPayload
 
 class State(ClientPropertyMixin):
     def __init__(self, client: Client) -> None:
@@ -63,3 +65,15 @@ class State(ClientPropertyMixin):
 
     def pop_user(self, id: int, /):
         return self.users.pop(id, None)
+
+
+    def get_guild(self, id: int, /):
+        return self.guilds.get(id)
+
+    def add_guild(self, data: GuildPayload):
+        guild = Guild(data, state=self)
+        self.guilds[guild.id] = guild
+        return guild
+
+    def pop_guild(self, id: int, /):
+        return self.guilds.pop(id, None)

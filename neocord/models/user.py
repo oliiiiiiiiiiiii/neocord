@@ -36,7 +36,7 @@ if TYPE_CHECKING:
 
 class BaseUser(DiscordModel):
     __slots__ = ('name', 'discriminator', 'bot', 'system', '_avatar',
-                '_banner', '_accent_color', '_public_flags', '_state')
+                '_banner', '_accent_color', '_public_flags', '_state', 'id')
 
     if TYPE_CHECKING:
         name: str
