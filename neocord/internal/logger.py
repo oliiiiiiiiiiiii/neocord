@@ -21,27 +21,6 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from typing import Any, ClassVar, Awaitable, Callable, Optional, TYPE_CHECKING
+import logging
 
-if TYPE_CHECKING:
-    from aiohttp import ClientSession
-
-class BaseRouteMixin:
-    if TYPE_CHECKING:
-        request: Callable[[Route], Any]
-        session: Optional[ClientSession]
-
-class Route:
-    """
-    Represents an endpoint from Discord API.
-    """
-    BASE: ClassVar[str] = 'https://discord.com/api/v9'
-
-    def __init__(self, request: str, route: str, **params: Any) -> None:
-        self.request = request
-        self.route  = route
-        self.params = params
-
-    @property
-    def url(self) -> str:
-        return f'{self.BASE}{self.route.format(**self.params)}'
+logger = logging.getLogger(__name__)

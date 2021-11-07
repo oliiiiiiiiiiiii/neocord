@@ -24,13 +24,10 @@ from __future__ import annotations
 from typing import Any, ClassVar, Optional, Union, Dict, TYPE_CHECKING
 
 from neocord.errors.http import HTTPError, NotFound, Forbidden
-from neocord.api.routes import Routes
+from neocord.api.routes import Routes, Route
 
 import neocord
 import aiohttp
-
-if TYPE_CHECKING:
-    from neocord.api.routes import Route
 
 class HTTPClient(Routes):
     """

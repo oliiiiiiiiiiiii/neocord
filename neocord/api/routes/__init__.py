@@ -25,8 +25,10 @@ from typing import Tuple
 
 from .base import *
 from .user import *
+from .gateway import *
 
 class Routes(
     UsersRoutes,
+    GatewayRoutes
 ):
     pass

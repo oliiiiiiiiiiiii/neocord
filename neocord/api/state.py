@@ -21,9 +21,11 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from typing import Callable, Any, Optional, TYPE_CHECKING
+from typing import Any, Dict, Optional, TYPE_CHECKING
 
 from neocord.internal.mixins import ClientPropertyMixin
+from neocord.internal.logger import logger
+from neocord.api.parsers import Parsers
 
 if TYPE_CHECKING:
     from neocord.core import Client
@@ -32,8 +34,19 @@ if TYPE_CHECKING:
 class State(ClientPropertyMixin):
     def __init__(self, client: Client) -> None:
         self.client = client
+        self.parsers = Parsers(state=self)
         self.user: Optional[ClientUser] = None
 
-    @property
-    def dispatch(self) -> Callable[[str], Any]:
-        return self.client.dispatch
+        self.clear()
+
+    def clear(self):
+        self.guilds: Dict[int, Any] = {}
+        self.users: Dict[int, Any] = {}
+
+    def parse_event(self, event: str, data: Any):
+        parser = self.parsers.get_parser(event)
+        if parser is None:
+            logger.debug(f'Unknown event {event}, Discarding.')
+            return
+
+        return parser(data)
