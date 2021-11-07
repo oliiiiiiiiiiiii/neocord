@@ -81,7 +81,7 @@ class Client:
 
         for listener in listeners:
             coro = listener(*args)
-            self.loop.create_task(coro, name='neocord-event-dispatch: {}'.format(event))
+            asyncio.create_task(coro, name='neocord-event-dispatch: {}'.format(event))
 
             try:
                 call_once = listener.__neocord_listener_call_once__
@@ -203,7 +203,7 @@ class Client:
         name: :class:`str`
             The name of event to listen to.
         """
-        def deco(self, func: Callable[..., Any]):
+        def deco(func: Callable[..., Any]):
             return self.add_listener(name, func)
 
         return deco

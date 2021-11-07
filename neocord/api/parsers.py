@@ -50,15 +50,11 @@ class Parsers:
             return parser
 
     async def _schedule_ready(self, pending: List[Dict[str, Any]]):
-        index = 0
         while pending:
-            guild = pending[index]
-            await asyncio.sleep(2.0)
-            pending.remove(guild)
+            await asyncio.sleep(0.05)
+            pending.pop(0)
 
         self.dispatch('ready')
-
-
 
 
     def parse_ready(self, event: EventPayload):
