@@ -83,13 +83,12 @@ class Client:
         for listener in listeners:
             coro = listener(*args)
             asyncio.create_task(coro, name='neocord-event-dispatch: {}'.format(event))
-
             try:
-                call_once = listener.__neocord_listener_call_once__
+                options = listener.__neocord_event_listener_options__
             except AttributeError:
-                call_once = False
+                options = {}
 
-            if call_once:
+            if options.get('once', False):
                 to_remove.append(listener)
 
         for listener in to_remove:
@@ -167,7 +166,52 @@ class Client:
 
     # listeners
 
-    def add_listener(self, name: str, listener: Callable[..., Any]) -> Callable[..., Any]:
+    def clear_listeners(self, event: str) -> None:
+        """
+        Removes all the listeners for the provided event.
+
+        Parameters
+        ----------
+        event: :class:`str`
+            The event name to clear listeners for.
+        """
+        try:
+            del self._listeners[event]
+        except KeyError:
+            return
+
+    def get_listeners(self, event: str, *, include_temporary: bool = False) -> List[Callable[..., Any]]:
+        """
+        Returns the registered event listeners for the provided event.
+
+        Parameters
+        ----------
+        event: :class:`str`
+            The event name to get listeners for.
+        include_temporary: :class:`bool`
+            Whether to include temporary listeners, i.e those that are marked
+            to call only once. Defaults to False.
+
+        Returns
+        -------
+        The list of event listeners callbacks.
+        """
+        try:
+            listeners = self._listeners[event]
+        except KeyError:
+            return []
+
+        if not include_temporary:
+            listeners = [l for l in listeners if l.__neocord_event_listener_options__.get('once', False)]
+
+        return listeners
+
+    def add_listener(self,
+        listener: Callable[..., Any],
+        name: str,
+        *,
+        once: bool = False
+        ) -> Callable[..., Any]:
         """
         Adds an event listener to the bot. This is a non-decorator
         interface to :meth:`.on` decorator which should be used instead.
@@ -176,17 +220,22 @@ class Client:
             async def on_message(message):
                 ...
 
-            bot.add_listener('message', on_message)
+            bot.add_listener(on_message, 'message')
 
         Parameters
         ----------
-        name: :class:`str`
-            The name of event to listen to.
         listener:
             The async function that represents the event's callback.
+        name: :class:`str`
+            The name of event to listen to.
+        once: :class:`bool`
+            Whether this listener should be called only once.
         """
         if not iscoroutinefunction(listener):
             raise TypeError('listener callback must be a coroutine.')
+
+        listener.__neocord_event_listener_options__ = {}
+        listener.__neocord_event_listener_options__['once'] = once
 
         try:
             self._listeners[name].append(listener)
@@ -195,7 +244,7 @@ class Client:
 
         return listener
 
-    def on(self, name: str):
+    def on(self, *args, **kwargs):
         """
         A decorator that registers a listener to listen to gateway events.
 
@@ -203,9 +252,11 @@ class Client:
         ----------
         name: :class:`str`
             The name of event to listen to.
+        once: :class:`bool`
+            Whether this listener should be called only once.
         """
         def deco(func: Callable[..., Any]):
-            return self.add_listener(name, func)
+            return self.add_listener(func, *args, **kwargs)
 
         return deco
 
