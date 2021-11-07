@@ -28,6 +28,7 @@ from typing import Any, Callable, Dict, List, Optional, TYPE_CHECKING
 from neocord.api.http import HTTPClient
 from neocord.api.state import State
 from neocord.models.user import ClientUser
+from neocord.dataclasses.flags.intents import GatewayIntents
 
 import asyncio
 
@@ -49,17 +50,20 @@ class Client:
         The aiohttp session to use in HTTP or websocket operations. if not provided, Library
         creates it's own session.
     intents: :class:`GatewayIntents`
-        The gateway intents to use while connecting to gateway.
+        The gateway intents to use while connecting to gateway. If not provided, all the
+        unprivelged intents are enabled by default.
     """
     if TYPE_CHECKING:
         loop: asyncio.AbstractEventLoop
         _listeners: Dict[str, List[Callable[..., Any]]]
+        intents: GatewayIntents
 
     def __init__(self, **params: Any) -> None:
         self.loop  = params.get('loop') or asyncio.get_event_loop()
         self.http  = HTTPClient(session=params.get('session'))
         self.state = State(client=self)
         self.ws = DiscordWebsocket(client=self)
+        self.intents = params.get('intents') or GatewayIntents.unprivileged()
 
         self._ready = asyncio.Event()
         self._listeners = {}

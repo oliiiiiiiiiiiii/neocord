@@ -154,7 +154,7 @@ class DiscordWebsocket(ClientPropertyMixin):
             "op": OP.IDENTIFY,
             "d": {
                 "token": self.http.token,
-                "intents": 513, # TODO
+                "intents": self.client.intents.value,
                 "properties": {
                     "$os": sys.platform,
                     "$browser": "NeoCord",
