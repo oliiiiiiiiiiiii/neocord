@@ -21,10 +21,12 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING, Union
 
 from neocord.models.base import DiscordModel
 from neocord.dataclasses.flags.user import UserFlags
+from neocord.internal.missing import MISSING
+from neocord.internal import helpers
 
 if TYPE_CHECKING:
     from neocord.api.state import State
@@ -116,7 +118,35 @@ class ClientUser(BaseUser):
         self.locale = data.get('locale')
         self.mfa_enabled = data.get('mfa_enabled', False)
 
-    # TODO: ClientUser.edit()
+    async def edit(self, *,
+        name: Optional[str] = MISSING,
+        avatar: Optional[str] = MISSING,
+        ):
+        """
+        Edits the client user.
+
+        All parameters in this method are optional. This method returns None and
+        updates the instance in-place with new data.
+
+        Parameters
+        ----------
+        name: :class:`str`
+            The new name of the user.
+        avatar: Optional[:class:`bytes`]
+            The bytes like object that represents the new avatar's image data.
+            None can be passed to remove the avatar.
+        """
+        payload = {}
+
+        if name is not MISSING:
+            payload['username'] = name
+        if avatar is not MISSING:
+            payload['avatar'] = helpers.get_image_data(avatar) # type: ignore
+
+        if payload:
+            data = await self.state.http.edit_client_user(payload=payload)
+            self._update(data)
+
 
 class User(BaseUser):
     """

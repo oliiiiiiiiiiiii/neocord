@@ -21,12 +21,16 @@
 # SOFTWARE.
 
 from __future__ import annotations
+from typing import Any, Dict
 
 from .base import BaseRouteMixin, Route
 
 class UsersRoutes(BaseRouteMixin):
     def get_client_user(self):
         return self.request(Route('GET', '/users/@me'))
+
+    def edit_client_user(self, payload: Dict[str, Any]):
+        return self.request(Route('PATCH', '/users/@me'), json=payload)
 
     def get_user(self, user_id: int):
         return self.request(Route('GET', '/users/{user_id}', user_id=user_id))

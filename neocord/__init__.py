@@ -9,7 +9,7 @@ __title__   = 'NeoCord'
 __author__  = 'NerdGuyAhmad'
 __version__ = '0.0.1'
 
-from . import  typings
+from . import  typings, utils
 
 from .core import *
 from .models import *

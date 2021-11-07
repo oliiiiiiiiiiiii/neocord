@@ -71,14 +71,6 @@ class Client:
         self._ready = asyncio.Event()
         self._listeners = {}
 
-    @property
-    def user(self) -> Optional[ClientUser]:
-        """
-        :class:`ClientUser`: Returns the user associated to this client. This is only available
-        after the client has logged in.
-        """
-        return self.state.user
-
     def dispatch(self, event: str, *args: Any):
         try:
             listeners = self._listeners[event]
@@ -216,6 +208,15 @@ class Client:
             return self.add_listener(name, func)
 
         return deco
+
+
+    @property
+    def user(self) -> Optional[ClientUser]:
+        """
+        :class:`ClientUser`: Returns the user associated to this client. This is only available
+        after the client has logged in.
+        """
+        return self.state.user
 
     def get_user(self, id: int, /) -> Optional[User]:
         """

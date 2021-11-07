@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 
 class BaseRouteMixin:
     if TYPE_CHECKING:
-        request: Callable[[Route], Any]
+        request: Callable[..., Any]
         session: Optional[ClientSession]
 
 class Route:
