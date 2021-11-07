@@ -43,7 +43,7 @@ class State(ClientPropertyMixin):
 
     def clear(self):
         self.guilds: Dict[int, Any] = {}
-        self.users: Dict[int, Any] = {}
+        self.users: Dict[int, User] = {}
 
     def parse_event(self, event: str, data: Any):
         parser = self.parsers.get_parser(event)
