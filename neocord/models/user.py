@@ -21,9 +21,11 @@
 # SOFTWARE.
 
 from __future__ import annotations
+from sys import path
 from typing import Optional, TYPE_CHECKING, Union
 
 from neocord.models.base import DiscordModel
+from neocord.models.asset import CDNAsset
 from neocord.dataclasses.flags.user import UserFlags
 from neocord.internal.missing import MISSING
 from neocord.internal import helpers
@@ -66,6 +68,26 @@ class BaseUser(DiscordModel):
     def public_flags(self) -> UserFlags:
         """:class:`UserFlags: Returns the public flags of a user."""
         return UserFlags(value=self._public_flags)
+
+    @property
+    def avatar(self) -> Optional[CDNAsset]:
+        """:class:`CDNAsset`: Returns the CDN asset for user avatar."""
+        if self._avatar is not None:
+            return CDNAsset(
+                key=self._avatar,
+                path=f'/avatars/{self.id}',
+                state=self._state,
+            )
+
+    @property
+    def banner(self) -> Optional[CDNAsset]:
+        """:class:`CDNAsset`: Returns the CDN asset for user banner."""
+        if self._banner is not None:
+            return CDNAsset(
+                key=self._banner,
+                path=f'/banners/{self.id}',
+                state=self._state,
+            )
 
     def __repr__(self):
         return (
