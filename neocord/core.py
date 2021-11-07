@@ -21,6 +21,8 @@
 # SOFTWARE.
 
 from __future__ import annotations
+from asyncio.coroutines import iscoroutinefunction
+from neocord.api.gateway import DiscordWebsocket
 from typing import Any, Callable, Dict, List, Optional, TYPE_CHECKING
 
 from neocord.api.http import HTTPClient
@@ -55,6 +57,7 @@ class Client:
         self.loop  = params.get('loop') or asyncio.get_event_loop()
         self.http  = HTTPClient(session=params.get('session'))
         self.state = State(client=self)
+        self.ws = DiscordWebsocket(client=self)
 
         self._ready = asyncio.Event()
         self._listeners = {}
@@ -133,3 +136,74 @@ class Client:
         data = await self.http.get_client_user()
 
         self.state.user = ClientUser(data, self.state)
+
+    async def connect(self):
+        """
+        Connects to the Discord websocket. This method must be called after logging
+        in, i.e after calling :meth:`.login`
+
+        A shorthand :meth:`.start` can also be used that calls :meth:`.login` and
+        :meth:`.connect`.
+        """
+        url = (await self.http.get_gateway())['url']
+        await self.ws.connect(url)
+
+    async def start(self, token: str):
+        """
+        A short-hand coroutine that logins and connects to Discord websocket.
+
+        This one coroutine is roughly equivalent to
+        :meth:`.login` + :meth:`.connect`
+
+        Parameters
+        ----------
+        token: :class:`str`
+            The token that should be used for login. Get this from the
+            `developer portal`<https://discord.com/developers/applications>__
+        """
+        await self.login(token)
+        await self.connect()
+
+    # listeners
+
+    def add_listener(self, name: str, listener: Callable[..., Any]) -> Callable[..., Any]:
+        """
+        Adds an event listener to the bot. This is a non-decorator
+        interface to :meth:`.on` decorator which should be used instead.
+
+        Example::
+            async def on_message(message):
+                ...
+
+            bot.add_listener('message', on_message)
+
+        Parameters
+        ----------
+        name: :class:`str`
+            The name of event to listen to.
+        listener:
+            The async function that represents the event's callback.
+        """
+        if not iscoroutinefunction(listener):
+            raise TypeError('listener callback must be a coroutine.')
+
+        try:
+            self._listeners[name].append(listener)
+        except KeyError:
+            self._listeners[name] = [listener]
+
+        return listener
+
+    def on(self, name: str):
+        """
+        A decorator that registers a listener to listen to gateway events.
+
+        Parameters
+        ----------
+        name: :class:`str`
+            The name of event to listen to.
+        """
+        def deco(self, func: Callable[..., Any]):
+            return self.add_listener(name, func)
+
+        return deco
