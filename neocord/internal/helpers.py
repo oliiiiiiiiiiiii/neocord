@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from typing import Optional
+from typing import Any, Optional
 
 from neocord.internal.missing import MISSING
 import base64
@@ -44,3 +44,9 @@ def get_image_data(data: Optional[bytes]) -> Optional[str]:
     data = base64.b64encode(data)
     ret = data.decode("ascii")
     return "data:{0};base64,{1}".format(mime, ret)
+
+def get_snowflake(data: Any, key: str) -> Optional[int]:
+    try:
+        return int(data['key'])
+    except:
+        return
