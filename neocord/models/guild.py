@@ -21,10 +21,11 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from neocord.models.asset import CDNAsset
 from typing import Optional, TYPE_CHECKING
 
 from neocord.models.base import DiscordModel
+from neocord.models.asset import CDNAsset
+from neocord.dataclasses.flags.system import SystemChannelFlags
 from neocord.internal import helpers
 
 if TYPE_CHECKING:
@@ -91,6 +92,8 @@ class Guild(DiscordModel):
         to ``True``
     nsfw_level: :class:`NSFWLevel`
         The NSFW level of the guild.
+    system_channel_flags: :class:`SystemChannelFlags`
+        The system channel's attributes of the guild.
     """
 
     __slots__ = (
@@ -148,7 +151,7 @@ class Guild(DiscordModel):
         self.public_updates_channel_id = helpers.get_snowflake(data, 'public_updates_channel_id')
 
         # flags
-        self._system_channel_flags = data.get('system_channel_flags') or 0
+        self.system_channel_flags = SystemChannelFlags(data.get('system_channel_flags') or 0)
 
         # timestamps
         self._joined_at = data.get('joined_at')
