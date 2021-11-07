@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from typing import Optional, TYPE_CHECKING, Union
+from typing import Optional, TYPE_CHECKING, Tuple
 
 from neocord.models.base import DiscordModel
 from neocord.models.asset import CDNAsset
@@ -35,9 +35,11 @@ if TYPE_CHECKING:
     from neocord.typings.user import User as UserPayload
 
 class BaseUser(DiscordModel):
+    __slots__ = ('name', 'discriminator', 'bot', 'system', '_avatar',
+                '_banner', '_accent_color', '_public_flags')
 
     if TYPE_CHECKING:
-        username: str
+        name: str
         discriminator: str
         bot: bool
         system: bool
@@ -133,6 +135,8 @@ class ClientUser(BaseUser):
     mfa_enabled: :class:`bool`
         A boolean representing if the user has MFA enabled on the account.
     """
+    __slots__ = ('verified', 'mfa_enabled', 'locale')
+
     if TYPE_CHECKING:
         verified: bool
         locale: Optional[str]
@@ -198,6 +202,5 @@ class User(BaseUser):
         A boolean representing if the user is a system user i.e Official Discord System
         This is usually ``False``
     """
-
     def __init__(self, data: UserPayload, state: State):
         super().__init__(data, state)

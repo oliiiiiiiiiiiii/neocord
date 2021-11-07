@@ -41,6 +41,8 @@ class CDNAsset:
     """
     BASE_CDN_URL: ClassVar[str] = 'https://cdn.discordapp.com'
 
+    __slots__ = ('key', '_path', '_state')
+
     def __init__(self, key: str, path: str, state: State):
         self.key = key
         self._path = path
