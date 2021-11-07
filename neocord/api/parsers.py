@@ -76,7 +76,7 @@ class Parsers:
         user = self.state.get_user(int(event['id']))
 
         if user is None:
-            logger.debug('USER_UPDATE was sent with an unknown user, Discarding.')
+            logger.debug(f'USER_UPDATE was sent with an unknown user {event["id"]}, Discarding.')
 
         before = copy.copy(user)
         user._update(event)
