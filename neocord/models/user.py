@@ -21,20 +21,18 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from sys import path
 from typing import Optional, TYPE_CHECKING, Union
 
 from neocord.models.base import DiscordModel
 from neocord.models.asset import CDNAsset
 from neocord.dataclasses.flags.user import UserFlags
+from neocord.dataclasses.colour import Color, Colour
 from neocord.internal.missing import MISSING
 from neocord.internal import helpers
 
 if TYPE_CHECKING:
     from neocord.api.state import State
     from neocord.typings.user import User as UserPayload
-
-__all__ = ()
 
 class BaseUser(DiscordModel):
 
@@ -45,7 +43,7 @@ class BaseUser(DiscordModel):
         system: bool
         _avatar: Optional[str]
         _banner: Optional[str]
-        _accent_color: str
+        _accent_colour: int
         _public_flags: int
 
     def __init__(self, data: UserPayload, state: State):
@@ -61,7 +59,7 @@ class BaseUser(DiscordModel):
 
         self._avatar = data.get("avatar", None)
         self._banner = data.get("banner", None)
-        self._accent_colour = data.get("accent_color", None)
+        self._accent_colour = data.get("accent_colour", 0)
         self._public_flags = data.get("public_flags", 0)
 
     @property
@@ -88,6 +86,14 @@ class BaseUser(DiscordModel):
                 path=f'/banners/{self.id}',
                 state=self._state,
             )
+
+    @property
+    def accent_colour(self) -> Colour:
+        """:class:`Colour`: Returns the color representation of the user's banner color."""
+        return Colour(self._accent_colour)
+
+    # alias
+    accent_color = accent_colour
 
     def __repr__(self):
         return (
