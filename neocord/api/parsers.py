@@ -54,6 +54,7 @@ class Parsers:
             await asyncio.sleep(0.05)
             pending.pop(0)
 
+        self.state.client._ready.set()
         self.dispatch('ready')
 
 
