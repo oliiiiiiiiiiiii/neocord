@@ -311,3 +311,31 @@ class Guild(DiscordModel):
 
     def _remove_member(self, id: int):
         return self._members.pop(id, None)
+
+    @property
+    def members(self) -> List[GuildMember]:
+        """
+        Returns the list of :class:`GuildMember` that belong to this guild.
+
+        This requires :class:`GatewayIntents.guild_members` to be enabled.
+        """
+        return list(self._members.values())
+
+    def get_member(self, id: int, /) -> Optional[GuildMember]:
+        """
+        Gets a member from the guild. This method returns None is the member with ID
+        is not found.
+
+        This requires :class:`GatewayIntents.guild_members` to be enabled.
+
+        Parameters
+        ----------
+        id: :class:`int`
+            The ID of the member.
+
+        Returns
+        -------
+        :class:`GuildMember`
+            The requested member.
+        """
+        return self._members.get(id)
