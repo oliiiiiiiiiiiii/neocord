@@ -235,7 +235,7 @@ class Client:
         """
         return self.state.get_user(id)
 
-    async def fetch_user(self, id: int) -> Optional[User]:
+    async def fetch_user(self, id: int) -> User:
         """
         Fetches a user from the API.
 
