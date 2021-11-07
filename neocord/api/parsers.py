@@ -19,8 +19,10 @@
 # SOFTWARE.
 
 from __future__ import annotations
-import asyncio
 from typing import Any, Callable, Dict, List, Optional, TYPE_CHECKING
+
+from neocord.models.user import ClientUser
+import asyncio
 
 if TYPE_CHECKING:
     from neocord.api.state import State
@@ -61,5 +63,7 @@ class Parsers:
     def parse_ready(self, event: EventPayload):
         self.dispatch('connect')
         guilds = event['guilds']
+        self.state.user = ClientUser(event['user'], state=self.state)
+        self.state.add_user(event['user'])
 
         asyncio.create_task(self._schedule_ready(guilds))

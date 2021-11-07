@@ -103,3 +103,26 @@ class ClientUser(BaseUser):
         self.mfa_enabled = data.get('mfa_enabled', False)
 
     # TODO: ClientUser.edit()
+
+class User(BaseUser):
+    """
+    Represents a discord user entity.
+
+    Attributes
+    ----------
+    username: :class:`str`
+        The username of user as shown in Discord.
+    id: :class:`int`
+        The user's unique snowflake ID.
+    discriminator: :class:`str`
+        The 4 digits discriminator of user.
+    bot: :class:`bool`
+        A boolean representing if the user is a bot or not, In case of this class
+        this is usually ``True``
+    system: :class:`bool`
+        A boolean representing if the user is a system user i.e Official Discord System
+        This is usually ``False``
+    """
+
+    def __init__(self, data: UserPayload, state: State):
+        super().__init__(data, state)

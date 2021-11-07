@@ -26,10 +26,12 @@ from typing import Any, Dict, Optional, TYPE_CHECKING
 from neocord.internal.mixins import ClientPropertyMixin
 from neocord.internal.logger import logger
 from neocord.api.parsers import Parsers
+from neocord.models.user import User
 
 if TYPE_CHECKING:
     from neocord.core import Client
     from neocord.models.user import ClientUser
+    from neocord.typings.user import User as UserPayload
 
 class State(ClientPropertyMixin):
     def __init__(self, client: Client) -> None:
@@ -50,3 +52,13 @@ class State(ClientPropertyMixin):
             return
 
         return parser(data)
+
+    def get_user(self, id: int, /):
+        return self.users.get(id)
+
+    def add_user(self, data: UserPayload):
+        user = User(data, state=self)
+        self.users[user.id] = user
+
+    def pop_user(self, id: int, /):
+        return self.users.pop(id, None)
