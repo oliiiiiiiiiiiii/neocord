@@ -48,7 +48,7 @@ class BaseUser(DiscordModel):
         self._update(data)
 
     def _update(self, data: UserPayload) -> None:
-        self.username = data["username"]
+        self.name = data["username"]
         self.id = int(data["id"])
         self.discriminator = data["discriminator"]
         self.bot = data.get("bot", False)
@@ -67,7 +67,7 @@ class ClientUser(BaseUser):
 
     Attributes
     ----------
-    username: :class:`str`
+    name: :class:`str`
         The username of user as shown in Discord.
     id: :class:`int`
         The user's unique snowflake ID.
@@ -110,7 +110,7 @@ class User(BaseUser):
 
     Attributes
     ----------
-    username: :class:`str`
+    name: :class:`str`
         The username of user as shown in Discord.
     id: :class:`int`
         The user's unique snowflake ID.
