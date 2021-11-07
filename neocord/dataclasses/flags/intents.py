@@ -26,16 +26,21 @@ from neocord.dataclasses.flags.base import BaseFlags, flag
 
 class GatewayIntents(BaseFlags):
     """Represents the gateway intents.
+
     Intents allow you to choose to enable or disable certain events
     that you don't want or need to recieve over gateway.
+
     Following are the privileged intents that are required to be explicitly
     enabled from Discord Developer portal and require whitelisting if the bot
     if in over 100 guilds:
+
     - :attr:`GatewayIntents.members`
     - :attr:`GatewayIntents.presence`
+
     To see a brief list of events that would be recieved over gateway for
     certain intents, See the official
     `documentation`_ <https://discord.com/developers/docs/topics/gateway#gateway-intents>.
+
     Attributes
     ----------
     value: :class:`int`
@@ -66,10 +71,12 @@ class GatewayIntents(BaseFlags):
     @classmethod
     def from_value(cls, value: int) -> GatewayIntents:
         """Constructs the :class:`GatewayIntents` from the raw value.
+
         Parameters
         ----------
         value: :class:`int`
             The raw value to construct intents with.
+
         Returns
         -------
         :class:`GatewayIntents`
@@ -86,6 +93,7 @@ class GatewayIntents(BaseFlags):
     def all(cls) -> GatewayIntents:
         """Constructs a :class:`GatewayIntents` with all intents enabled
         (including privileged ones).
+
         Returns
         -------
         :class:`GatewayIntents`
@@ -97,6 +105,7 @@ class GatewayIntents(BaseFlags):
     def unprivileged(cls) -> GatewayIntents:
         """Constructs a :class:`GatewayIntents` with all default intents enabled
         except privileged ones.
+
         Returns
         -------
         :class:`GatewayIntents`
@@ -129,6 +138,7 @@ class GatewayIntents(BaseFlags):
     @flag
     def members(self) -> int:
         """:class:`bool`: Returns ``True`` if the guild members intents are enabled.
+
         This is a privileged intent and must be explicitly enabled from Developers portal.
         If your bot is in more then 100 Guilds, you would require verification and
         intents whitelisting.

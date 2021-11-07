@@ -48,6 +48,8 @@ class Client:
     session: :class:`aiohttp.ClientSession`
         The aiohttp session to use in HTTP or websocket operations. if not provided, Library
         creates it's own session.
+    intents: :class:`GatewayIntents`
+        The gateway intents to use while connecting to gateway.
     """
     if TYPE_CHECKING:
         loop: asyncio.AbstractEventLoop
