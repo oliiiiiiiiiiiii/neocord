@@ -18,7 +18,7 @@ This library is a side project of [mine](https://github.com/nerdguyahmad) which 
 ```py
 import neocord
 
-client = neocord.Client(token='bot-token')
+client = neocord.Client()
 
 @client.on('ready')
 async def on_ready():
@@ -32,5 +32,5 @@ async def on_message(message):
   if message.content == '!ping':
     await message.channel.send('PONG!')
 
-client.run()
+client.run('bot-token')
 ```
