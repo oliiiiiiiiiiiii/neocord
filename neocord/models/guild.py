@@ -245,3 +245,11 @@ class Guild(DiscordModel):
         """
         if self._joined_at:
             return helpers.iso_to_datetime(self._joined_at)
+
+    @property
+    def vanity_invite(self) -> Optional[str]:
+        """
+        Returns the string for guild's vanity invite URL if available.
+        """
+        if self.vanity_url_code:
+            return f'https://discord.gg/{self.vanity_url_code}'

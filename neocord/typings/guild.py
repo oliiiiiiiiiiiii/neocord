@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 from __future__ import annotations
-from typing import TypedDict, Literal, Optional
+from typing import TypedDict, List, Literal, Optional
 
 from .snowflake import Snowflake
 from .role import Role
@@ -39,7 +39,7 @@ NotificationLevel = Literal[0, 1]
 ExplicitContentFilter = Literal[0, 1, 2]
 MFALevel = Literal[0, 1]
 PremiumTier = Literal[0, 1, 2, 3]
-NSFWLevel = [0, 1, 2, 3]
+NSFWLevel = Literal[0, 1, 2, 3]
 
 class _GuildOptional(TypedDict, total=False):
     icon_hash: Optional[str]
@@ -75,7 +75,7 @@ class Guild(_GuildOptional):
     owner_id: Snowflake
     afk_channel_id: Optional[Snowflake]
     afk_timeout: int
-    verification_level: VerificiationLevel
+    verification_level: VerificationLevel
     default_message_notifications: NotificationLevel
     explicit_content_filter: ExplicitContentFilter
     roles: List[Role]
