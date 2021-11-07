@@ -32,6 +32,9 @@ from neocord.dataclasses.flags.intents import GatewayIntents
 
 import asyncio
 
+if TYPE_CHECKING:
+    from neocord.models.user import User
+
 class Client:
     """
     Represents a client that interacts with the Discord API. This is the starter
@@ -213,3 +216,48 @@ class Client:
             return self.add_listener(name, func)
 
         return deco
+
+    def get_user(self, id: int, /) -> Optional[User]:
+        """
+        Gets a user from the client's internal cache. This method
+        returns None is the user is not found in internal cache.
+
+        Parameters
+        ----------
+        id: :class:`int`
+            The ID of the user.
+
+        Returns
+        -------
+        :class:`User`
+            The requested user.
+        """
+        return self.state.get_user(id)
+
+    async def fetch_user(self, id: int) -> Optional[User]:
+        """
+        Fetches a user from the API.
+
+        This is an API call. For general usage and if you have member
+        intents enabled, you can use :meth:`.get_user`
+
+        Parameters
+        ----------
+        id: :class:`int`
+            The ID of the user.
+
+        Raises
+        ------
+        NotFound:
+            Provided user ID is invalid.
+        HTTPException:
+            The user fetch failed somehow.
+
+        Returns
+        -------
+        :class:`User`
+            The requested user.
+        """
+        data = await self.http.get_user(id)
+        user = self.state.add_user(data)
+        return user

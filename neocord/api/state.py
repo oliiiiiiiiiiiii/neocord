@@ -59,6 +59,7 @@ class State(ClientPropertyMixin):
     def add_user(self, data: UserPayload):
         user = User(data, state=self)
         self.users[user.id] = user
+        return user
 
     def pop_user(self, id: int, /):
         return self.users.pop(id, None)

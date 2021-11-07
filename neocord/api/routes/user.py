@@ -27,3 +27,6 @@ from .base import BaseRouteMixin, Route
 class UsersRoutes(BaseRouteMixin):
     def get_client_user(self):
         return self.request(Route('GET', '/users/@me'))
+
+    def get_user(self, user_id: int):
+        return self.request(Route('GET', '/users/{user_id}', user_id=user_id))
