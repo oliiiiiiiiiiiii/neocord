@@ -21,15 +21,17 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from typing import Optional, TYPE_CHECKING
+from typing import List, Optional, TYPE_CHECKING
 
 from neocord.models.base import DiscordModel
 from neocord.models.asset import CDNAsset
+from neocord.models.role import Role
 from neocord.dataclasses.flags.system import SystemChannelFlags
 from neocord.internal import helpers
 
 if TYPE_CHECKING:
     from neocord.typings.guild import Guild as GuildPayload
+    from neocord.typings.role import Role as RolePayload
     from neocord.api.state import State
     from datetime import datetime
 
@@ -120,6 +122,7 @@ class Guild(DiscordModel):
         self._stage_instances = {}
         self._stickers = {}
         self._emojis = {}
+        self._roles = {}
         self._update(data)
 
     def _update(self, data: GuildPayload):
@@ -174,6 +177,9 @@ class Guild(DiscordModel):
 
         # objects
         self.welcome_screen = data.get('welcome_screen')
+
+        for role in data.get('roles', []):
+            self._add_role(role)
 
     # assets
 
@@ -253,3 +259,36 @@ class Guild(DiscordModel):
         """
         if self.vanity_url_code:
             return f'https://discord.gg/{self.vanity_url_code}'
+
+
+    def _add_role(self, data: RolePayload) -> Role:
+        role = Role(data, guild=self)
+        self._roles[role.id] = role
+        return role
+
+    def _remove_role(self, id: int, /) -> Optional[Role]:
+        return self._roles.pop(id, None)
+
+    @property
+    def roles(self) -> List[Role]:
+        """
+        Returns the list of :class:`Role` that belong to this guild.
+        """
+        return list(self._roles.values())
+
+    def get_role(self, id: int, /) -> Optional[Role]:
+        """
+        Gets a role from the guild. This method returns None is the role with ID
+        is not found.
+
+        Parameters
+        ----------
+        id: :class:`int`
+            The ID of the role.
+
+        Returns
+        -------
+        :class:`Role`
+            The requested role.
+        """
+        return self._roles.get(id)

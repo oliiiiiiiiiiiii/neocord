@@ -21,16 +21,26 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from typing import Tuple
+from typing import Any, Dict, Optional, TYPE_CHECKING
 
-from .base import *
-from .user import *
-from .gateway import *
-from .guild import *
+from .base import BaseRouteMixin, Route
 
-class Routes(
-    UsersRoutes,
-    GatewayRoutes,
-    GuildRoutes,
-):
-    pass
+if TYPE_CHECKING:
+    from neocord.typings.snowflake import Snowflake
+
+class GuildRoutes(BaseRouteMixin):
+
+    # roles management
+
+    def edit_role(self, guild_id: Snowflake, role_id: Snowflake, payload: Dict[str, Any], reason: Optional[str]):
+        return self.request(
+            Route('PATCH', '/guilds/{guild_id}/roles/{role_id}', role_id=role_id, guild_id=guild_id),
+            json=payload,
+            reason=reason
+            )
+
+    def edit_role_position(self, guild_id: Snowflake, payload: Dict[str, Any], reason: Optional[str]):
+        return self.request(Route('PATCH', '/guilds/{guild_id}/roles', guild_id=guild_id), json=payload, reason=reason)
+
+    def delete_role(self, guild_id: Snowflake, role_id: Snowflake, reason: Optional[str]):
+        return self.request(Route('DELETE', '/guilds/{guild_id}/roles/{role_id}', guild_id=guild_id, role_id=role_id), reason=reason)
