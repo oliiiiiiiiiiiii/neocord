@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from typing import Any, Optional, TYPE_CHECKING
+from typing import Any, Callable, Dict, List, Optional, TYPE_CHECKING
 
 from neocord.api.http import HTTPClient
 from neocord.api.state import State
@@ -49,6 +49,7 @@ class Client:
     """
     if TYPE_CHECKING:
         loop: asyncio.AbstractEventLoop
+        _listeners: Dict[str, List[Callable[..., Any]]]
 
     def __init__(self, **params: Any) -> None:
         self.loop  = params.get('loop') or asyncio.get_event_loop()
@@ -56,6 +57,7 @@ class Client:
         self.state = State(client=self)
 
         self._ready = asyncio.Event()
+        self._listeners = {}
 
     @property
     def user(self) -> Optional[ClientUser]:
@@ -66,7 +68,31 @@ class Client:
         return self.state.user
 
     def dispatch(self, event: str, *args: Any):
-        return None
+        try:
+            listeners = self._listeners[event]
+        except KeyError:
+            return
+
+        to_remove: List[Callable[..., Any]] = []
+
+
+        for listener in listeners:
+            coro = listener(*args)
+            self.loop.create_task(coro, name='neocord-event-dispatch: {}'.format(event))
+
+            try:
+                call_once = listener.__neocord_listener_call_once__
+            except AttributeError:
+                call_once = False
+
+            if call_once:
+                to_remove.append(listener)
+
+        for listener in to_remove:
+            try:
+                self._listeners[event].remove(listener)
+            except:
+                continue
 
     def is_ready(self) -> bool:
         """
