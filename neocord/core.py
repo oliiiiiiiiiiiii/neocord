@@ -21,7 +21,11 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from typing import Any, TYPE_CHECKING
+from typing import Any, Optional, TYPE_CHECKING
+
+from neocord.api.http import HTTPClient
+from neocord.api.state import State
+from neocord.models.user import ClientUser
 
 import asyncio
 
@@ -39,14 +43,30 @@ class Client:
     loop: :class:`asyncio.AbstractEventLoop`
         The asyncio event loop to use. if not provided, it will be obtained by calling
         :func:`asyncio.get_event_loop` function.
+    session: :class:`aiohttp.ClientSession`
+        The aiohttp session to use in HTTP or websocket operations. if not provided, Library
+        creates it's own session.
     """
     if TYPE_CHECKING:
         loop: asyncio.AbstractEventLoop
 
     def __init__(self, **params: Any) -> None:
-        self.loop = params.get('loop') or asyncio.get_event_loop()
+        self.loop  = params.get('loop') or asyncio.get_event_loop()
+        self.http  = HTTPClient(session=params.get('session'))
+        self.state = State(client=self)
 
         self._ready = asyncio.Event()
+
+    @property
+    def user(self) -> Optional[ClientUser]:
+        """
+        :class:`ClientUser`: Returns the user associated to this client. This is only available
+        after the client has logged in.
+        """
+        return self.state.user
+
+    def dispatch(self, event: str, *args: Any):
+        return None
 
     def is_ready(self) -> bool:
         """
@@ -68,3 +88,22 @@ class Client:
         successfully filled the internal cache.
         """
         await self._ready.wait()
+
+    async def login(self, token: str) -> None:
+        """
+        Logins to Discord using an authorization bot token.
+
+        This method does not establishes a websocket connection but simply
+        logins by fetching the information of the client user associated with the
+        token.
+
+        Parameters
+        ----------
+        token: :class:`str`
+            The token that should be used for login. Get this from the
+            `developer portal`<https://discord.com/developers/applications>__
+        """
+        self.http.token = token.strip()
+        data = await self.http.get_client_user()
+
+        self.state.user = ClientUser(data, self.state)

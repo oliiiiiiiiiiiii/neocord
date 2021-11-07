@@ -21,40 +21,19 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from typing import Any, ClassVar, Dict
+from typing import Callable, Any, Optional, TYPE_CHECKING
 
-class HTTPError(Exception):
-    """
-    Base exception class for all the HTTPs related errors.
+from neocord.internal.mixins import ClientPropertyMixin
 
-    Attributes
-    ----------
-    raw_response: :class:`dict`
-        The raw response JSON.
-    """
-    DEFAULT_ERROR_MESSAGE: ClassVar[str] = 'An HTTP error occured.'
+if TYPE_CHECKING:
+    from neocord.core import Client
+    from neocord.models.user import ClientUser
 
-    def __init__(self, raw_response: Dict[str, Any]) -> None:
-        self.raw_response = raw_response
+class State(ClientPropertyMixin):
+    def __init__(self, client: Client) -> None:
+        self.client = client
+        self.user: Optional[ClientUser] = None
 
-        super().__init__(raw_response.get('message', self.DEFAULT_ERROR_MESSAGE))
-
-class NotFound(HTTPError):
-    """
-    An error representing the 404 HTTP error or in other words an error that is
-    raised when an entity is requested from Discord API that doesn't exist.
-
-    This class inherits :exc:`HTTPException`.
-    """
-    DEFAULT_ERROR_MESSAGE = 'Requested resource could not be found.'
-
-
-class Forbidden(HTTPError):
-    """
-    An error representing the 403 or 401 HTTP error or in other words an error that is
-    raised when client is not allowed do a specific operation.
-
-    This class inherits :exc:`HTTPException`.
-    """
-    DEFAULT_ERROR_MESSAGE = 'Requested resource cannot be accessed.'
-
+    @property
+    def dispatch(self) -> Callable[[str], Any]:
+        return self.client.dispatch

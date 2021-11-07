@@ -21,44 +21,33 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from typing import Any, ClassVar, Optional, Union, Dict
+from typing import Any, ClassVar, Optional, Union, Dict, TYPE_CHECKING
 
 from neocord.errors.http import HTTPError, NotFound, Forbidden
+from neocord.api.routes import Routes
 
 import neocord
 import aiohttp
 
-class Route:
-    """
-    Represents an endpoint from Discord API.
-    """
-    BASE: ClassVar[str] = 'https://discord.com/api/v9'
+if TYPE_CHECKING:
+    from neocord.api.routes import Route
 
-    def __init__(self, request: str, route: str, **params: Any) -> None:
-        self.request = request
-        self.route  = route
-        self.params = params
-
-    @property
-    def url(self) -> str:
-        return f'{self.BASE}{self.route.format(**self.params)}'
-
-class HTTPClient:
+class HTTPClient(Routes):
     """
     Represents a HTTP client that interacts with Discord's REST API.
     """
-    def __init__(self) -> None:
+    def __init__(self, *, session: Optional[aiohttp.ClientResponse] = None) -> None:
         self.token: Optional[str] = None
-        self.session: Optional[aiohttp.ClientSession] = None
+        self.session = None
 
     async def request(self, route: Route, **kwargs: Any) -> Any:
         self.reset()
         url = route.url
 
-        headers = kwargs.pop('headers')
+        headers = kwargs.pop('headers', {})
         headers.update(self._get_basic_headers())
 
-        reason = kwargs.pop('reason')
+        reason = kwargs.pop('reason', None)
 
         if reason is not None:
             headers.update({'X-Audit-Log-Reason': reason})

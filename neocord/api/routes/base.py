@@ -21,40 +21,23 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from typing import Any, ClassVar, Dict
+from typing import Any, ClassVar, Awaitable, Callable, TYPE_CHECKING
 
-class HTTPError(Exception):
+class BaseRouteMixin:
+    if TYPE_CHECKING:
+        request: Callable[[Route], Any]
+
+class Route:
     """
-    Base exception class for all the HTTPs related errors.
-
-    Attributes
-    ----------
-    raw_response: :class:`dict`
-        The raw response JSON.
+    Represents an endpoint from Discord API.
     """
-    DEFAULT_ERROR_MESSAGE: ClassVar[str] = 'An HTTP error occured.'
+    BASE: ClassVar[str] = 'https://discord.com/api/v9'
 
-    def __init__(self, raw_response: Dict[str, Any]) -> None:
-        self.raw_response = raw_response
+    def __init__(self, request: str, route: str, **params: Any) -> None:
+        self.request = request
+        self.route  = route
+        self.params = params
 
-        super().__init__(raw_response.get('message', self.DEFAULT_ERROR_MESSAGE))
-
-class NotFound(HTTPError):
-    """
-    An error representing the 404 HTTP error or in other words an error that is
-    raised when an entity is requested from Discord API that doesn't exist.
-
-    This class inherits :exc:`HTTPException`.
-    """
-    DEFAULT_ERROR_MESSAGE = 'Requested resource could not be found.'
-
-
-class Forbidden(HTTPError):
-    """
-    An error representing the 403 or 401 HTTP error or in other words an error that is
-    raised when client is not allowed do a specific operation.
-
-    This class inherits :exc:`HTTPException`.
-    """
-    DEFAULT_ERROR_MESSAGE = 'Requested resource cannot be accessed.'
-
+    @property
+    def url(self) -> str:
+        return f'{self.BASE}{self.route.format(**self.params)}'

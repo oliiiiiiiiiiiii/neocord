@@ -24,6 +24,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from neocord.api.state import State # type: ignore
+    from neocord.api.http import HTTPClient
     from neocord.core import Client
     from asyncio import AbstractEventLoop
 
@@ -33,3 +35,11 @@ class ClientPropertyMixin:
     @property
     def loop(self) -> AbstractEventLoop:
         return self.client.loop
+
+    @property
+    def http(self) -> HTTPClient:
+        return self.client.http
+
+    @property
+    def state(self) -> State:
+        return self.client.state
