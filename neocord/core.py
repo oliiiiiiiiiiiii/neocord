@@ -63,11 +63,12 @@ class Client:
 
     def __init__(self, **params: Any) -> None:
         self.loop  = params.get('loop') or asyncio.get_event_loop()
-        self.http  = HTTPClient(session=params.get('session'))
-        self.state = State(client=self)
-        self.ws = DiscordWebsocket(client=self)
         self.intents = params.get('intents') or GatewayIntents.unprivileged()
 
+        # internal stuff:
+        self.http  = HTTPClient(session=params.get('session'))
+        self.ws = DiscordWebsocket(client=self)
+        self.state = State(client=self)
         self._ready = asyncio.Event()
         self._listeners = {}
 
