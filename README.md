@@ -5,9 +5,6 @@
   <p>An asynchronous API wrapper around Discord API written in Python.</p>
 </div>
 
-## Inspiration
-This library is a side project of [mine](https://github.com/nerdguyahmad) which I started as an inspiration of [discord.py by Rapptz](https://github.com/Rapptz/discord.py), The aim of this library is to provide a simple interface to interact with Discord API by abstracting away most of the complications.
-
 ## Features
 - Modern API interface using async/await syntax.
 - Consistent, Object Oriented Design — No dirty payloads.
