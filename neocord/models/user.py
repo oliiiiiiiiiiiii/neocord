@@ -97,6 +97,13 @@ class BaseUser(DiscordModel):
 
         return Color(self._accent_color)
 
+
+    @property
+    def mention(self) -> str:
+        """:class:`str`: Returns a string used to mention the user in Discord."""
+        return '<@!{0}>'.format(self.id)
+
+
     # alias
     accent_colour = accent_color
 

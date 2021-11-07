@@ -26,12 +26,14 @@ from typing import List, Optional, TYPE_CHECKING
 from neocord.models.base import DiscordModel
 from neocord.models.asset import CDNAsset
 from neocord.models.role import Role
+from neocord.models.member import GuildMember
 from neocord.dataclasses.flags.system import SystemChannelFlags
 from neocord.internal import helpers
 
 if TYPE_CHECKING:
     from neocord.typings.guild import Guild as GuildPayload
     from neocord.typings.role import Role as RolePayload
+    from neocord.typings.member import Member as MemberPayload
     from neocord.api.state import State
     from datetime import datetime
 
@@ -123,6 +125,10 @@ class Guild(DiscordModel):
         self._stickers = {}
         self._emojis = {}
         self._roles = {}
+
+        for member in data.get('members', []):
+            self._add_member(member)
+
         self._update(data)
 
     def _update(self, data: GuildPayload):
@@ -292,3 +298,16 @@ class Guild(DiscordModel):
             The requested role.
         """
         return self._roles.get(id)
+
+    def _add_member(self, data: MemberPayload):
+        member = GuildMember(data, guild=self)
+        # although user should always be present in this
+        # case of scenario but i'm not sure on this statement
+        # so here is a check.
+        if 'user' in data:
+            user = self._state.add_user(data['user']) # type: ignore
+        self._members[member.id] = member
+        return member
+
+    def _remove_member(self, id: int):
+        return self._members.pop(id, None)

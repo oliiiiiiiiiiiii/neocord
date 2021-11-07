@@ -166,6 +166,12 @@ class GuildMember(DiscordModel):
     accent_colour = accent_color
 
     @property
+    def mention(self) -> str:
+        """:class:`str`: Returns a string used to mention the user in Discord."""
+        return self._user.mention
+
+
+    @property
     def roles(self) -> List[Role]:
         """
         Returns the list of roles that are attached on this member.
