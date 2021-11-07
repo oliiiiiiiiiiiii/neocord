@@ -68,26 +68,6 @@ class GatewayIntents(BaseFlags):
     def __init__(self, **intents):
         super().__init__(**intents)
 
-    @classmethod
-    def from_value(cls, value: int) -> GatewayIntents:
-        """Constructs the :class:`GatewayIntents` from the raw value.
-
-        Parameters
-        ----------
-        value: :class:`int`
-            The raw value to construct intents with.
-
-        Returns
-        -------
-        :class:`GatewayIntents`
-            The constructed intents from the value.
-        """
-        # we want to bypass __init__ here so we would use __new__
-        # and manually set the value.
-
-        intents = cls.__new__(cls)
-        intents._value = value
-        return intents
 
     @classmethod
     def all(cls) -> GatewayIntents:
