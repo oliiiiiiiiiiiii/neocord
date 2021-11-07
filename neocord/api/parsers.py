@@ -22,10 +22,14 @@ from __future__ import annotations
 from typing import Any, Callable, Dict, List, Optional, TYPE_CHECKING
 
 from neocord.models.user import ClientUser
+from neocord.internal.logger import logger
+
 import asyncio
+import copy
 
 if TYPE_CHECKING:
     from neocord.api.state import State
+    from neocord.typings.user import User as UserPayload
 
     EventPayload = Dict[str, Any]
 
@@ -40,7 +44,7 @@ class Parsers:
         self.state = state
 
     @property
-    def dispatch(self) -> Callable[[str], Any]:
+    def dispatch(self) -> Callable[..., Any]:
         return self.state.client.dispatch
 
     def get_parser(self, event: str) -> Optional[Callable[[Dict[str, Any]], Any]]:
@@ -67,3 +71,15 @@ class Parsers:
         self.state.add_user(event['user'])
 
         asyncio.create_task(self._schedule_ready(guilds))
+
+    def parse_user_update(self, event: UserPayload):
+        user = self.state.get_user(int(event['id']))
+
+        if user is None:
+            logger.debug('USER_UPDATE was sent with an unknown user, Discarding.')
+
+        before = copy.copy(user)
+        user._update(event)
+
+        # user: after
+        self.dispatch('user_update', before, user)
