@@ -59,6 +59,14 @@ class BaseUser(DiscordModel):
         self._accent_colour = data.get("accent_color", None)
         self._public_flags = data.get("public_flags", 0)
 
+    def __repr__(self):
+        return (
+            f'<{self.__class__.__name__} id={self.id} name={self.name} \
+                 discriminator={self.discriminator} bot={self.bot}>'
+        )
+
+    def __str__(self):
+        return f'{self.name}#{self.discriminator}'
 
 class ClientUser(BaseUser):
     """

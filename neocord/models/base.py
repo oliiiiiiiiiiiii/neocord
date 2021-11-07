@@ -21,10 +21,15 @@
 # SOFTWARE.
 
 from __future__ import annotations
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from neocord.api.state import State
 
 class DiscordModel:
     __slots__ = ()
     id: int
+    state: State
 
     def __repr__(self) -> str:
         return '<%s id=%s>' % (self.__class__.__name__, str(self.id))
