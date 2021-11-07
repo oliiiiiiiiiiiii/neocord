@@ -202,7 +202,7 @@ class Client:
             return []
 
         if not include_temporary:
-            listeners = [l for l in listeners if l.__neocord_event_listener_options__.get('once', False)]
+            listeners = [l for l in listeners if not l.__neocord_event_listener_options__.get('once', False)]
 
         return listeners
 
