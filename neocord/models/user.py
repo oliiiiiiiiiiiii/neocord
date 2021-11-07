@@ -43,7 +43,7 @@ class BaseUser(DiscordModel):
         system: bool
         _avatar: Optional[str]
         _banner: Optional[str]
-        _accent_color: int
+        _accent_color: Optional[int]
         _public_flags: int
 
     def __init__(self, data: UserPayload, state: State):
@@ -59,8 +59,8 @@ class BaseUser(DiscordModel):
 
         self._avatar = data.get("avatar", None)
         self._banner = data.get("banner", None)
-        self._accent_color = data.get("accent_color") or 0
-        self._public_flags = data.get("public_flags") or 0
+        self._accent_color = data.get("accent_color")
+        self._public_flags = data.get("public_flags", 0)
 
     @property
     def public_flags(self) -> UserFlags:
@@ -90,6 +90,9 @@ class BaseUser(DiscordModel):
     @property
     def accent_color(self) -> Color:
         """:class:`Color`: Returns the color representation of the user's banner color."""
+        if self._accent_color is None:
+            return Color(0)
+
         return Color(self._accent_color)
 
     # alias
