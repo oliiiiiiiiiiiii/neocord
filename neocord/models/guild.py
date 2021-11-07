@@ -31,6 +31,7 @@ from neocord.internal import helpers
 if TYPE_CHECKING:
     from neocord.typings.guild import Guild as GuildPayload
     from neocord.api.state import State
+    from datetime import datetime
 
 class Guild(DiscordModel):
     """Represents a discord guild entity often referred as a "Server" in the UI.
@@ -234,3 +235,13 @@ class Guild(DiscordModel):
             )
 
 
+    @property
+    def joined_at(self) -> Optional[datetime]:
+        """
+        Returns :class:`datetime.datetime` representation of when the bot
+        has joined the guild.
+
+        This could be unavailable in some (rare) cases.
+        """
+        if self._joined_at:
+            return helpers.iso_to_datetime(self._joined_at)

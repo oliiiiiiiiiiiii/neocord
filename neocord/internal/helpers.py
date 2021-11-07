@@ -24,6 +24,8 @@ from __future__ import annotations
 from typing import Any, Optional
 
 from neocord.internal.missing import MISSING
+
+import datetime
 import base64
 
 def get_image_data(data: Optional[bytes]) -> Optional[str]:
@@ -50,3 +52,6 @@ def get_snowflake(data: Any, key: str) -> Optional[int]:
         return int(data['key'])
     except:
         return
+
+def iso_to_datetime(ts: str) -> datetime.datetime:
+    return datetime.datetime.fromisoformat(ts)
