@@ -58,22 +58,25 @@ class Parsers:
         else:
             return parser
 
-    async def _schedule_ready(self, pending: List[Dict[str, Any]]):
-        while pending:
-            await asyncio.sleep(0.05)
-            pending.pop(0)
+    async def _schedule_ready(self):
+        logger.info('Preparing to dispatch ready.')
+        while True:
+            self.state._awaiting_guild_create = asyncio.Event()
+            try:
+                await asyncio.wait_for(self.state._awaiting_guild_create.wait(), timeout=5.0)
+            except asyncio.TimeoutError:
+                break
 
+        self.state._awaiting_guild_create = None
         self.state.client._ready.set()
         self.dispatch('ready')
-
 
     def parse_ready(self, event: EventPayload):
         self.dispatch('connect')
         guilds = event['guilds']
         self.state.user = ClientUser(event['user'], state=self.state)
         self.state.add_user(event['user'])
-
-        asyncio.create_task(self._schedule_ready(guilds))
+        asyncio.create_task(self._schedule_ready())
 
     def parse_user_update(self, event: UserPayload):
         user = self.state.get_user(int(event['id']))
@@ -96,6 +99,10 @@ class Parsers:
             self.dispatch('guild_join', guild)
 
         self.dispatch('guild_create', guild)
+
+        if self.state._awaiting_guild_create is not None:
+            self.state._awaiting_guild_create.set()
+
 
     def parse_guild_update(self, event: GuildPayload):
         guild = self.state.get_guild(int(event['id']))
@@ -146,7 +153,7 @@ class Parsers:
             return
 
         user = event["user"]
-        member = guild._pop_member(int(user["id"]))
+        member = guild._remove_member(int(user["id"]))
         self.dispatch('member_leave', member)
 
     def parse_guild_member_update(self, event: MemberPayload):

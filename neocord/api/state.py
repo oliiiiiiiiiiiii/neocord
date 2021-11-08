@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 from __future__ import annotations
+import asyncio
 from typing import Any, Dict, Optional, TYPE_CHECKING
 
 from neocord.internal.mixins import ClientPropertyMixin
@@ -40,6 +41,7 @@ class State(ClientPropertyMixin):
         self.client = client
         self.parsers = Parsers(state=self)
         self.user: Optional[ClientUser] = None
+        self._awaiting_guild_create: Optional[asyncio.Event] = None
 
         self.clear()
 
