@@ -19,7 +19,6 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from neocord.typings.guild import Guild
 from typing import Any, Callable, Dict, List, Optional, TYPE_CHECKING
 
 from neocord.models.user import ClientUser
@@ -33,6 +32,7 @@ if TYPE_CHECKING:
     from neocord.typings.user import User as UserPayload
     from neocord.typings.guild import Guild as GuildPayload
     from neocord.typings.member import Member as MemberPayload
+    from neocord.typings.role import Role as RolePayload
 
     EventPayload = Dict[str, Any]
 
@@ -133,7 +133,7 @@ class Parsers:
             return
 
         member = guild._add_member(event)
-        self.dispatch('guild_member_join', member)
+        self.dispatch('member_join', member)
 
     def parse_guild_member_remove(self, event: dict):
         guild = self.state.get_guild(int(event['guild_id']))
@@ -144,7 +144,7 @@ class Parsers:
 
         user = event["user"]
         member = guild._pop_member(int(user["id"]))
-        self.dispatch('guild_member_leave', member)
+        self.dispatch('member_leave', member)
 
     def parse_guild_member_update(self, event: MemberPayload):
         # guild_id is an extra field here.
@@ -164,4 +164,45 @@ class Parsers:
         member._update(event)
 
         # after = member
-        self.dispatch('guild_member_update', before, member)
+        self.dispatch('member_update', before, member)
+
+
+    def parse_guild_role_create(self, event: RolePayload):
+        # guild_id is an extra field here.
+        guild = self.state.get_guild(int(event['guild_id'])) # type: ignore
+
+        if guild is None:
+            logger.debug(f'GUILD_ROLE_CREATE was sent with an unknown guild {event["guild_id"]}, Discarding.') # type: ignore
+            return
+
+        role = guild._add_role(event)
+        self.dispatch('role_create', role)
+
+    def parse_guild_role_delete(self, event: dict):
+        guild = self.state.get_guild(int(event['guild_id']))
+
+        if guild is None:
+            logger.debug(f'GUILD_ROLE_DELETE was sent with an unknown guild {event["guild_id"]}, Discarding.') # type: ignore
+            return
+
+        role = guild.get_role(int(event["role_id"]))
+        self.dispatch('role_delete', role)
+
+    def parse_guild_role_update(self, event: RolePayload):
+        # guild_id is an extra field here.
+        guild = self.state.get_guild(int(event['guild_id'])) # type: ignore
+
+        if guild is None:
+            logger.debug(f'GUILD_ROLE_UPDATE was sent with an unknown guild {event["guild_id"]}, Discarding.') # type: ignore
+            return
+
+        role = guild.get_role(int(event["role"]["id"])) # type: ignore
+        if role is None:
+            logger.debug(f'GUILD_ROLE_UPDATE was sent with an unknown role {event["role"]["id"]}, Discarding.') # type: ignore
+            return
+
+        before = copy.copy(role)
+        role._update(event)
+
+        # after = role
+        self.dispatch('role_update', before, role)
