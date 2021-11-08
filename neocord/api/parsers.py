@@ -63,7 +63,7 @@ class Parsers:
     async def _schedule_ready(self):
         logger.info('Preparing to dispatch ready.')
         while True:
-            self.state._awaiting_guild_create = asyncio.Event(loop=self.state.loop)
+            self.state._awaiting_guild_create = asyncio.Event()
             try:
                 await asyncio.wait_for(self.state._awaiting_guild_create.wait(), timeout=5.0)
             except asyncio.TimeoutError:
