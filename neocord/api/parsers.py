@@ -22,6 +22,7 @@ from __future__ import annotations
 from typing import Any, Callable, Dict, List, Optional, TYPE_CHECKING
 
 from neocord.models.user import ClientUser
+from neocord.models.message import Message
 from neocord.internal.logger import logger
 
 import asyncio
@@ -33,6 +34,7 @@ if TYPE_CHECKING:
     from neocord.typings.guild import Guild as GuildPayload
     from neocord.typings.member import Member as MemberPayload
     from neocord.typings.role import Role as RolePayload
+    from neocord.typings.message import Message as MessagePayload
 
     EventPayload = Dict[str, Any]
 
@@ -220,3 +222,7 @@ class Parsers:
 
         # after = role
         self.dispatch('role_update', before, role)
+
+    def parse_message_create(self, event: MessagePayload):
+        message = Message(event, state=self.state)
+        self.dispatch('message', message)
