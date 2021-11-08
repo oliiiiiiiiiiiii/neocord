@@ -24,10 +24,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from neocord.models.base import DiscordModel
-from neocord.api.state import State
 from neocord.internal import helpers
 
 if TYPE_CHECKING:
+    from neocord.api.state import State
     from neocord.typings.message import Message as MessagePayload
 
 class Message(DiscordModel):
