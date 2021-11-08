@@ -21,7 +21,6 @@
 # SOFTWARE.
 
 from __future__ import annotations
-import asyncio
 from typing import Any, Dict, Optional, TYPE_CHECKING
 
 from neocord.internal.mixins import ClientPropertyMixin
@@ -35,6 +34,7 @@ if TYPE_CHECKING:
     from neocord.models.user import ClientUser
     from neocord.typings.user import User as UserPayload
     from neocord.typings.guild import Guild as GuildPayload
+    import asyncio
 
 class State(ClientPropertyMixin):
     def __init__(self, client: Client) -> None:
