@@ -126,10 +126,11 @@ class Guild(DiscordModel):
         self._emojis = {}
         self._roles = {}
 
+        self._update(data)
+
         for member in data.get('members', []):
             self._add_member(member)
 
-        self._update(data)
 
     def _update(self, data: GuildPayload):
         self.name = data.get('name')

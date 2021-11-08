@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 from __future__ import annotations
+import asyncio
 from neocord.models.asset import CDNAsset
 from typing import Optional, List, TYPE_CHECKING
 
@@ -37,7 +38,7 @@ if TYPE_CHECKING:
     from neocord.dataclasses.color import Color
     from datetime import datetime
 
-class GuildMember(DiscordModel):
+class GuildMember:
     """
     Represents a guild member entity. A member is just a user inside a guild.
 
@@ -62,9 +63,11 @@ class GuildMember(DiscordModel):
     pending: :class:`bool`
         Whether the member has passed membership screening or not.
     """
-    __slots__ = ('guild', '_state', '_roles', 'joined_at', 'deaf', 'mute', 'pending'
-                '_user', '_nickname', '_premium_since', '_permissions', '_avatar', 'id'
-                'name', 'bot', 'discriminator')
+    __slots__ = (
+        'guild', '_state', '_roles', 'joined_at', 'deaf', 'mute', 'pending',
+        '_user', '_nickname', '_premium_since', '_permissions', '_avatar', 'id',
+        'name', 'bot', 'discriminator'
+        )
 
     def __init__(self, data: MemberPayload, guild: Guild):
         self.guild = guild
@@ -90,11 +93,11 @@ class GuildMember(DiscordModel):
         self.bot = self._user.bot
         self.discriminator = self._user.discriminator
 
-        for role in data.get('roles'):
+        for role in data.get('roles', []):
             self._add_role(role)
 
-    def _add_role(self, data: RolePayload):
-        role = self.guild.get_role(int(data['id']))
+    def _add_role(self, id: int):
+        role = self.guild.get_role(int(id))
         # role shouldn't be None here
         self._roles[role.id] = role
         return role

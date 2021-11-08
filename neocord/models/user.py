@@ -109,8 +109,7 @@ class BaseUser(DiscordModel):
 
     def __repr__(self):
         return (
-            f'<{self.__class__.__name__} id={self.id} name={self.name} \
-                 discriminator={self.discriminator} bot={self.bot}>'
+            f'<{self.__class__.__name__} id={self.id} name={self.name} discriminator={self.discriminator} bot={self.bot}>'
         )
 
     def __str__(self):

@@ -32,6 +32,7 @@ if TYPE_CHECKING:
     from neocord.api.state import State
     from neocord.typings.user import User as UserPayload
     from neocord.typings.guild import Guild as GuildPayload
+    from neocord.typings.member import Member as MemberPayload
 
     EventPayload = Dict[str, Any]
 
@@ -122,3 +123,45 @@ class Parsers:
 
         self.state.pop_guild(guild.id)
         self.dispatch('guild_delete', guild)
+
+    def parse_guild_member_add(self, event: MemberPayload):
+        # guild_id is an extra field here.
+        guild = self.state.get_guild(int(event['guild_id'])) # type: ignore
+
+        if guild is None:
+            logger.debug(f'GUILD_MEMBER_ADD was sent with an unknown guild {event["guild_id"]}, Discarding.') # type: ignore
+            return
+
+        member = guild._add_member(event)
+        self.dispatch('guild_member_join', member)
+
+    def parse_guild_member_remove(self, event: dict):
+        guild = self.state.get_guild(int(event['guild_id']))
+
+        if guild is None:
+            logger.debug(f'GUILD_MEMBER_REMOVE was sent with an unknown guild {event["guild_id"]}, Discarding.') # type: ignore
+            return
+
+        user = event["user"]
+        member = guild._pop_member(int(user["id"]))
+        self.dispatch('guild_member_leave', member)
+
+    def parse_guild_member_update(self, event: MemberPayload):
+        # guild_id is an extra field here.
+        guild = self.state.get_guild(int(event['guild_id'])) # type: ignore
+
+        if guild is None:
+            logger.debug(f'GUILD_MEMBER_UPDATE was sent with an unknown guild {event["guild_id"]}, Discarding.') # type: ignore
+            return
+
+        # user is always present here.
+        member = guild.get_member(int(event["user"]["id"])) # type: ignore
+        if member is None:
+            logger.debug(f'GUILD_MEMBER_UPDATE was sent with an unknown member {event["user"]["id"]}, Discarding.') # type: ignore
+            return
+
+        before = copy.copy(member)
+        member._update(event)
+
+        # after = member
+        self.dispatch('guild_member_update', before, member)
