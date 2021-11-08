@@ -79,7 +79,8 @@ class Parsers:
         user = self.state.get_user(int(event['id']))
 
         if user is None:
-            logger.debug(f'USER_UPDATE was sent with an unknown user {event["id"]}, Discarding.')
+            logger.debug(f'USER_UPDATE was sent with an unknown user {event["id"]}, Adding to cache without dispatching.')
+            self.state.add_user(event)
             return
 
         before = copy.copy(user)
@@ -99,6 +100,8 @@ class Parsers:
     def parse_guild_update(self, event: GuildPayload):
         guild = self.state.get_guild(int(event['id']))
         if guild is None:
+            # the guild object is not complete (as compared to GUILD_CREATE) here so
+            # we cannot add it to internal cache.
             logger.debug(f'GUILD_UPDATE was sent with an unknown guild {event["id"]}, Discarding.')
             return
 
@@ -157,7 +160,8 @@ class Parsers:
         # user is always present here.
         member = guild.get_member(int(event["user"]["id"])) # type: ignore
         if member is None:
-            logger.debug(f'GUILD_MEMBER_UPDATE was sent with an unknown member {event["user"]["id"]}, Discarding.') # type: ignore
+            logger.debug(f'GUILD_MEMBER_UPDATE was sent with an unknown member {event["user"]["id"]}, Adding to cache without dispatching.') # type: ignore
+            guild._add_member(event)
             return
 
         before = copy.copy(member)
@@ -196,13 +200,16 @@ class Parsers:
             logger.debug(f'GUILD_ROLE_UPDATE was sent with an unknown guild {event["guild_id"]}, Discarding.') # type: ignore
             return
 
-        role = guild.get_role(int(event["role"]["id"])) # type: ignore
+        data = event["role"] # type: ignore
+
+        role = guild.get_role(int(data["id"]))
         if role is None:
-            logger.debug(f'GUILD_ROLE_UPDATE was sent with an unknown role {event["role"]["id"]}, Discarding.') # type: ignore
+            logger.debug(f'GUILD_ROLE_UPDATE was sent with an unknown role {event["role"]["id"]}, Adding to cache without dispatching.') # type: ignore
+            guild._add_role(data)
             return
 
         before = copy.copy(role)
-        role._update(event)
+        role._update(data)
 
         # after = role
         self.dispatch('role_update', before, role)
