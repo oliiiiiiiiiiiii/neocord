@@ -105,16 +105,19 @@ class DiscordWebsocket(ClientPropertyMixin):
     async def receive(self) -> Optional[Dict[str, Any]]:
         data = await self.socket.receive()
         data = data.data
+
         if not data:
             return
 
         if isinstance(data, bytes):
+            self.buffer.extend(data)
+
             if len(data) < 4 or data[-4:] != b'\x00\x00\xff\xff':
                 return
 
             data = self.inflator.decompress(self.buffer)
-            self.buffer = bytearray()
             data = data.decode('utf-8')
+            self.buffer = bytearray()
 
         data = json.loads(data)
         return data
@@ -159,7 +162,8 @@ class DiscordWebsocket(ClientPropertyMixin):
                     "$os": sys.platform,
                     "$browser": "NeoCord",
                     "$device": "NeoCord"
-                }
+                },
+                "compress": True,
             }
         })
 
@@ -167,7 +171,7 @@ class DiscordWebsocket(ClientPropertyMixin):
         while not self.is_closed():
             msg = await self.receive()
             if not msg:
-                return
+                continue
 
             op = msg['op']
             data = msg['d']
@@ -197,6 +201,6 @@ class DiscordWebsocket(ClientPropertyMixin):
                 self.state.parse_event(event=msg['t'], data=msg['d'])
 
     async def connect(self, url: str):
-        url = url + '?v=9&encoding=json'
+        url = url + '?v=9&encoding=json&compress=zlib-stream'
         self.socket = await self.http.ws_connect(url)
         await self.handle_events()
