@@ -38,6 +38,11 @@ class Message(DiscordModel):
     id: :class:`int`
         The snowflake ID of this message.
     """
+    __slots__ = (
+        'id', 'channel_id', 'guild_id', 'content', 'timestamp', '_edited_timestamp',
+        'tts', 'mention_everyone', 'pinned', 'type',
+    )
+
     def __init__(self, data: MessagePayload, state: State) -> None:
         self._update(data)
 
