@@ -29,6 +29,7 @@ from neocord.api.parsers import Parsers
 from neocord.models.user import User
 from neocord.models.guild import Guild
 from neocord.models.message import Message
+import asyncio
 
 if TYPE_CHECKING:
     from neocord.core import Client
@@ -36,14 +37,12 @@ if TYPE_CHECKING:
     from neocord.typings.user import User as UserPayload
     from neocord.typings.guild import Guild as GuildPayload
     from neocord.typings.message import Message as MessagePayload
-    import asyncio
 
 class State(ClientPropertyMixin):
     def __init__(self, client: Client) -> None:
         self.client = client
         self.parsers = Parsers(state=self)
         self.user: Optional[ClientUser] = None
-        self._awaiting_guild_create: asyncio.Event = asyncio.Event()
 
         self.clear()
 
