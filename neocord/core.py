@@ -376,7 +376,7 @@ class Client:
     def get_message(self, id: int, /) -> Optional[Message]:
         """
         Gets a message from the client's internal cache. This method
-        returns None is the user is not found in internal cache.
+        returns None is the message is not found in internal cache.
 
         Parameters
         ----------
