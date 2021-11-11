@@ -22,7 +22,6 @@ from __future__ import annotations
 from typing import Any, Callable, Dict, List, Optional, TYPE_CHECKING
 
 from neocord.models.user import ClientUser
-from neocord.models.message import Message
 from neocord.internal.logger import logger
 
 import asyncio
@@ -224,5 +223,5 @@ class Parsers:
         self.dispatch('role_update', before, role)
 
     def parse_message_create(self, event: MessagePayload):
-        message = Message(event, state=self.state)
+        message = self.state.add_message(event)
         self.dispatch('message', message)

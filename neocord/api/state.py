@@ -28,12 +28,14 @@ from neocord.internal.logger import logger
 from neocord.api.parsers import Parsers
 from neocord.models.user import User
 from neocord.models.guild import Guild
+from neocord.models.message import Message
 
 if TYPE_CHECKING:
     from neocord.core import Client
     from neocord.models.user import ClientUser
     from neocord.typings.user import User as UserPayload
     from neocord.typings.guild import Guild as GuildPayload
+    from neocord.typings.message import Message as MessagePayload
     import asyncio
 
 class State(ClientPropertyMixin):
@@ -48,6 +50,7 @@ class State(ClientPropertyMixin):
     def clear(self):
         self.guilds: Dict[int, Any] = {}
         self.users: Dict[int, User] = {}
+        self.messages: Dict[int, Message] = {}
 
     def parse_event(self, event: str, data: Any):
         parser = self.parsers.get_parser(event)
@@ -79,3 +82,19 @@ class State(ClientPropertyMixin):
 
     def pop_guild(self, id: int, /):
         return self.guilds.pop(id, None)
+
+    def get_message(self, id: int, /):
+        return self.messages.get(id)
+
+    def add_message(self, data: MessagePayload, /):
+        # clear our cache if the message limit has reached or gone
+        # beyond the caching limits.
+        if len(self.messages.keys()) >= self.client.message_cache_limit:
+            self.messages = {}
+
+        message = Message(data, state=self)
+        self.messages[message.id] = message
+        return message
+
+    def pop_message(self, id: int, /):
+        return self.messages.pop(id, None)

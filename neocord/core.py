@@ -34,6 +34,7 @@ import asyncio
 
 if TYPE_CHECKING:
     from neocord.models.user import User
+    from neocord.models.message import Message
 
 class Client:
     """
@@ -55,6 +56,11 @@ class Client:
     intents: :class:`GatewayIntents`
         The gateway intents to use while connecting to gateway. If not provided, all the
         unprivelged intents are enabled by default.
+    message_cache_limit: :class:`int`
+        The amount of messages that would be cached by the client at a time. This can be no larger
+        then 1000. 0 can be passed to disable the message cache. On reaching this amount,
+        The client would discard all the previous messages and would start re-filling
+        the cache. Defaults to ``500``
     """
     if TYPE_CHECKING:
         loop: asyncio.AbstractEventLoop
@@ -64,6 +70,12 @@ class Client:
     def __init__(self, **params: Any) -> None:
         self.loop  = params.get('loop') or asyncio.get_event_loop()
         self.intents = params.get('intents') or GatewayIntents.unprivileged()
+        self.message_cache_limit = params.get('message_cache_limit', 500)
+
+        if self.message_cache_limit is None:
+            self.message_cache_limit = 0
+        elif self.message_cache_limit > 1000:
+            raise ValueError('message cache limit cannot be larger then 1000.')
 
         # internal stuff:
         self.http  = HTTPClient(session=params.get('session'))
@@ -314,3 +326,20 @@ class Client:
         data = await self.http.get_user(id)
         user = self.state.add_user(data)
         return user
+
+    def get_message(self, id: int, /) -> Optional[Message]:
+        """
+        Gets a message from the client's internal cache. This method
+        returns None is the user is not found in internal cache.
+
+        Parameters
+        ----------
+        id: :class:`int`
+            The ID of the message.
+
+        Returns
+        -------
+        :class:`Message`
+            The requested message, if found.
+        """
+        return self.state.get_message(id)
