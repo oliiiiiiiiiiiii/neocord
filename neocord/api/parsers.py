@@ -82,9 +82,11 @@ class Parsers:
 
     def parse_ready(self, event: EventPayload):
         self.dispatch('connect')
-        guilds = event['guilds']
         self.state.user = ClientUser(event['user'], state=self.state)
-        self.state.add_user(event['user'])
+
+        # adding our user to the cache.
+        self.state.users[self.state.user.id] = self.state.user # type: ignore
+
         asyncio.create_task(self._schedule_ready())
 
     def parse_user_update(self, event: UserPayload):
