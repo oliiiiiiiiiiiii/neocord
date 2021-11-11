@@ -30,6 +30,9 @@ if TYPE_CHECKING:
 
 class GuildRoutes(BaseRouteMixin):
 
+    def get_guild(self, guild_id: Snowflake):
+        return self.request(Route('GET', '/guilds/{guild_id}', guild_id=guild_id))
+
     # roles management
 
     def edit_role(self, guild_id: Snowflake, role_id: Snowflake, payload: Dict[str, Any], reason: Optional[str]):

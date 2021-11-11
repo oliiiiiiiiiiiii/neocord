@@ -71,6 +71,8 @@ class State(ClientPropertyMixin):
     def pop_user(self, id: int, /):
         return self.users.pop(id, None)
 
+    def create_guild(self, data: GuildPayload):
+        return Guild(data, state=self)
 
     def get_guild(self, id: int, /):
         return self.guilds.get(id)
