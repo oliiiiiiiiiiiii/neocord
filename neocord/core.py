@@ -321,6 +321,11 @@ class Client:
             coroutine.
         timeout: :class:`float`
             The timeout after which this method would stop.
+
+        Raises
+        ------
+        asyncio.TimeoutError:
+            The timeout period expired and event was not dispatched.
         """
         if not check:
             def _check(*args: Any) -> Literal[True]:
