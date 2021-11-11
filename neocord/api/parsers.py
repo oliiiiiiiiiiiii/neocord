@@ -234,6 +234,5 @@ class Parsers:
         self.dispatch('role_update', before, role)
 
     def parse_message_create(self, event: MessagePayload):
-        print('message created...')
         message = self.state.add_message(event)
         self.dispatch('message', message)
