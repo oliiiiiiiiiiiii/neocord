@@ -86,6 +86,9 @@ class Client:
         self._listeners = {}
 
     def dispatch(self, event: str, *args: Any):
+        if not self._ready.is_set():
+            return
+
         try:
             listeners = self._listeners[event]
         except KeyError:
