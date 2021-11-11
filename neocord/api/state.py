@@ -43,7 +43,7 @@ class State(ClientPropertyMixin):
         self.client = client
         self.parsers = Parsers(state=self)
         self.user: Optional[ClientUser] = None
-        self._awaiting_guild_create: Optional[asyncio.Event] = None
+        self._awaiting_guild_create: asyncio.Event = asyncio.Event()
 
         self.clear()
 

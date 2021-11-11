@@ -62,14 +62,17 @@ class Parsers:
     async def _schedule_ready(self):
         logger.info('Preparing to dispatch ready.')
         while True:
-            self.state._awaiting_guild_create = asyncio.Event()
+            self.state._awaiting_guild_create.clear()
             try:
                 await asyncio.wait_for(self.state._awaiting_guild_create.wait(), timeout=5.0)
             except asyncio.TimeoutError:
                 break
 
-        self.state._awaiting_guild_create = None
+        # ensure that are our events are properly set.
+        self.state._awaiting_guild_create.set()
         self.state.client._ready.set()
+
+        # finally, dispatch ready
         self.dispatch('ready')
 
     def parse_ready(self, event: EventPayload):
@@ -101,7 +104,7 @@ class Parsers:
 
         self.dispatch('guild_create', guild)
 
-        if self.state._awaiting_guild_create is not None:
+        if not self.state._awaiting_guild_create.is_set():
             self.state._awaiting_guild_create.set()
 
 
