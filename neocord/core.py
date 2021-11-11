@@ -23,7 +23,7 @@
 from __future__ import annotations
 from asyncio.coroutines import iscoroutinefunction
 from neocord.api.gateway import DiscordWebsocket
-from typing import Any, Callable, Dict, List, Optional, TYPE_CHECKING
+from typing import Any, Union, Literal, Callable, Dict, List, Optional, TYPE_CHECKING
 
 from neocord.api.http import HTTPClient
 from neocord.api.state import State
@@ -298,6 +298,58 @@ class Client:
 
         return deco
 
+    async def wait_for(self, event: str, *, check: Optional[Callable[..., bool]] = None, timeout: Union[int, float] = None):
+        """
+        Waits for an event to dispatch.
+
+        This method returns the tuple of arguments that belong to the event.
+
+        Example::
+
+            message = await bot.wait_for('message', check=lambda m: m.author.id == 1234, timeout=60.0)
+            if message.content == 'yes':
+                await message.channel.send('Affirmative.')
+            else:
+                await message.channel.send('Negative.')
+
+        Parameters
+        -----------
+        event: :class:`str`
+            The event to wait for.
+        check:
+            The check that will be checked for when returning result. This CANNOT be a
+            coroutine.
+        timeout: :class:`float`
+            The timeout after which this method would stop.
+        """
+        if not check:
+            def _check(*args: Any) -> Literal[True]:
+                return True
+
+            check = _check
+
+        future = asyncio.Future()
+
+        async def listener(*args: Any):
+            # this is basically our internal listener that checks
+            # whether provided check function satisfies True with the
+            # args.
+            # if it does, we simply set the result.
+            # if it does not, we would keep on re-adding the listener with once set
+            # to True until the check satisfies.
+            if check(*args):
+                future.set_result(args)
+            else:
+                # the check failed so re-add this listener.
+                self.add_listener(listener, event, once=True)
+
+        self.add_listener(listener, event, once=True)
+        result = await asyncio.wait_for(future, timeout=timeout)
+
+        if len(result) == 1:
+            result = result[0]
+
+        return result
 
     @property
     def user(self) -> Optional[ClientUser]:
