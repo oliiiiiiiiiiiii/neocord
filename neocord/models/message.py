@@ -41,19 +41,40 @@ class Message(DiscordModel):
     ----------
     id: :class:`int`
         The snowflake ID of this message.
+    channel_id: :class:`int`
+        The ID of channel in which the message was sent.
+    guild_id: :class:`int`
+        The ID of guild in which message was sent.
+    content: :class:`str`
+        The content of message, this may be None if message has no content.
+    created_at: :class:`datetime.datetime`
+        The datetime representation of the time when message was sent.
+    tts: :class:`bool`
+        Whether message is a "text-to-speech" message.
+    mention_everyone: :class:`bool`
+        Whether this message involves the @everyone or @here mention.
+    pinned: :class:`bool`
+        Whether the message is pinned in the parent channel.
+    type: :class:`MessageType`
+        The type of message.
+    webhook_id: :class:`int`
+        If a webhook has sent this message, then this is the ID of that webhook.
+    author: Union[:class:`GuildMember`, :class:`User`]
+        The user that sent this message, this could be None. If the message was sent
+        in a DM, Then it is :class:`User`, otherwise, it's a :class:`GuildMember`
     """
     __slots__ = (
-        'id', 'channel_id', 'guild_id', 'content', 'timestamp', '_edited_timestamp',
-        'tts', 'mention_everyone', 'pinned', 'type', 'webhook_id', 'author', 'state'
+        'id', 'channel_id', 'guild_id', 'content', 'created_at', '_edited_timestamp',
+        'tts', 'mention_everyone', 'pinned', 'type', 'webhook_id', 'author', '_state'
     )
 
     def __init__(self, data: MessagePayload, state: State) -> None:
-        self.state = state
+        self._state = state
         self.channel_id = helpers.get_snowflake(data, 'channel_id')
         self.webhook_id = helpers.get_snowflake(data, 'webhook_id')
         self.id = int(data['id'])
         self.guild_id = helpers.get_snowflake(data, 'guild_id')
-        self.timestamp = helpers.iso_to_datetime(data.get('timestamp'))
+        self.created_at = helpers.iso_to_datetime(data.get('timestamp'))
         self.tts = data.get('tts', False)
         self.type = data.get('type')
         self.author = None # type: ignore
