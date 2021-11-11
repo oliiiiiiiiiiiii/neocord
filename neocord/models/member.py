@@ -237,8 +237,8 @@ class GuildMember(DiscordModel):
 
     def __repr__(self):
         return (
-            f'<GuildMember id={self.id} name={self.name} \
-                 discriminator={self.discriminator} bot={self.bot}>'
+            f'<GuildMember id={self.id} name={self.name}' \
+            f'discriminator={self.discriminator} bot={self.bot}>'
         )
 
     def __str__(self):

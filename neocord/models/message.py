@@ -65,7 +65,8 @@ class Message(DiscordModel):
     """
     __slots__ = (
         'id', 'channel_id', 'guild_id', 'content', 'created_at', '_edited_timestamp',
-        'tts', 'mention_everyone', 'pinned', 'type', 'webhook_id', 'author', '_state'
+        'tts', 'mention_everyone', 'pinned', 'type', 'webhook_id', 'author', '_state',
+        'mentions'
     )
 
     def __init__(self, data: MessagePayload, state: State) -> None:
@@ -101,6 +102,21 @@ class Message(DiscordModel):
         self._edited_timestamp = data.get('edited_timestamp')
         self.pinned = data.get('pinned', False)
         self.mention_everyone = data.get('mention_everyone', False)
+
+        self.mentions = []
+        mentions = data.get('mentions', [])
+
+        for mention in mentions:
+            if 'member' in mention:
+                try:
+                    member_data = {**mention['member'], 'user': mention}
+                    member = GuildMember(member_data, guild=self.guild) # type: ignore
+                except:
+                    member = None
+                else:
+                    self.mentions.append(member)
+            else:
+                self.mentions.append(User(mention, state=self._state))
 
     @property
     def guild(self) -> Optional[Guild]:
