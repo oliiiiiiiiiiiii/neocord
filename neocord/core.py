@@ -82,7 +82,7 @@ class Client:
         self.http  = HTTPClient(session=params.get('session'))
         self.ws = DiscordWebsocket(client=self)
         self.state = State(client=self)
-        self._ready = asyncio.Event()
+        self._ready = asyncio.Event(loop=self.loop)
         self._listeners = {}
 
     def dispatch(self, event: str, *args: Any):
@@ -177,6 +177,27 @@ class Client:
         """
         await self.login(token)
         await self.connect()
+
+    def run(self, token: str):
+        """
+        A blocking method that runs the client. This abstracts away the asyncio event
+        loop handling.
+
+        Parameters
+         ----------
+        token: :class:`str`
+            The token that should be used for login. Get this from the
+            `developer portal`<https://discord.com/developers/applications>__
+        """
+        async def runner():
+            await self.login(token)
+            await self.connect()
+
+        asyncio.ensure_future(runner())
+
+        if not self.loop.is_running():
+            self.loop.run_forever()
+
 
     # listeners
 

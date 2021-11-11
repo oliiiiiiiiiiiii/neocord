@@ -108,4 +108,4 @@ class Message(DiscordModel):
         :class:`Guild`: Returns the guild in which message was sent. Could be None
         if message was sent in a DM channel.
         """
-        return self.state.get_guild(self.guild_id) # type: ignore
+        return self._state.get_guild(self.guild_id) # type: ignore
