@@ -25,9 +25,11 @@ from typing import Any, ClassVar, Optional, Union, Dict, TYPE_CHECKING
 
 from neocord.errors.http import HTTPError, NotFound, Forbidden
 from neocord.api.routes import Routes, Route
+from neocord.internal.logger import logger
 
 import neocord
 import aiohttp
+import asyncio
 
 class HTTPClient(Routes):
     """
@@ -55,6 +57,21 @@ class HTTPClient(Routes):
         if response.status < 300:
             # successful request
             return data
+        if response.status == 429:
+            retry_after: float = data["retry_after"] # type: ignore
+            is_global = data.get('global', False) # type: ignore
+            fmt = '{message}, Retrying after %ss' % str(retry_after)
+
+            if is_global:
+                msg = fmt.format(message='A global ratelimit has occured')
+            else:
+                msg = fmt.format(message='A ratelimit has occured')
+
+            logger.warn(msg)
+            await asyncio.sleep(retry_after)
+            return await self.request(route, **kwargs)
+
+
         if response.status == 404:
             raise NotFound(data) # type: ignore
         if response.status in [403, 401]:
