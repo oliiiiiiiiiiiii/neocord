@@ -21,7 +21,10 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from typing import Any, ClassVar, Dict
+from typing import Any, ClassVar, Dict, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from aiohttp import ClientResponse
 
 class HTTPError(Exception):
     """
@@ -29,15 +32,20 @@ class HTTPError(Exception):
 
     Attributes
     ----------
-    raw_response: :class:`dict`
-        The raw response JSON.
+    response: :class:`aiohttp.ClientResponse`
+        The HTTP request response.
+    data: :class:`dict`
+        The raw data. May be None in some cases.
+    status: :class:`int`
+        The HTTP error status code.
     """
     DEFAULT_ERROR_MESSAGE: ClassVar[str] = 'An HTTP error occured.'
 
-    def __init__(self, raw_response: Dict[str, Any]) -> None:
-        self.raw_response = raw_response
+    def __init__(self, response: ClientResponse, data:  Dict[str, Any]) -> None:
+        self.response = response
+        self.data = data
 
-        super().__init__(raw_response.get('message', self.DEFAULT_ERROR_MESSAGE))
+        super().__init__(data.get('message', self.DEFAULT_ERROR_MESSAGE))
 
 class NotFound(HTTPError):
     """
@@ -58,3 +66,12 @@ class Forbidden(HTTPError):
     """
     DEFAULT_ERROR_MESSAGE = 'Requested resource cannot be accessed.'
 
+class HTTPRequestFailed(HTTPError):
+    """
+    Raised when an HTTP request fails i.e returns with 500s status code.
+
+    This class inherits :exc:`HTTPException`.
+    """
+    def __init__(self, response: ClientResponse) -> None:
+        # a fake kind of response data
+        super().__init__(response, {'message': 'HTTP request failed, Returned with status {}'.format(response.status)})

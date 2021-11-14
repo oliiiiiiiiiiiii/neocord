@@ -23,7 +23,7 @@
 from __future__ import annotations
 from typing import Any, ClassVar, Optional, Union, Dict, TYPE_CHECKING
 
-from neocord.errors.http import HTTPError, NotFound, Forbidden
+from neocord.errors.http import *
 from neocord.api.routes import Routes, Route
 from neocord.internal.logger import logger
 
@@ -58,42 +58,58 @@ class HTTPClient(Routes):
 
         # this loop is primarily for ratelimit handling
         while True:
+            response = None
             for tries in range(5):
-                async with self.session.request(route.request, url, headers=headers, **kwargs) as response: # type: ignore
-                    data: Union[str, Dict[str, Any]] = await self._get_data(response) # type: ignore
+                try:
+                    async with self.session.request(route.request, url, headers=headers, **kwargs) as response: # type: ignore
+                        if not response.status >= 500:
+                            data: Union[str, Dict[str, Any]] = await self._get_data(response) # type: ignore
 
-                    if response.status < 300:
-                        # successful request
-                        return data
-                    if response.status == 429:
-                        retry_after: float = data["retry_after"] # type: ignore
-                        is_global = data.get('global', False) # type: ignore
+                        if response.status < 300:
+                            # successful request
+                            logger.debug('HTTP request was successfully done. Returned with status {}'.format(response.status))
+                            return data # type: ignore
+                        if response.status == 429:
+                            retry_after: float = data["retry_after"] # type: ignore
+                            is_global = data.get('global', False) # type: ignore
 
-                        fmt = '{message}, Retrying after %ss' % str(retry_after)
+                            fmt = '{message}, Retrying after %ss' % str(retry_after)
 
-                        if is_global:
-                            msg = fmt.format(message='A global ratelimit has occured')
-                            self.global_ratelimit_over.clear()
-                        else:
-                            msg = fmt.format(message='A ratelimit has occured')
+                            if is_global:
+                                msg = fmt.format(message='A global ratelimit has occured')
+                                self.global_ratelimit_over.clear()
+                            else:
+                                msg = fmt.format(message='A ratelimit has occured')
 
-                        logger.warn(msg)
-                        await asyncio.sleep(retry_after)
+                            logger.warn(msg)
+                            await asyncio.sleep(retry_after)
 
-                        if is_global:
-                            logger.info('Global ratelimit is over.')
-                            self.global_ratelimit_over.set()
+                            if is_global:
+                                logger.info('Global ratelimit is over.')
+                                self.global_ratelimit_over.set()
 
+                            continue
+
+                        # TODO: Add more handlers here.
+
+                        if response.status == 404:
+                            raise NotFound(response, data) # type: ignore
+                        if response.status in [403, 401]:
+                            raise Forbidden(response, data) # type: ignore
+                        if response.status in (500, 502, 504):
+                            await asyncio.sleep(1 + tries * 2)
+                            continue
+
+                except OSError as err:
+                    if tries < 4 and err.errno in (54, 10054):
+                        await asyncio.sleep(1 + tries * 2)
                         continue
+                    raise err
 
-                    # TODO: Add more handlers here.
+            if response is not None:
+                raise HTTPRequestFailed(response)
 
-                    if response.status == 404:
-                        raise NotFound(data) # type: ignore
-                    if response.status in [403, 401]:
-                        raise Forbidden(data) # type: ignore
-                    if response.status >= 500:
-                        raise HTTPError(data) # type: ignore
+
 
     async def _get_data(self, response: aiohttp.ClientResponse) -> Any:
         if response.headers['Content-Type'] == 'application/json':
