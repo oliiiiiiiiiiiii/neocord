@@ -146,6 +146,57 @@ class Embed:
         self.fields.clear()
         return ret
 
+    def set_image(self, **options: Any) -> EmbedImage:
+        """
+        Sets an image on embed.
+
+        Parameters
+        ----------
+        url: :class:`str`
+            The URL of image.
+
+        Returns
+        -------
+        :class:`EmbedImage`
+            The added image.
+        """
+        self.image = EmbedImage(**options)
+        return self.image
+
+    def remove_image(self):
+        """
+        Removes the image from embed.
+        """
+        self.image = None
+
+    def set_thumbnail(self, **options: Any) -> EmbedThumbnail:
+        """
+        Sets a thumbnail on embed.
+
+        Parameters
+        ----------
+        url: :class:`str`
+            The URL of thumbnail.
+
+        Returns
+        -------
+        :class:`EmbedThumbnail`
+            The added thumbnail.
+        """
+        self.thumbnail = EmbedThumbnail(**options)
+        return self.thumbnail
+
+    def remove_thumbnail(self):
+        """
+        Removes the thumbnail from embed.
+
+        Returns
+        -------
+        Optional[:class:`EmbedThumbnail`]
+            The removed thumbnail. If any.
+        """
+        self.thumbnail = None
+
     def to_dict(self):
         ret = {}
         if self.title is not None:
@@ -168,6 +219,11 @@ class Embed:
             ret['fields'] = []
             for field in self.fields:
                 ret['fields'].append(field.to_dict())
+        if self.thumbnail:
+            ret['thumbnail'] = self.thumbnail.to_dict()
+        if self.image:
+            ret['image'] = self.image.to_dict()
+
 
         return ret
 
