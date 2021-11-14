@@ -67,6 +67,85 @@ class Embed:
 
         self.type = 'rich'
 
+    def create_field(self, **options: Any) -> EmbedField:
+        """
+        Adds a field in embed at the end.
+
+        Parameters
+        ----------
+        name: :class:`str`
+            The name of field.
+        value: :class:`str`
+            The value of field.
+        inline: :class:`bool`
+            Whether the field should line with last field.
+
+        Returns
+        -------
+        :class:`EmbedField`
+            The added field.
+        """
+        field = EmbedField(**options)
+        self.fields.append(field)
+        return field
+
+    def insert_field(self, index: int, **options):
+        """
+        Adds a field in embed at the provided index.
+
+        Parameters
+        ----------
+        index: :class:`int`
+            The index to add field on.
+        name: :class:`str`
+            The name of field.
+        value: :class:`str`
+            The value of field.
+        inline: :class:`bool`
+            Whether the field should line with last field.
+
+        Returns
+        -------
+        :class:`EmbedField`
+            The added field.
+        """
+        return self.fields.insert(index, EmbedField(**options))
+
+    def remove_field(self, index: int) -> Optional[EmbedField]:
+        """
+        Removes a field from embed.
+
+        This method will not raise the error if field with provided
+        index does not exist.
+
+        Parameters
+        ----------
+        index: :class:`int`
+            The index of field.
+
+        Returns
+        -------
+        Optional[:class:`EmbedField`]
+            The popped field, if any.
+        """
+        try:
+            return self.fields.pop(index)
+        except IndexError:
+            return
+
+    def clear_fields(self) -> List[EmbedField]:
+        """
+        Removes all the fields from embed.
+
+        Returns
+        -------
+        List[:class:`EmbedField`]
+            The list of fields that were removed.
+        """
+        ret = self.fields.copy()
+        self.fields.clear()
+        return ret
+
     def to_dict(self):
         ret = {}
         if self.title is not None:
