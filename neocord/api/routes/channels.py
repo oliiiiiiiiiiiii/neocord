@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from typing import Any, Dict, TYPE_CHECKING
+from typing import Any, Dict, Optional, TYPE_CHECKING
 
 from .base import BaseRouteMixin, Route
 
@@ -29,6 +29,13 @@ if TYPE_CHECKING:
     from neocord.typings.snowflake import Snowflake
 
 class ChannelRoutes(BaseRouteMixin):
+
+    def delete_channel(self, channel_id: Snowflake, reason: Optional[str]):
+        return self.request(Route('DELETE', '/channels/{channel_id}', channel_id=channel_id), reason=reason)
+
+    def get_message(self, channel_id: Snowflake, message_id: Snowflake):
+        route = Route('GET', '/channels/{channel_id}/messages/{message_id}', channel_id=channel_id, message_id=message_id)
+        return self.request(route)
 
     def create_message(self, channel_id: Snowflake, payload: Any):
         route = Route('POST', '/channels/{channel_id}/messages', channel_id=channel_id)

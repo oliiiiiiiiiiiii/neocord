@@ -21,9 +21,11 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Optional
 
 from neocord.internal import helpers
+from neocord.models.base import DiscordModel
+from neocord.models.message import Message
 
 if TYPE_CHECKING:
     from neocord.models.guild import Guild
@@ -41,7 +43,7 @@ class ChannelType:
     PRIVATE_THREAD = 9
     STAGE = 10
 
-class GuildChannel:
+class GuildChannel(DiscordModel):
     """
     Base class that implements basic operations for all channels types in a guild.
 
@@ -81,7 +83,7 @@ class GuildChannel:
         self._update(data)
 
     def _update(self, data: Any):
-        self.id = helpers.get_snowflake(data, 'id')
+        self.id = helpers.get_snowflake(data, 'id') # type: ignore
         self.guild_id = helpers.get_snowflake(data, 'guild_id') or self.guild.id
         self.category_id = helpers.get_snowflake(data, 'parent_id')
 
@@ -92,3 +94,47 @@ class GuildChannel:
         # TODO
         self._permissions_overwrite = data.get('permissions_overwrite')
         self._permissions = data.get('permissions')
+
+    async def delete(self, *, reason: Optional[str] = None):
+        """
+        Deletes the channel.
+
+        Parameters
+        ----------
+        reason: :class:`str`
+            The reason for this action.
+
+        Raises
+        ------
+        Forbidden:
+            You are not allowed to delete this channel.
+        HTTPError:
+            The deletion failed somehow.
+        """
+        await self._state.http.delete_channel(channel_id=self.id, reason=reason)
+
+    async def fetch_message(self, id: int, /) -> Message:
+        """
+        Fetches a message from this channel.
+
+        Parameters
+        ----------
+        id: :class:`int`
+            The ID of the message.
+
+        Returns
+        -------
+        :class:`Message`
+            The requested message.
+
+        Raises
+        ------
+        NotFound:
+            Message was not found. i.e ID is incorrect.
+        Forbidden:
+            You are not allowed to fetch this message.
+        HTTPError:
+            The fetching failed somehow.
+        """
+        data = await self._state.http.get_message(channel_id=self.id, message_id=id)
+        return Message(data, state=self._state)
