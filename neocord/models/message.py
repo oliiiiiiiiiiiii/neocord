@@ -22,7 +22,7 @@
 
 from __future__ import annotations
 from neocord.models.channels.base import GuildChannel
-from typing import TYPE_CHECKING, Optional, Any
+from typing import TYPE_CHECKING, Optional, Any, Union
 
 from neocord.models.base import DiscordModel
 from neocord.dataclasses.embeds import Embed
@@ -34,6 +34,7 @@ if TYPE_CHECKING:
     from neocord.api.state import State
     from neocord.models.user import User
     from neocord.models.guild import Guild
+    from neocord.abc import Messageable
     from neocord.typings.message import Message as MessagePayload
     from neocord.typings.member import Member as MemberPayload
 
@@ -196,7 +197,7 @@ class Message(DiscordModel):
         return self._state.get_guild(self.guild_id) # type: ignore
 
     @property
-    def channel(self) -> Optional[GuildChannel]:
+    def channel(self) -> Optional[Union[GuildChannel, Messageable]]:
         """
         :class:`GuildChannel`: Returns the channel in which message was sent.
         """
@@ -209,5 +210,20 @@ class Message(DiscordModel):
         command or message component's response.
         """
         return (self.application_id is not None)
+
+    async def delete(self):
+        """
+        Deletes the message.
+
+        Raises
+        ------
+        Forbidden:
+            You are not allowed to delete this message.
+        HTTPError:
+            The message sending failed somehow.
+        """
+        # channel here would *always* be a subclass of abc.Messageable
+
+        await self.channel.delete_message(self) # type: ignore
 
     # TODO: Add API methods when guild channels are implemented.

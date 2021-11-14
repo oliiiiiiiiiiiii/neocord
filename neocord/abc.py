@@ -26,9 +26,9 @@ from typing import Optional, List, TYPE_CHECKING
 from neocord.internal.missing import MISSING
 from neocord.internal import helpers
 from neocord.models.message import Message
-from neocord.models.base import DiscordModel
 
 if TYPE_CHECKING:
+    from neocord.models.base import DiscordModel
     from neocord.dataclasses.embeds import Embed
     from neocord.api.state import State
 
@@ -80,3 +80,25 @@ class Messageable:
             payload=payload,
             )
         return Message(data, state=self._state)
+
+    async def delete_message(self, message: DiscordModel):
+        """
+        Deletes a message from the destination. A shorthand and a lower level of
+        :meth:`Message.delete`.
+
+        This method can be used to delete message without fetching it and avoiding API call.
+
+        Parameters
+        ----------
+        message: :class:`DiscordModel`
+            The message to delete.
+
+        Raises
+        ------
+        Forbidden:
+            You are not allowed to delete this message.
+        HTTPError:
+            The message sending failed somehow.
+        """
+        channel = await self._get_messageable_channel()
+        self._state.http.delete_message(channel_id=channel.id, message_id=message.id)
