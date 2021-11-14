@@ -110,9 +110,9 @@ class Embed:
             if key in objects:
                 obj = objects[key]
                 if isinstance(item, list):
-                    setattr(embed, key, [obj(i) for i in item]) # type: ignore
+                    setattr(embed, key, [obj(**i) for i in item]) # type: ignore
                 else:
-                    setattr(embed, key, obj(item))
+                    setattr(embed, key, obj(**item))
             else:
                 setattr(embed, key, data[key])
 
