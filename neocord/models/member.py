@@ -173,6 +173,11 @@ class GuildMember(DiscordModel):
         """:class:`str`: Returns a string used to mention the user in Discord."""
         return self._user.mention
 
+    def is_boosting(self) -> bool:
+        """
+        Indicates whether the member is (nitro) boosting the guild.
+        """
+        return self._premium_since is not None
 
     @property
     def roles(self) -> List[Role]:
