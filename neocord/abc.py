@@ -33,11 +33,12 @@ if TYPE_CHECKING:
 
 class Messageable:
     if TYPE_CHECKING:
-        channel_id: int
+        id: int
         _state: State
 
-    async def send(self, *,
+    async def send(self,
         content: Optional[str] = None,
+        *,
         embed: Optional[Embed] = None,
         embeds: Optional[List[Embed]] = None,
     ) -> Message:
@@ -59,7 +60,7 @@ class Messageable:
             embeds=embeds,
         )
         data = await self._state.http.create_message(
-            channel_id=self.channel_id,
+            channel_id=self.id,
             payload=payload,
             )
         return Message(data, state=self._state)
