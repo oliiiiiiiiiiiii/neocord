@@ -52,7 +52,7 @@ class TextChannel(GuildChannel, Messageable):
     """
     if TYPE_CHECKING:
 
-        def __init__(self, data: Any, guild: Guild):
+        def __init__(self, data: Any, guild: Guild) -> None:
             ...
 
     def _update(self, data: Any):
