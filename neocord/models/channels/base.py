@@ -65,7 +65,7 @@ class GuildChannel:
         The ID of parent category that this channel exists in.
     type: :class:`int`
         The :class:`ChannelType` of channel
-    position: :class:`position`
+    position: :class:`int`
         The position of channel on the channels list.
     name: :class:`str`
         The name of channel.
