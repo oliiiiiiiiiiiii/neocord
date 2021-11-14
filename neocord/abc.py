@@ -117,4 +117,4 @@ class Messageable:
             The message sending failed somehow.
         """
         channel = await self._get_messageable_channel()
-        self._state.http.delete_message(channel_id=channel.id, message_id=message.id)
+        await self._state.http.delete_message(channel_id=channel.id, message_id=message.id)
