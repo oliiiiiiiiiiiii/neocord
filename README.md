@@ -12,7 +12,6 @@
 - Properly typehinted interface
 
 ## Usage
-**This is currently a concept.**
 ```py
 import neocord
 
@@ -27,8 +26,7 @@ async def on_message(message):
   if message.author.bot:
     return
 
-  if message.content == '!ping':
-    await message.channel.send('PONG!')
+  print(f'{message.author} said {message.content}')
 
 client.run('bot-token')
 ```

@@ -28,26 +28,28 @@ from neocord.internal.logger import logger
 from neocord.api.parsers import Parsers
 from neocord.models.user import User
 from neocord.models.guild import Guild
+from neocord.models.message import Message
+import asyncio
 
 if TYPE_CHECKING:
     from neocord.core import Client
     from neocord.models.user import ClientUser
     from neocord.typings.user import User as UserPayload
     from neocord.typings.guild import Guild as GuildPayload
-    import asyncio
+    from neocord.typings.message import Message as MessagePayload
 
 class State(ClientPropertyMixin):
     def __init__(self, client: Client) -> None:
         self.client = client
         self.parsers = Parsers(state=self)
         self.user: Optional[ClientUser] = None
-        self._awaiting_guild_create: Optional[asyncio.Event] = None
 
         self.clear()
 
     def clear(self):
         self.guilds: Dict[int, Any] = {}
         self.users: Dict[int, User] = {}
+        self.messages: Dict[int, Message] = {}
 
     def parse_event(self, event: str, data: Any):
         parser = self.parsers.get_parser(event)
@@ -68,6 +70,8 @@ class State(ClientPropertyMixin):
     def pop_user(self, id: int, /):
         return self.users.pop(id, None)
 
+    def create_guild(self, data: GuildPayload):
+        return Guild(data, state=self)
 
     def get_guild(self, id: int, /):
         return self.guilds.get(id)
@@ -79,3 +83,19 @@ class State(ClientPropertyMixin):
 
     def pop_guild(self, id: int, /):
         return self.guilds.pop(id, None)
+
+    def get_message(self, id: int, /):
+        return self.messages.get(id)
+
+    def add_message(self, data: MessagePayload, /):
+        # clear our cache if the message limit has reached or gone
+        # beyond the caching limits.
+        if len(self.messages.keys()) >= self.client.message_cache_limit:
+            self.messages = {}
+
+        message = Message(data, state=self)
+        self.messages[message.id] = message
+        return message
+
+    def pop_message(self, id: int, /):
+        return self.messages.pop(id, None)

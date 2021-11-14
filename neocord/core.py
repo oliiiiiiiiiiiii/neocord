@@ -23,7 +23,7 @@
 from __future__ import annotations
 from asyncio.coroutines import iscoroutinefunction
 from neocord.api.gateway import DiscordWebsocket
-from typing import Any, Callable, Dict, List, Optional, TYPE_CHECKING
+from typing import Any, Union, Literal, Callable, Dict, List, Optional, TYPE_CHECKING
 
 from neocord.api.http import HTTPClient
 from neocord.api.state import State
@@ -34,6 +34,8 @@ import asyncio
 
 if TYPE_CHECKING:
     from neocord.models.user import User
+    from neocord.models.message import Message
+    from neocord.models.guild import Guild
 
 class Client:
     """
@@ -55,6 +57,11 @@ class Client:
     intents: :class:`GatewayIntents`
         The gateway intents to use while connecting to gateway. If not provided, all the
         unprivelged intents are enabled by default.
+    message_cache_limit: :class:`int`
+        The amount of messages that would be cached by the client at a time. This can be no larger
+        then 1000. 0 can be passed to disable the message cache. On reaching this amount,
+        The client would discard all the previous messages and would start re-filling
+        the cache. Defaults to ``500``
     """
     if TYPE_CHECKING:
         loop: asyncio.AbstractEventLoop
@@ -64,15 +71,24 @@ class Client:
     def __init__(self, **params: Any) -> None:
         self.loop  = params.get('loop') or asyncio.get_event_loop()
         self.intents = params.get('intents') or GatewayIntents.unprivileged()
+        self.message_cache_limit = params.get('message_cache_limit', 500)
+
+        if self.message_cache_limit is None:
+            self.message_cache_limit = 0
+        elif self.message_cache_limit > 1000:
+            raise ValueError('message cache limit cannot be larger then 1000.')
 
         # internal stuff:
         self.http  = HTTPClient(session=params.get('session'))
         self.ws = DiscordWebsocket(client=self)
         self.state = State(client=self)
-        self._ready = asyncio.Event()
+        self._ready = asyncio.Event(loop=self.loop)
         self._listeners = {}
 
     def dispatch(self, event: str, *args: Any):
+        if not self._ready.is_set():
+            return
+
         try:
             listeners = self._listeners[event]
         except KeyError:
@@ -164,6 +180,27 @@ class Client:
         """
         await self.login(token)
         await self.connect()
+
+    def run(self, token: str):
+        """
+        A blocking method that runs the client. This abstracts away the asyncio event
+        loop handling.
+
+        Parameters
+         ----------
+        token: :class:`str`
+            The token that should be used for login. Get this from the
+            `developer portal`<https://discord.com/developers/applications>__
+        """
+        async def runner():
+            await self.login(token)
+            await self.connect()
+
+        asyncio.ensure_future(runner())
+
+        if not self.loop.is_running():
+            self.loop.run_forever()
+
 
     # listeners
 
@@ -261,6 +298,63 @@ class Client:
 
         return deco
 
+    async def wait_for(self, event: str, *, check: Optional[Callable[..., bool]] = None, timeout: Union[int, float] = None):
+        """
+        Waits for an event to dispatch.
+
+        This method returns the tuple of arguments that belong to the event.
+
+        Example::
+
+            message = await bot.wait_for('message', check=lambda m: m.author.id == 1234, timeout=60.0)
+            if message.content == 'yes':
+                await message.channel.send('Affirmative.')
+            else:
+                await message.channel.send('Negative.')
+
+        Parameters
+        -----------
+        event: :class:`str`
+            The event to wait for.
+        check:
+            The check that will be checked for when returning result. This CANNOT be a
+            coroutine.
+        timeout: :class:`float`
+            The timeout after which this method would stop.
+
+        Raises
+        ------
+        asyncio.TimeoutError:
+            The timeout period expired and event was not dispatched.
+        """
+        if not check:
+            def _check(*args: Any) -> Literal[True]:
+                return True
+
+            check = _check
+
+        future = asyncio.Future()
+
+        async def listener(*args: Any):
+            # this is basically our internal listener that checks
+            # whether provided check function satisfies True with the
+            # args.
+            # if it does, we simply set the result.
+            # if it does not, we would keep on re-adding the listener with once set
+            # to True until the check satisfies.
+            if check(*args):
+                future.set_result(args)
+            else:
+                # the check failed so re-add this listener.
+                self.add_listener(listener, event, once=True)
+
+        self.add_listener(listener, event, once=True)
+        result = await asyncio.wait_for(future, timeout=timeout)
+
+        if len(result) == 1:
+            result = result[0]
+
+        return result
 
     @property
     def user(self) -> Optional[ClientUser]:
@@ -314,3 +408,65 @@ class Client:
         data = await self.http.get_user(id)
         user = self.state.add_user(data)
         return user
+
+    def get_guild(self, id: int, /) -> Optional[Guild]:
+        """
+        Gets a guild from the client's internal cache. This method
+        returns None is the guild is not found in internal cache.
+
+        Parameters
+        ----------
+        id: :class:`int`
+            The ID of the guild.
+
+        Returns
+        -------
+        :class:`Guild`
+            The requested guild.
+        """
+        return self.state.get_guild(id)
+
+    async def fetch_guild(self, id: int) -> Optional[Guild]:
+        """
+        Fetches a guild from the API.
+
+        This is an API call. you can use :meth:`.get_guild`
+
+        Parameters
+        ----------
+        id: :class:`int`
+            The ID of the guild.
+
+        Raises
+        ------
+        NotFound:
+            Provided guild ID is invalid.
+        HTTPException:
+            The guild fetch failed somehow.
+
+        Returns
+        -------
+        :class:`Guild`
+            The requested guild.
+        """
+        data = await self.http.get_guild(id)
+        guild = self.state.create_guild(data)
+        return guild
+
+
+    def get_message(self, id: int, /) -> Optional[Message]:
+        """
+        Gets a message from the client's internal cache. This method
+        returns None is the message is not found in internal cache.
+
+        Parameters
+        ----------
+        id: :class:`int`
+            The ID of the message.
+
+        Returns
+        -------
+        :class:`Message`
+            The requested message, if found.
+        """
+        return self.state.get_message(id)

@@ -23,7 +23,7 @@
 from __future__ import annotations
 import asyncio
 from neocord.models.asset import CDNAsset
-from typing import Optional, List, TYPE_CHECKING
+from typing import Optional, List, Any, TYPE_CHECKING
 
 from neocord.models.base import DiscordModel
 from neocord.models.user import User
@@ -38,7 +38,7 @@ if TYPE_CHECKING:
     from neocord.dataclasses.color import Color
     from datetime import datetime
 
-class GuildMember:
+class GuildMember(DiscordModel):
     """
     Represents a guild member entity. A member is just a user inside a guild.
 
@@ -199,11 +199,46 @@ class GuildMember:
         """
         return self._roles.get(id)
 
+    async def edit(self, **kwargs: Any):
+        """
+        Edits the member.
+
+        Parameters
+        ----------
+        nick: :class:`str`
+            The new nickname of member.
+        roles: List[:class:`DiscordModel`]
+            List of roles (or :class:`ModelMimic`) that should be assigned to member.
+        mute: :class:`bool`
+            Whether to mute the member in voice channel. Requires member to be in voice
+            channel.
+        deaf: :class:`bool`
+            Whether to deafen the member in voice channel. Requires member to be in voice
+            channel.
+        voice_channel: :class:`DiscordModel`
+            The voice channel to move the member to. Requires member to be in voice
+            channel.
+        reason: :class:`str`
+            The reason for this action that shows up on audit log.
+
+        """
+        await self.guild.edit_member(self, **kwargs)
+
+    async def kick(self, **kwargs: Any):
+        """
+        Kicks the member.
+
+        Parameters
+        ----------
+        reason: :class:`str`
+            The reason for this action that shows up on audit log.
+        """
+        await self.guild.kick_member(self, **kwargs)
 
     def __repr__(self):
         return (
-            f'<GuildMember id={self.id} name={self.name} \
-                 discriminator={self.discriminator} bot={self.bot}>'
+            f'<GuildMember id={self.id} name={self.name}' \
+            f'discriminator={self.discriminator} bot={self.bot}>'
         )
 
     def __str__(self):

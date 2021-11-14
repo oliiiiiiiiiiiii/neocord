@@ -33,6 +33,7 @@ if TYPE_CHECKING:
     from neocord.typings.guild import Guild as GuildPayload
     from neocord.typings.member import Member as MemberPayload
     from neocord.typings.role import Role as RolePayload
+    from neocord.typings.message import Message as MessagePayload
 
     EventPayload = Dict[str, Any]
 
@@ -45,6 +46,7 @@ class Parsers:
 
     def __init__(self, state: State) -> None:
         self.state = state
+        self._awaiting_guild_create = None
 
     @property
     def dispatch(self) -> Callable[..., Any]:
@@ -60,22 +62,29 @@ class Parsers:
 
     async def _schedule_ready(self):
         logger.info('Preparing to dispatch ready.')
+
+        if self._awaiting_guild_create is None:
+            # avoid RuntimeError of future being attached to a different loop
+            # in asyncio.wait_for()
+            self._awaiting_guild_create = asyncio.Event()
+
         while True:
-            self.state._awaiting_guild_create = asyncio.Event(loop=self.state.loop)
+            self._awaiting_guild_create.clear()
             try:
-                await asyncio.wait_for(self.state._awaiting_guild_create.wait(), timeout=5.0)
+                await asyncio.wait_for(self._awaiting_guild_create.wait(), timeout=5.0)
             except asyncio.TimeoutError:
                 break
 
-        self.state._awaiting_guild_create = None
+        self._awaiting_guild_create.set()
         self.state.client._ready.set()
+
         self.dispatch('ready')
 
     def parse_ready(self, event: EventPayload):
-        self.dispatch('connect')
-        guilds = event['guilds']
         self.state.user = ClientUser(event['user'], state=self.state)
-        self.state.add_user(event['user'])
+        self.state.users[self.state.user.id] = self.state.user # type: ignore
+
+        self.dispatch('connect')
         asyncio.create_task(self._schedule_ready())
 
     def parse_user_update(self, event: UserPayload):
@@ -100,8 +109,11 @@ class Parsers:
 
         self.dispatch('guild_create', guild)
 
-        if self.state._awaiting_guild_create is not None:
-            self.state._awaiting_guild_create.set()
+        if self._awaiting_guild_create is None:
+            return
+
+        if not self._awaiting_guild_create.is_set():
+            self._awaiting_guild_create.set()
 
 
     def parse_guild_update(self, event: GuildPayload):
@@ -220,3 +232,7 @@ class Parsers:
 
         # after = role
         self.dispatch('role_update', before, role)
+
+    def parse_message_create(self, event: MessagePayload):
+        message = self.state.add_message(event)
+        self.dispatch('message', message)
