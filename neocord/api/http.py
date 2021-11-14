@@ -73,7 +73,7 @@ class HTTPClient(Routes):
                             retry_after: float = data["retry_after"] # type: ignore
                             is_global = data.get('global', False) # type: ignore
 
-                            fmt = '{message}, Retrying after %ss' % str(retry_after)
+                            fmt = '{message}, Retrying after %ss (%s %s)' % (str(retry_after), route.request, route.route)
 
                             if is_global:
                                 msg = fmt.format(message='A global ratelimit has occured')
