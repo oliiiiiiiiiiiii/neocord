@@ -27,6 +27,8 @@ from neocord.internal.missing import MISSING
 from neocord.internal import helpers
 from neocord.models.message import Message
 
+import asyncio
+
 if TYPE_CHECKING:
     from neocord.models.base import DiscordModel
     from neocord.dataclasses.embeds import Embed
@@ -44,6 +46,7 @@ class Messageable:
         *,
         embed: Optional[Embed] = None,
         embeds: Optional[List[Embed]] = None,
+        delete_after: Optional[float] = None,
     ) -> Message:
         """
         Sends a message to the destination.
@@ -56,6 +59,8 @@ class Messageable:
             The embed shown in message. This parameter cannot be mixed with ``embeds``
         embeds: List[:class:`Embed`]
             The list of embeds shown in message. This parameter cannot be mixed with ``embed``
+        delete_after: :class:`float`
+            The interval after which this message would be deleted automatically.
 
         Returns
         -------
@@ -79,7 +84,18 @@ class Messageable:
             channel_id=channel.id,
             payload=payload,
             )
-        return Message(data, state=self._state)
+
+        message = Message(data, state=self._state)
+
+        if delete_after is not None:
+            asyncio.create_task(self._delay_message_delete(delay=delete_after, message=message))
+
+        return message
+
+    async def _delay_message_delete(self, delay: float, message: Message):
+        await asyncio.sleep(delay)
+        await self.delete_message(message)
+
 
     async def delete_message(self, message: DiscordModel):
         """
