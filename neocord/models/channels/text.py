@@ -25,11 +25,12 @@ from typing import TYPE_CHECKING, Any
 
 from neocord.models.channels.base import GuildChannel
 from neocord.internal import helpers
+from neocord.abc import Messageable
 
 if TYPE_CHECKING:
     from neocord.models.guild import Guild
 
-class TextChannel(GuildChannel):
+class TextChannel(GuildChannel, Messageable):
     """
     Represents a text channel in a guild.
 

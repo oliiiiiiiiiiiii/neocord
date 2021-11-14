@@ -21,12 +21,15 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from typing import Any, Optional
+from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
 from neocord.internal.missing import MISSING
 
 import datetime
 import base64
+
+if TYPE_CHECKING:
+    from neocord.dataclasses.embeds import Embed
 
 def get_image_data(data: Optional[bytes]) -> Optional[str]:
     if data is None or data is MISSING:
@@ -64,3 +67,24 @@ def get_either_or(either: Any, or_: Any, equ: Any = MISSING):
         return  equ
     else:
         return either or or_
+
+def parse_message_create_payload(*,
+    content: Optional[str] = None,
+    embed: Optional[Embed] = None,
+    embeds: Optional[List[Embed]] = None,
+    ) -> Dict[str, Any]:
+
+    if embed is not None and embeds is not None:
+        raise TypeError('embed and embeds parameter cannot be mixed.')
+
+    payload = {}
+
+    if embed:
+        payload['embeds'] = [embed.to_dict()]
+    elif embeds:
+        payload['embeds'] = [em.to_dict() for em in embeds]
+
+    if content is not None:
+        payload['content'] = content
+
+    return payload

@@ -21,18 +21,19 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from typing import Tuple
+from typing import Any, Dict, TYPE_CHECKING
 
-from .base import *
-from .user import *
-from .gateway import *
-from .guild import *
-from .channels import *
+from .base import BaseRouteMixin, Route
 
-class Routes(
-    UsersRoutes,
-    GatewayRoutes,
-    GuildRoutes,
-    ChannelRoutes,
-):
-    pass
+if TYPE_CHECKING:
+    from neocord.typings.snowflake import Snowflake
+
+class ChannelRoutes(BaseRouteMixin):
+
+    def create_message(self, channel_id: Snowflake, payload: Any):
+        route = Route('POST', '/channels/{channel_id}/messages', channel_id=channel_id)
+        return self.request(route, json=payload)
+
+    def delete_message(self, channel_id: Snowflake, message_id: Snowflake):
+        route = Route('DELETE', '/channels/{channel_id}/messages/{message_id}', channel_id=channel_id, message_id=message_id)
+        return self.request(route)
