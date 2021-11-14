@@ -53,6 +53,18 @@ class Messageable:
             The embed shown in message. This parameter cannot be mixed with ``embeds``
         embeds: List[:class:`Embed`]
             The list of embeds shown in message. This parameter cannot be mixed with ``embed``
+
+        Returns
+        -------
+        :class:`Message`
+            The message that was sent.
+
+        Raises
+        ------
+        Forbidden:
+            You are not allowed to send message at this destination.
+        HTTPError:
+            The message sending failed somehow.
         """
         payload = helpers.parse_message_create_payload(
             content=content,
