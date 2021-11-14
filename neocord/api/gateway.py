@@ -141,7 +141,6 @@ class DiscordWebsocket(ClientPropertyMixin):
             "d": self.sequence
         })
         if self.hb.last_beat is not None:
-            print(self.hb.last_beat, time.time())
             previous = self.hb.last_beat
             self.hb.last_beat = time.time()
             diff = self.hb.interval - (self.hb.last_beat - previous)
