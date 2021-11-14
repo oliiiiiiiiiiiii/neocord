@@ -26,6 +26,7 @@ from typing import Optional, List, TYPE_CHECKING
 from neocord.internal.missing import MISSING
 from neocord.internal import helpers
 from neocord.models.message import Message
+from neocord.models.base import DiscordModel
 
 if TYPE_CHECKING:
     from neocord.dataclasses.embeds import Embed
@@ -33,8 +34,10 @@ if TYPE_CHECKING:
 
 class Messageable:
     if TYPE_CHECKING:
-        id: int
         _state: State
+
+    async def _get_messageable_channel(self) -> DiscordModel:
+        raise NotImplementedError
 
     async def send(self,
         content: Optional[str] = None,
@@ -66,13 +69,14 @@ class Messageable:
         HTTPError:
             The message sending failed somehow.
         """
+        channel = await self._get_messageable_channel()
         payload = helpers.parse_message_create_payload(
             content=content,
             embed=embed,
             embeds=embeds,
         )
         data = await self._state.http.create_message(
-            channel_id=self.id,
+            channel_id=channel.id,
             payload=payload,
             )
         return Message(data, state=self._state)

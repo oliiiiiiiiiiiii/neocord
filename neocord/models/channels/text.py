@@ -66,3 +66,6 @@ class TextChannel(GuildChannel, Messageable):
         self.rate_limit_per_user = int(data.get('rate_limit_per_user', 0))
         self.topic = data.get('topic')
         self.nsfw = data.get('nsfw', False)
+
+    async def _get_messageable_channel(self) -> TextChannel:
+        return self
