@@ -200,3 +200,5 @@ class Message(DiscordModel):
         command or message component's response.
         """
         return (self.application_id is not None)
+
+    # TODO: Add API methods when guild channels are implemented.
