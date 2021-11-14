@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from typing import Any, ClassVar, Optional, Union, Dict, TYPE_CHECKING
+from typing import Any, Optional, Union, Dict
 
 from neocord.errors.http import *
 from neocord.api.routes import Routes, Route
