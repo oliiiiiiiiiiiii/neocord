@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, List, TYPE_CHECKING
 
 from neocord.models.base import DiscordModel
 from neocord.models.asset import CDNAsset
@@ -35,6 +35,7 @@ if TYPE_CHECKING:
         RoleTags as RoleTagsPayload
     )
     from neocord.models.guild import Guild
+    from neocord.models.member import GuildMember
 
 
 class RoleTags:
@@ -145,6 +146,13 @@ class Role(DiscordModel):
     def mention(self) -> str:
         """:class:`str`: Returns a string used to mention the role in Discord."""
         return '<@&{0}>'.format(self.id)
+
+    @property
+    def members(self) -> List[GuildMember]:
+        """
+        List[:class:`GuildMember`]: Returns the list of members that have this role assigned.
+        """
+        return [member for member in self._guild.members if self in member.roles]
 
 
     async def edit(self, *,
