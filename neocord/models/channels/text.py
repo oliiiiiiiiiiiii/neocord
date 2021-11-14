@@ -49,8 +49,10 @@ class TextChannel(GuildChannel):
     nsfw: :class:`bool`
         Whether this channel is marked as not safe for work (NSFW)
     """
-    def __init__(self, data: Any, guild: Guild):
-        super().__init__(data, guild)
+    if TYPE_CHECKING:
+
+        def __init__(self, data: Any, guild: Guild):
+            ...
 
     def _update(self, data: Any):
         # super()._update will call GuildChannel._update()
