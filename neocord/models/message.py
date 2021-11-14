@@ -37,7 +37,8 @@ if TYPE_CHECKING:
     from neocord.typings.member import Member as MemberPayload
 
 class MessageInteraction(DiscordModel):
-    """Represents the interaction's data attached to an interaction response's message
+    """
+    Represents the interaction's information attached to an interaction response's message.
 
     Attributes
     ----------
@@ -52,10 +53,11 @@ class MessageInteraction(DiscordModel):
     """
     __slots__ = ('id', 'name', 'user', 'type', 'application_id')
 
-    name: str
-    user: User
-    application_id: int
-    type: int
+    if TYPE_CHECKING:
+        name: str
+        user: User
+        application_id: int
+        type: int
 
     def __init__(self, data: Any, application_id: int) -> None:
         self.id = helpers.get_snowflake(data, 'id') # type: ignore
@@ -126,7 +128,6 @@ class Message(DiscordModel):
         self.type = data.get('type')
         self.author = None # type: ignore
         self.application_id = helpers.get_snowflake(data, 'application_id')
-
         author = data.get('author')
 
         if self.webhook_id is None:
