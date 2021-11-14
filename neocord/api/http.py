@@ -38,6 +38,8 @@ class HTTPClient(Routes):
     def __init__(self, *, session: Optional[aiohttp.ClientResponse] = None) -> None:
         self.token: Optional[str] = None
         self.session = None
+        self.global_ratelimit_over = asyncio.Event()
+        self.global_ratelimit_over.set()
 
     async def request(self, route: Route, **kwargs: Any) -> Any:
         self.reset()
@@ -51,34 +53,47 @@ class HTTPClient(Routes):
         if reason is not None:
             headers.update({'X-Audit-Log-Reason': reason})
 
-        response = await self.session.request(route.request, url, headers=headers, **kwargs) # type: ignore
-        data: Union[str, Dict[str, Any]] = await self._get_data(response) # type: ignore
+        if not self.global_ratelimit_over.is_set():
+            await self.global_ratelimit_over.wait()
 
-        if response.status < 300:
-            # successful request
-            return data
-        if response.status == 429:
-            retry_after: float = data["retry_after"] # type: ignore
-            is_global = data.get('global', False) # type: ignore
-            fmt = '{message}, Retrying after %ss' % str(retry_after)
+        # this loop is primarily for ratelimit handling
+        while True:
+            for tries in range(5):
+                async with self.session.request(route.request, url, headers=headers, **kwargs) as response: # type: ignore
+                    data: Union[str, Dict[str, Any]] = await self._get_data(response) # type: ignore
 
-            if is_global:
-                msg = fmt.format(message='A global ratelimit has occured')
-            else:
-                msg = fmt.format(message='A ratelimit has occured')
+                    if response.status < 300:
+                        # successful request
+                        return data
+                    if response.status == 429:
+                        retry_after: float = data["retry_after"] # type: ignore
+                        is_global = data.get('global', False) # type: ignore
 
-            logger.warn(msg)
-            await asyncio.sleep(retry_after)
-            return await self.request(route, **kwargs)
+                        fmt = '{message}, Retrying after %ss' % str(retry_after)
 
+                        if is_global:
+                            msg = fmt.format(message='A global ratelimit has occured')
+                            self.global_ratelimit_over.clear()
+                        else:
+                            msg = fmt.format(message='A ratelimit has occured')
 
-        if response.status == 404:
-            raise NotFound(data) # type: ignore
-        if response.status in [403, 401]:
-            raise Forbidden(data) # type: ignore
-        if response.status >= 500:
-            raise HTTPError(data) # type: ignore
+                        logger.warn(msg)
+                        await asyncio.sleep(retry_after)
 
+                        if is_global:
+                            logger.info('Global ratelimit is over.')
+                            self.global_ratelimit_over.set()
+
+                        continue
+
+                    # TODO: Add more handlers here.
+
+                    if response.status == 404:
+                        raise NotFound(data) # type: ignore
+                    if response.status in [403, 401]:
+                        raise Forbidden(data) # type: ignore
+                    if response.status >= 500:
+                        raise HTTPError(data) # type: ignore
 
     async def _get_data(self, response: aiohttp.ClientResponse) -> Any:
         if response.headers['Content-Type'] == 'application/json':
