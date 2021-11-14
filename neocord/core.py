@@ -196,11 +196,10 @@ class Client:
             await self.login(token)
             await self.connect()
 
-        asyncio.ensure_future(runner())
-
-        if not self.loop.is_running():
-            self.loop.run_forever()
-
+        if self.loop.is_running():
+            asyncio.ensure_future(runner())
+        else:
+            self.loop.run_until_complete(runner())
 
     # listeners
 
