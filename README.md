@@ -22,7 +22,7 @@ async def on_ready():
   print(f'{client.user} is ready.')
 
 @client.on('message')
-async def on_message(message: neocord.Message):
+async def on_message(message):
   if message.author.bot:
     # Don't respond to bots (or ourselves).
     return
