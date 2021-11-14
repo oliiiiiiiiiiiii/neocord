@@ -41,7 +41,26 @@ class GuildChannel:
     - :class:`StoreChannel`
 
     Private channels like :class:`DMChannel` do not inherit this class.
+
+    Attributes
+    ----------
+    id: :class:`int`
+        The snowflake ID of the channel.
+    guild: :class:`Guild`
+        The guild that this channel belongs to.
+    category_id: :class:`int`
+        The ID of parent category that this channel exists in.
+    type: :class:`int`
+        The :class:`ChannelType` of channel
+    position: :class:`position`
+        The position of channel on the channels list.
+    name: :class:`str`
+        The name of channel.
     """
+    __slots__ = (
+        'guild', 'state', 'id', 'guild_id', 'parent_id', 'type',
+        'position', 'name', '_permissions_overwrite', '_permissions'
+        )
     # TODO: Add GuildChannelPayload
     def __init__(self, data: Any, guild: Guild):
         self.guild = guild
@@ -50,8 +69,8 @@ class GuildChannel:
 
     def _update(self, data: Any):
         self.id = helpers.get_snowflake(data, 'id')
-        self.guild_id = helpers.get_snowflake(data, 'guild_id')
-        self.parent_id = helpers.get_snowflake(data, 'parent_id')
+        self.guild_id = helpers.get_snowflake(data, 'guild_id') or self.guild.id
+        self.category_id = helpers.get_snowflake(data, 'parent_id')
 
         self.type = int(data['type'])
         self.position = int(data.get('position', 0))
