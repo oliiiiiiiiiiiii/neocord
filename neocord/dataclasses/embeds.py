@@ -92,6 +92,32 @@ class Embed:
 
         return ret
 
+    @classmethod
+    def from_dict(cls, data: Any) -> Embed:
+        # create an empty embed and populate it by data we have.
+        embed = cls()
+
+        objects = {
+            'fields': EmbedField,
+            'image': EmbedImage,
+            'thumbnail': EmbedThumbnail,
+            'footer': EmbedFooter,
+            'author': EmbedAuthor,
+        }
+
+        for key in data:
+            item = data[key]
+            if key in objects:
+                obj = objects[key]
+                if isinstance(item, list):
+                    setattr(embed, key, [obj(i) for i in item]) # type: ignore
+                else:
+                    setattr(embed, key, obj(item))
+            else:
+                setattr(embed, key, data[key])
+
+        return embed
+
 class BaseEmbedComponent:
     VALID_KEYS: Set[str] = set()
 
