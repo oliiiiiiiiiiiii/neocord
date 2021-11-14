@@ -217,10 +217,7 @@ class Role(DiscordModel):
 
 
         if color is not MISSING or colour is not MISSING:
-            if color is not MISSING:
-                payload['color'] = color.value
-            elif colour is not MISSING:
-                payload['color'] = colour.value
+            payload['color'] = helpers.get_either_or(color, colour, equ=MISSING).value
 
         if payload:
             data = await self._state.http.edit_role(

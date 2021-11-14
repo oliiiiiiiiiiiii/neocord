@@ -55,3 +55,11 @@ def get_snowflake(data: Any, key: str) -> Optional[int]:
 
 def iso_to_datetime(ts: str) -> datetime.datetime:
     return datetime.datetime.fromisoformat(ts)
+
+def get_either_or(either: Any, or_: Any, equ: Any = MISSING):
+    if either is not equ:
+        return either
+    if or_ is not equ:
+        return  equ
+    else:
+        return either or or_
