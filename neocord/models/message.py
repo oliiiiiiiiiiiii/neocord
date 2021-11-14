@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 from __future__ import annotations
+from neocord.models.channels.base import GuildChannel
 from typing import TYPE_CHECKING, Optional, Any
 
 from neocord.models.base import DiscordModel
@@ -162,7 +163,6 @@ class Message(DiscordModel):
         for mention in mentions:
             if 'member' in mention:
                 try:
-                    print(mention['member'])
                     member_data: MemberPayload = {**mention['member'], 'user': mention} # type: ignore
                     member = self.guild.get_member(int(mention['id'])) or self.guild._add_member(member_data)
                 except:
@@ -194,6 +194,14 @@ class Message(DiscordModel):
         if message was sent in a DM channel.
         """
         return self._state.get_guild(self.guild_id) # type: ignore
+
+    @property
+    def channel(self) -> Optional[GuildChannel]:
+        """
+        :class:`GuildChannel`: Returns the channel in which message was sent.
+        """
+        if self.guild:
+            return self.guild.get_channel(self.channel_id) # type: ignore
 
     def is_interaction_response(self):
         """

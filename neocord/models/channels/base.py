@@ -28,6 +28,19 @@ from neocord.internal import helpers
 if TYPE_CHECKING:
     from neocord.models.guild import Guild
 
+class ChannelType:
+    TEXT = 0
+    DM = 1
+    VOICE = 2
+    GROUP = 3
+    CATEGORY = 4
+    NEWS = 5
+    STORE = 6
+    NEWS_THREAD = 7
+    PUBLIC_THREAD = 8
+    PRIVATE_THREAD = 9
+    STAGE = 10
+
 class GuildChannel:
     """
     Base class that implements basic operations for all channels types in a guild.
@@ -58,7 +71,7 @@ class GuildChannel:
         The name of channel.
     """
     __slots__ = (
-        'guild', 'state', 'id', 'guild_id', 'parent_id', 'type',
+        'guild', '_state', 'id', 'guild_id', 'category_id', 'type',
         'position', 'name', '_permissions_overwrite', '_permissions'
         )
     # TODO: Add GuildChannelPayload
