@@ -114,7 +114,7 @@ class Messageable:
         Forbidden:
             You are not allowed to delete this message.
         HTTPError:
-            The message sending failed somehow.
+            The message deleting failed somehow.
         """
         channel = await self._get_messageable_channel()
         await self._state.http.delete_message(channel_id=channel.id, message_id=message.id)
