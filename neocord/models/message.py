@@ -21,7 +21,6 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from neocord.models.channels.base import GuildChannel
 from typing import TYPE_CHECKING, Optional, Any, Union
 
 from neocord.models.base import DiscordModel
@@ -31,6 +30,7 @@ from neocord.internal import helpers
 
 
 if TYPE_CHECKING:
+    from neocord.models.channels.base import GuildChannel
     from neocord.api.state import State
     from neocord.models.user import User
     from neocord.models.guild import Guild
