@@ -138,8 +138,8 @@ class Message(DiscordModel):
                 # resolve it to user.
                 self.author = self.guild.get_member(int(author['id']))
 
-            if self.author is None:
-                self.author = self.state.get_user(int(author['id'])) or self.state.add_user(author)
+            else:
+                self.author = self._state.get_user(int(author['id'])) or self._state.add_user(author)
 
         self.interaction = None
         inter = data.get('interaction')
