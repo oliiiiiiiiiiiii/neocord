@@ -44,3 +44,17 @@ class GuildRoutes(BaseRouteMixin):
 
     def delete_role(self, guild_id: Snowflake, role_id: Snowflake, reason: Optional[str]):
         return self.request(Route('DELETE', '/guilds/{guild_id}/roles/{role_id}', guild_id=guild_id, role_id=role_id), reason=reason)
+
+    # members
+
+    def get_guild_member(self, guild_id: Snowflake, member_id: Snowflake):
+        route = Route('GET', '/guilds/{guild_id}/members/{member_id}', guild_id=guild_id, member_id=member_id)
+        return self.request(route)
+
+    def edit_guild_member(self, guild_id: Snowflake, member_id: Snowflake, payload: Any, reason: str = None):
+        route = Route('PATCH', '/guilds/{guild_id}/members/{member_id}', guild_id=guild_id, member_id=member_id)
+        return self.request(route, json=payload, reason=reason)
+
+    def kick_guild_member(self, guild_id: Snowflake, member_id: Snowflake, reason: str = None):
+        route = Route('DELETE', '/guilds/{guild_id}/members/{member_id}', guild_id=guild_id, member_id=member_id)
+        return self.request(route, reason=reason)

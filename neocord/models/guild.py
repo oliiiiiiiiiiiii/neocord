@@ -21,6 +21,8 @@
 # SOFTWARE.
 
 from __future__ import annotations
+from neocord.typings.role import _RoleTagsOptional
+from neocord.typings.member import Member
 from typing import List, Optional, TYPE_CHECKING
 
 from neocord.models.base import DiscordModel
@@ -29,6 +31,7 @@ from neocord.models.role import Role
 from neocord.models.member import GuildMember
 from neocord.dataclasses.flags.system import SystemChannelFlags
 from neocord.internal import helpers
+from neocord.internal.missing import MISSING
 
 if TYPE_CHECKING:
     from neocord.typings.guild import Guild as GuildPayload
@@ -340,3 +343,112 @@ class Guild(DiscordModel):
             The requested member.
         """
         return self._members.get(id)
+
+    async def fetch_member(self, id: int, /) -> GuildMember:
+        """
+        Fetches a member from the guild.
+
+        This is a direct API call and shouldn't be used in general cases. If you
+        have member intents, Consider using :meth:`.get_member`
+
+        Parameters
+        ----------
+        id: :class:`int`
+            The snowflake ID of member.
+
+        Returns
+        -------
+        :class:`GuildMember`
+            The requested member.
+
+        Raises
+        ------
+        NotFound:
+            Member not found.
+        HTTPException:
+            Fetching of member failed.
+        """
+        data = await self.state.http.get_guild_member(guild_id=self.id, member_id=id)
+        return GuildMember(data, guild=self)
+
+    async def edit_member(self,
+        member: DiscordModel, *,
+        nick: Optional[str] = MISSING,
+        roles: Optional[List[DiscordModel]] = MISSING,
+        mute: Optional[bool] = MISSING,
+        deaf: Optional[bool] = MISSING,
+        voice_channel: Optional[DiscordModel] = MISSING,
+        reason: str = None
+    ):
+        """
+        Edits a member from this guild.
+
+        This is a shorthand to :meth:`GuildMember.edit` except this doesn't requires the
+        member to be fetched explicitly.
+
+        Except ``member``, All parameters are optional and keyword only.
+
+        Parameters
+        ----------
+        member: :class:`DiscordModel`
+            The member that will be edited. :class:`ModelMimic` can be passed
+            to avoid fetching or getting the member explicitly.
+        nick: :class:`str`
+            The new nickname of member.
+        roles: List[:class:`DiscordModel`]
+            List of roles (or :class:`ModelMimic`) that should be assigned to member.
+        mute: :class:`bool`
+            Whether to mute the member in voice channel. Requires member to be in voice
+            channel.
+        deaf: :class:`bool`
+            Whether to deafen the member in voice channel. Requires member to be in voice
+            channel.
+        voice_channel: :class:`DiscordModel`
+            The voice channel to move the member to. Requires member to be in voice
+            channel.
+        reason: :class:`str`
+            The reason for this action that shows up on audit log.
+        """
+        payload = {}
+
+        if nick is not MISSING:
+            payload['nick'] = nick
+        if roles is not MISSING:
+            payload['roles'] = [r.id for r in roles]
+        if mute is not MISSING:
+            payload['mute'] = mute
+        if deaf is not MISSING:
+            payload['deaf'] = deaf
+        if voice_channel is not MISSING:
+            payload['channel_id'] = voice_channel.id
+
+        if payload:
+            await self.state.http.edit_guild_member(
+                guild_id=self.id,
+                member_id=member.id,
+                payload=payload,
+                reason=reason
+                )
+
+    async def kick_member(self, member: DiscordModel, *, reason: str = None):
+        """
+        Kicks a member from this guild.
+
+        This is a shorthand to :meth:`GuildMember.kick` except this doesn't requires the
+        member to be fetched explicitly.
+
+        Except ``member``, All parameters are optional and keyword only.
+
+        Parameters
+        ----------
+        member: :class:`DiscordModel`
+            The member that will be kicked. :class:`ModelMimic` can be passed
+            to avoid fetching or getting the member explicitly.
+        reason: :class:`str`
+            The reason for this action that shows up on audit log.
+        """
+        await self.state.http.kick_guild_member(
+            guild_id=self.id,
+            member_id=member.id,
+            reason=reason
+            )
