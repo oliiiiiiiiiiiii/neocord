@@ -102,7 +102,6 @@ class Messageable:
         Deletes a message from the destination. A shorthand and a lower level of
         :meth:`Message.delete`.
 
-        This method can be used to delete message without fetching it and avoiding API call.
 
         Parameters
         ----------
