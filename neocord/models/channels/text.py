@@ -111,6 +111,7 @@ class TextChannel(GuildChannel, Messageable):
         position: Optional[int] = None,
         rate_limit_per_user: Optional[int] = None,
         default_auto_archive_duration: Optional[int] = None,
+        reason: Optional[str] = None,
     ) -> None:
         """
         Edits the text channel.
@@ -129,6 +130,8 @@ class TextChannel(GuildChannel, Messageable):
             The ratelimit per user aka channel message cooldown for a user.
         default_auto_archive_duration: :class:`int`
             The default thread auto-archiving durations of this channel.
+        reason: :class:`str`
+            The reason for this edit that appears on Audit log.
 
         Raises
         ------
@@ -155,4 +158,5 @@ class TextChannel(GuildChannel, Messageable):
         await self._state.http.edit_channel(
             channel_id=self.id,
             payload=payload,
+            reason=reason,
         )
