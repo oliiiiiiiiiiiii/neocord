@@ -508,7 +508,7 @@ class Guild(DiscordModel):
     def _remove_emoji(self, id: int):
         return self._emojis.pop(id, None)
 
-    def get_emoji(self, id: int, /):
+    def get_emoji(self, id: int, /) -> Optional[Emoji]:
         """
         Gets a custom emoji from the guild. This method returns None is the emoji with
         provided ID is not found.
@@ -524,3 +524,10 @@ class Guild(DiscordModel):
             The requested emoji.
         """
         return self._emojis.get(id)
+
+    @property
+    def emojis(self) -> List[Emoji]:
+        """
+        List[:class:`Emoji`]: Returns the list of custom emojis that belong to this guild.
+        """
+        return list(self._emojis.values())
