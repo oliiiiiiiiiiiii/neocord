@@ -122,7 +122,10 @@ class VoiceChannel(GuildChannel):
         if position is not None:
             payload['position'] = position
         if category is not MISSING:
-            payload['parent_id'] = category and category.id
+            if category is None:
+                payload['parent_id'] = None
+            else:
+                payload['parent_id'] = category.id
 
         if bitrate is not None:
             payload['bitrate'] = bitrate

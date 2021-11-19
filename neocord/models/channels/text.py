@@ -160,7 +160,11 @@ class TextChannel(GuildChannel, Messageable):
         if default_auto_archive_duration is not MISSING:
             payload['default_auto_archive_duration'] = default_auto_archive_duration
         if category is not MISSING:
-            payload['parent_id'] = category and category.id
+            if category is None:
+                payload['parent_id'] = None
+            else:
+                payload['parent_id'] = category.id
+
 
 
         await self._state.http.edit_channel(
