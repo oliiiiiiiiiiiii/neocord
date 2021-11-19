@@ -20,19 +20,35 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# This module exists to avoid circular imports.
-
 from __future__ import annotations
-from typing import TYPE_CHECKING, Type, Any
+from typing import TYPE_CHECKING, Any, List
 
-from neocord.models.channels.base import ChannelType, GuildChannel
-from neocord.models.channels.text import TextChannel
-from neocord.models.channels.category import CategoryChannel
+from neocord.models.channels.base import GuildChannel
 
-def _get_channel_cls(ctype: int) -> Type[GuildChannel]:
-    if ctype == ChannelType.TEXT:
-        return TextChannel
-    if ctype == ChannelType.CATEGORY:
-        return CategoryChannel
-    else:
-        return GuildChannel
+if TYPE_CHECKING:
+    from neocord.models.guild import Guild
+
+
+class CategoryChannel(GuildChannel):
+    """
+    Represents a category channel.
+
+    A category channel can be used to organize other channels in a guild as such
+    other channels can inherit the permissions and options for a category.
+
+
+    """
+    if TYPE_CHECKING:
+        def __init__(self, data: Any, guild: Guild):
+            ...
+
+    @property
+    def channels(self) -> List[GuildChannel]:
+        """
+        Returns the channels within this organizational category.
+
+        Returns
+        -------
+        List[:class:`GuildChannel`]
+        """
+        return [c for c in self.guild.channels if c.category_id == self.id]

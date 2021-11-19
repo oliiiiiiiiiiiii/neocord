@@ -23,7 +23,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
-from neocord.models.channels.base import GuildChannel
+from neocord.models.channels.base import ChannelType, GuildChannel
 from neocord.internal import helpers
 from neocord.abc import Messageable
 
@@ -66,6 +66,13 @@ class TextChannel(GuildChannel, Messageable):
         self.rate_limit_per_user = int(data.get('rate_limit_per_user', 0))
         self.topic = data.get('topic')
         self.nsfw = data.get('nsfw', False)
+
+    def is_news(self) -> bool:
+        """
+        Returns a boolean that indicates if the channel is a news aka announcement
+        channel.
+        """
+        return self.type is ChannelType.NEWS
 
     async def _get_messageable_channel(self) -> TextChannel:
         return self
