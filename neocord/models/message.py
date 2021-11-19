@@ -30,13 +30,16 @@ from neocord.internal import helpers
 
 
 if TYPE_CHECKING:
-    from neocord.models.channels.base import GuildChannel
     from neocord.api.state import State
     from neocord.models.user import User
     from neocord.models.guild import Guild
     from neocord.abc import Messageable
     from neocord.typings.message import Message as MessagePayload
     from neocord.typings.member import Member as MemberPayload
+
+    from neocord.models.channels.text import TextChannel
+
+    MessageableChannel = Union[TextChannel]
 
 class MessageInteraction(DiscordModel):
     """
@@ -197,7 +200,7 @@ class Message(DiscordModel):
         return self._state.get_guild(self.guild_id) # type: ignore
 
     @property
-    def channel(self) -> Optional[Union[GuildChannel, Messageable]]:
+    def channel(self) -> Optional[MessageableChannel]:
         """
         :class:`GuildChannel`: Returns the channel in which message was sent.
         """
