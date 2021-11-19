@@ -23,8 +23,6 @@
 from __future__ import annotations
 from typing import List, TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from neocord.models.base import DiscordModel
 
 class AllowedMentions:
     """

@@ -212,7 +212,7 @@ class GuildMember(DiscordModel):
         ----------
         nick: :class:`str`
             The new nickname of member.
-        roles: List[:class:`DiscordModel`]
+        roles: List[:class:`Role`]
             List of roles (or :class:`ModelMimic`) that should be assigned to member.
         mute: :class:`bool`
             Whether to mute the member in voice channel. Requires member to be in voice
@@ -220,7 +220,7 @@ class GuildMember(DiscordModel):
         deaf: :class:`bool`
             Whether to deafen the member in voice channel. Requires member to be in voice
             channel.
-        voice_channel: :class:`DiscordModel`
+        voice_channel: :class:`VoiceChannel`
             The voice channel to move the member to. Requires member to be in voice
             channel.
         reason: :class:`str`

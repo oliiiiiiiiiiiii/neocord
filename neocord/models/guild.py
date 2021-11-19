@@ -393,12 +393,12 @@ class Guild(DiscordModel):
 
         Parameters
         ----------
-        member: :class:`DiscordModel`
+        member: :class:`Member`
             The member that will be edited. :class:`ModelMimic` can be passed
             to avoid fetching or getting the member explicitly.
         nick: :class:`str`
             The new nickname of member.
-        roles: List[:class:`DiscordModel`]
+        roles: List[:class:`Role`]
             List of roles (or :class:`ModelMimic`) that should be assigned to member.
         mute: :class:`bool`
             Whether to mute the member in voice channel. Requires member to be in voice
@@ -406,7 +406,7 @@ class Guild(DiscordModel):
         deaf: :class:`bool`
             Whether to deafen the member in voice channel. Requires member to be in voice
             channel.
-        voice_channel: :class:`DiscordModel`
+        voice_channel: :class:`VoiceChannel`
             The voice channel to move the member to. Requires member to be in voice
             channel.
         reason: :class:`str`
@@ -444,7 +444,7 @@ class Guild(DiscordModel):
 
         Parameters
         ----------
-        member: :class:`DiscordModel`
+        member: :class:`Member`
             The member that will be kicked. :class:`ModelMimic` can be passed
             to avoid fetching or getting the member explicitly.
         reason: :class:`str`
