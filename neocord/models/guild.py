@@ -140,11 +140,10 @@ class Guild(DiscordModel):
             self._add_member(member)
         for channel in data.get('channels', []):
             self._add_channel(channel)
-        for emoji in data.get('emojis', []):
-            self._add_emoji(emoji)
         for role in data.get('roles', []):
             self._add_role(role)
 
+        self._bulk_overwrite_emojis(data.get('emojis', []))
 
     def _update(self, data: GuildPayload):
         self.name = data.get('name')
@@ -507,6 +506,16 @@ class Guild(DiscordModel):
 
     def _remove_emoji(self, id: int):
         return self._emojis.pop(id, None)
+
+    def _bulk_overwrite_emojis(self, emojis: List[EmojiPayload]):
+        # This is for GUILD_EMOJIS_UPDATE event, we don't have separate
+        # create or delete events for emojis.
+
+        self._emojis.clear()
+
+        for emoji in emojis:
+            self._add_emoji(emoji)
+
 
     def get_emoji(self, id: int, /) -> Optional[Emoji]:
         """
