@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from typing import TYPE_CHECKING, Any
+from typing import Optional, TYPE_CHECKING, Any
 
 from neocord.models.channels.base import ChannelType, GuildChannel
 from neocord.models.message import Message
@@ -103,3 +103,56 @@ class TextChannel(GuildChannel, Messageable):
 
     async def _get_messageable_channel(self) -> TextChannel:
         return self
+
+    async def edit(self, *,
+        name: Optional[str] = None,
+        topic: Optional[str] = None,
+        nsfw: Optional[bool] = None,
+        position: Optional[int] = None,
+        rate_limit_per_user: Optional[int] = None,
+        default_auto_archive_duration: Optional[int] = None,
+    ) -> None:
+        """
+        Edits the text channel.
+
+        Parameters
+        ----------
+        name: :class:`str`
+            The new name of channel.
+        topic: :class:`str`
+            The new topic of channel.
+        nsfw: :class:`bool`
+            Whether the channel should be NSFW or not.
+        position: :class:`int`
+            The new position of channel.
+        rate_limit_per_user: :class:`int`
+            The ratelimit per user aka channel message cooldown for a user.
+        default_auto_archive_duration: :class:`int`
+            The default thread auto-archiving durations of this channel.
+
+        Raises
+        ------
+        Forbidden:
+            You are not allowed to edit this channel.
+        HTTPError:
+            The editing of text channel failed somehow.
+        """
+        payload = {}
+
+        if name is not None:
+            payload['name'] = name
+        if topic is not None:
+            payload['topic'] = topic
+        if nsfw is not None:
+            payload['nsfw'] = nsfw
+        if position is not None:
+            payload['position'] = position
+        if rate_limit_per_user is not None:
+            payload['rate_limit_per_user'] = rate_limit_per_user
+        if default_auto_archive_duration is not None:
+            payload['default_auto_archive_duration'] = default_auto_archive_duration
+
+        await self._state.http.edit_channel(
+            channel_id=self.id,
+            payload=payload,
+        )

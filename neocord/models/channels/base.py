@@ -94,6 +94,9 @@ class GuildChannel(DiscordModel):
         self._permissions_overwrite = data.get('permissions_overwrite')
         self._permissions = data.get('permissions')
 
+    async def edit(self) -> None:
+        raise NotImplementedError
+
     async def delete(self, *, reason: Optional[str] = None):
         """
         Deletes the channel.

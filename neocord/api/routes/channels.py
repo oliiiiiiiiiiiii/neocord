@@ -30,6 +30,9 @@ if TYPE_CHECKING:
 
 class ChannelRoutes(BaseRouteMixin):
 
+    def edit_channel(self, channel_id: Snowflake, payload):
+        return self.request(Route('PATCH', '/channels/{channel_id}', channel_id=channel_id), json=payload)
+
     def delete_channel(self, channel_id: Snowflake, reason: Optional[str]):
         return self.request(Route('DELETE', '/channels/{channel_id}', channel_id=channel_id), reason=reason)
 
