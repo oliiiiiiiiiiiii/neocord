@@ -66,13 +66,13 @@ class flag:
         if not instance:
             return self.value
 
-        return (self.value & instance.value)  == self.value
+        return (self.value & instance.value) == self.value
 
     def __set__(self, instance: Optional[BaseFlags], val: bool):
         if not instance:
             return
 
-        exists = (self.value & instance.value)  == self.value
+        exists = (self.value & instance.value) == self.value
 
         if val is False and exists:
             instance._value -= self.value
