@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from typing import TYPE_CHECKING, Any, List
+from typing import Optional, TYPE_CHECKING, Any, List
 
 from neocord.models.channels.base import GuildChannel
 
@@ -52,3 +52,19 @@ class CategoryChannel(GuildChannel):
         List[:class:`GuildChannel`]
         """
         return [c for c in self.guild.channels if c.category_id == self.id]
+
+    async def edit(self, *,
+        name: Optional[str] = None,
+        position: Optional[int] = None,
+        nsfw: Optional[bool] = None,
+    ) -> None:
+        payload = {}
+
+        if name is not None:
+            payload['name'] = name
+        if position is not None:
+            payload['position'] = position
+        if nsfw is not None:
+            payload['nsfw'] = nsfw
+
+        await self._state.http.edit_channel(channel_id=self.id, payload=payload)
