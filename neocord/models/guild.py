@@ -467,8 +467,15 @@ class Guild(DiscordModel):
 
     @property
     def channels(self) -> List[GuildChannel]:
-        """List[:class:`GuildChannel`]: Returns the list of channels in guild."""
-        return list(self._channels.values())
+        """List[:class:`GuildChannel`]: Returns the list of channels in guild.
+
+        These are sorted in the same way as in the Discord client i.e voice channels
+        below other channels.
+        """
+        channels = list(self._channels.values())
+        channels.sort(key=lambda c: c.position)
+
+        return channels
 
     def get_channel(self, id: int, /) -> Optional[GuildChannel]:
         """
