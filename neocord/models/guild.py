@@ -27,9 +27,9 @@ from neocord.models.base import DiscordModel
 from neocord.models.asset import CDNAsset
 from neocord.models.role import Role
 from neocord.models.member import GuildMember
-from neocord.models.channels.factories import _get_channel_cls
-from neocord.dataclasses.flags.system import SystemChannelFlags
+from neocord.internal.factories import channel_factory
 from neocord.internal import helpers
+from neocord.dataclasses.flags.system import SystemChannelFlags
 from neocord.internal.missing import MISSING
 
 if TYPE_CHECKING:
@@ -457,7 +457,7 @@ class Guild(DiscordModel):
             )
 
     def _add_channel(self, data: Any) -> GuildChannel:
-        cls = _get_channel_cls(int(data['type']))
+        cls = channel_factory(int(data['type']))
         channel = cls(data, guild=self)
         self._channels[channel.id] = channel
         return channel

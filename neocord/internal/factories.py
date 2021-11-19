@@ -29,7 +29,7 @@ from neocord.models.channels.base import ChannelType, GuildChannel
 from neocord.models.channels.text import TextChannel
 from neocord.models.channels.category import CategoryChannel
 
-def _get_channel_cls(ctype: int) -> Type[GuildChannel]:
+def channel_factory(ctype: int) -> Type[GuildChannel]:
     if ctype == ChannelType.TEXT:
         return TextChannel
     if ctype == ChannelType.CATEGORY:
