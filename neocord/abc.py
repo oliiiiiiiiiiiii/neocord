@@ -109,7 +109,7 @@ class Messageable:
 
         Parameters
         ----------
-        message: :class:`DiscordModel`
+        message: :class:`Message`
             The message to delete.
 
         Raises
