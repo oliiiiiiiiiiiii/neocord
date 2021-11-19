@@ -27,6 +27,7 @@ from neocord.models.base import DiscordModel
 from neocord.models.asset import CDNAsset
 from neocord.models.role import Role
 from neocord.models.member import GuildMember
+from neocord.models.emoji import Emoji
 from neocord.internal.factories import channel_factory
 from neocord.internal import helpers
 from neocord.dataclasses.flags.system import SystemChannelFlags
@@ -37,6 +38,7 @@ if TYPE_CHECKING:
     from neocord.typings.guild import Guild as GuildPayload
     from neocord.typings.role import Role as RolePayload
     from neocord.typings.member import Member as MemberPayload
+    from neocord.typings.emoji import Emoji as EmojiPayload
     from neocord.api.state import State
     from datetime import datetime
 
@@ -114,18 +116,21 @@ class Guild(DiscordModel):
         'system_channel_id', 'rules_channel_id', 'public_updates_channel_id', 'system_channel_flags',
         '_joined_at', 'verification_level', 'default_message_notifications', 'explicit_content_filter',
         'mfa_level', 'premium_tier', 'nsfw_level', '_icon', '_splash', '_banner', '_discovery_splash',
-        'welcome_screen', 'features', '_roles'
+        'welcome_screen', 'features', '_roles', '_events',
     )
 
     def __init__(self, data: GuildPayload, state: State):
         self._state = state
+
         self._voice_states = {}
-        self._members = {}
-        self._channels = {}
         self._threads = {}
         self._presences = {}
         self._stage_instances = {}
         self._stickers = {}
+        self._events = {}
+
+        self._members = {}
+        self._channels = {}
         self._emojis = {}
         self._roles = {}
 
@@ -133,9 +138,12 @@ class Guild(DiscordModel):
 
         for member in data.get('members', []):
             self._add_member(member)
-
         for channel in data.get('channels', []):
             self._add_channel(channel)
+        for emoji in data.get('emojis', []):
+            self._add_emoji(emoji)
+        for role in data.get('roles', []):
+            self._add_role(role)
 
 
     def _update(self, data: GuildPayload):
@@ -191,8 +199,6 @@ class Guild(DiscordModel):
         # objects
         self.welcome_screen = data.get('welcome_screen')
 
-        for role in data.get('roles', []):
-            self._add_role(role)
 
     # assets
 
@@ -493,3 +499,28 @@ class Guild(DiscordModel):
             The requested channel.
         """
         return self._channels.get(id)
+
+    def _add_emoji(self, data: EmojiPayload):
+        emoji = Emoji(data, guild=self)
+        self._emojis[emoji.id] = emoji
+        return emoji
+
+    def _remove_emoji(self, id: int):
+        return self._emojis.pop(id, None)
+
+    def get_emoji(self, id: int, /):
+        """
+        Gets a custom emoji from the guild. This method returns None is the emoji with
+        provided ID is not found.
+
+        Parameters
+        ----------
+        id: :class:`int`
+            The ID of the emoji.
+
+        Returns
+        -------
+        :class:`Emoji`
+            The requested emoji.
+        """
+        return self._emojis.get(id)
