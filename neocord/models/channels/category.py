@@ -59,6 +59,27 @@ class CategoryChannel(GuildChannel):
         nsfw: Optional[bool] = None,
         reason: Optional[str] = None,
     ) -> None:
+        """
+        Edits the category channel.
+
+        Parameters
+        ----------
+        name: :class:`str`
+            The new name of channel.
+        nsfw: :class:`bool`
+            Whether the channel should be NSFW or not.
+        position: :class:`int`
+            The new position of channel.
+        reason: :class:`str`
+            The reason for this edit that appears on Audit log.
+
+        Raises
+        ------
+        Forbidden:
+            You are not allowed to edit this channel.
+        HTTPError:
+            The editing of category channel failed somehow.
+        """
         payload = {}
 
         if name is not None:
