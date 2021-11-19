@@ -28,6 +28,7 @@ from neocord.models.base import DiscordModel
 
 if TYPE_CHECKING:
     from neocord.models.guild import Guild
+    from neocord.models.channels.category import CategoryChannel
 
 class ChannelType:
     TEXT = 0
@@ -93,6 +94,14 @@ class GuildChannel(DiscordModel):
         # TODO
         self._permissions_overwrite = data.get('permissions_overwrite')
         self._permissions = data.get('permissions')
+
+    @property
+    def category(self) -> Optional[CategoryChannel]:
+        """
+        Optional[:class:`CategoryChannel`]: Returns the category of this channel. None if
+        channel has no parent category.
+        """
+        return self.guild.get_channel(self.category_id) # type: ignore
 
     async def edit(self, **kw: Any) -> None:
         raise NotImplementedError
