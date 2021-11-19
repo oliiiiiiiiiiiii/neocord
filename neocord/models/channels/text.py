@@ -24,6 +24,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from neocord.models.channels.base import ChannelType, GuildChannel
+from neocord.models.message import Message
 from neocord.internal import helpers
 from neocord.abc import Messageable
 
@@ -73,6 +74,32 @@ class TextChannel(GuildChannel, Messageable):
         channel.
         """
         return self.type is ChannelType.NEWS
+
+    async def fetch_message(self, id: int, /) -> Message:
+        """
+        Fetches a message from this channel.
+
+        Parameters
+        ----------
+        id: :class:`int`
+            The ID of the message.
+
+        Returns
+        -------
+        :class:`Message`
+            The requested message.
+
+        Raises
+        ------
+        NotFound:
+            Message was not found. i.e ID is incorrect.
+        Forbidden:
+            You are not allowed to fetch this message.
+        HTTPError:
+            The fetching failed somehow.
+        """
+        data = await self._state.http.get_message(channel_id=self.id, message_id=id)
+        return Message(data, state=self._state)
 
     async def _get_messageable_channel(self) -> TextChannel:
         return self

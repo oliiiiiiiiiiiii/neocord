@@ -25,7 +25,6 @@ from typing import TYPE_CHECKING, Any, Optional
 
 from neocord.internal import helpers
 from neocord.models.base import DiscordModel
-from neocord.models.message import Message
 
 if TYPE_CHECKING:
     from neocord.models.guild import Guild
@@ -112,29 +111,3 @@ class GuildChannel(DiscordModel):
             The deletion failed somehow.
         """
         await self._state.http.delete_channel(channel_id=self.id, reason=reason)
-
-    async def fetch_message(self, id: int, /) -> Message:
-        """
-        Fetches a message from this channel.
-
-        Parameters
-        ----------
-        id: :class:`int`
-            The ID of the message.
-
-        Returns
-        -------
-        :class:`Message`
-            The requested message.
-
-        Raises
-        ------
-        NotFound:
-            Message was not found. i.e ID is incorrect.
-        Forbidden:
-            You are not allowed to fetch this message.
-        HTTPError:
-            The fetching failed somehow.
-        """
-        data = await self._state.http.get_message(channel_id=self.id, message_id=id)
-        return Message(data, state=self._state)
