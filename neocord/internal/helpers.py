@@ -30,6 +30,7 @@ import base64
 
 if TYPE_CHECKING:
     from neocord.dataclasses.embeds import Embed
+    from neocord.dataclasses.mentions import AllowedMentions
 
 def get_image_data(data: Optional[bytes]) -> Optional[str]:
     if data is None or data is MISSING:
@@ -68,10 +69,11 @@ def get_either_or(either: Any, or_: Any, equ: Any = MISSING):
     else:
         return either or or_
 
-def parse_message_create_payload(*,
+def parse_message_create_payload(client, *,
     content: Optional[str] = None,
     embed: Optional[Embed] = None,
     embeds: Optional[List[Embed]] = None,
+    allowed_mentions: Optional[AllowedMentions] = None,
     ) -> Dict[str, Any]:
 
     if embed is not None and embeds is not None:
@@ -86,5 +88,11 @@ def parse_message_create_payload(*,
 
     if content is not None:
         payload['content'] = content
+
+    if allowed_mentions is not None:
+        payload['allowed_mentions'] = allowed_mentions.to_dict()
+    else:
+        if client.allowed_mentions is not None:
+            payload['allowed_mentions'] = client.allowed_mentions.to_dict()
 
     return payload

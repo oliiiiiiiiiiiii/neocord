@@ -32,6 +32,7 @@ import asyncio
 if TYPE_CHECKING:
     from neocord.models.base import DiscordModel
     from neocord.dataclasses.embeds import Embed
+    from neocord.dataclasses.mentions import AllowedMentions
     from neocord.api.state import State
 
 class Messageable:
@@ -47,6 +48,7 @@ class Messageable:
         embed: Optional[Embed] = None,
         embeds: Optional[List[Embed]] = None,
         delete_after: Optional[float] = None,
+        allowed_mentions: Optional[AllowedMentions] = None,
     ) -> Message:
         """
         Sends a message to the destination.
@@ -76,9 +78,11 @@ class Messageable:
         """
         channel = await self._get_messageable_channel()
         payload = helpers.parse_message_create_payload(
+            self._state.client,
             content=content,
             embed=embed,
             embeds=embeds,
+            allowed_mentions=allowed_mentions,
         )
         data = await self._state.http.create_message(
             channel_id=channel.id,
