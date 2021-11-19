@@ -37,9 +37,9 @@ async def on_message(message):
 # run the bot.
 client.run('bot-token')
 ```
-There are a lot more features that are up to you to discover. Feel
+<!--There are a lot more features that are up to you to discover. Feel
 free to explore the library's [documentation](https://neocord.rtfd.io) and
-discover the possibilites.
+discover the possibilites. -->
 
 
 ## Inspiration from discord.py
