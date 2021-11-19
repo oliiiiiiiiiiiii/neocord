@@ -23,9 +23,11 @@
 from __future__ import annotations
 from typing import Optional, TYPE_CHECKING, Any
 
+from neocord.models.base import DiscordModel
 from neocord.models.channels.base import ChannelType, GuildChannel
 from neocord.models.message import Message
 from neocord.internal import helpers
+from neocord.internal.missing import MISSING
 from neocord.abc import Messageable
 
 if TYPE_CHECKING:
@@ -106,11 +108,12 @@ class TextChannel(GuildChannel, Messageable):
 
     async def edit(self, *,
         name: Optional[str] = None,
-        topic: Optional[str] = None,
         nsfw: Optional[bool] = None,
         position: Optional[int] = None,
-        rate_limit_per_user: Optional[int] = None,
-        default_auto_archive_duration: Optional[int] = None,
+        topic: Optional[str] = MISSING,
+        rate_limit_per_user: Optional[int] = MISSING,
+        default_auto_archive_duration: Optional[int] = MISSING,
+        category: Optional[DiscordModel] = MISSING,
         reason: Optional[str] = None,
     ) -> None:
         """
@@ -130,6 +133,8 @@ class TextChannel(GuildChannel, Messageable):
             The ratelimit per user aka channel message cooldown for a user.
         default_auto_archive_duration: :class:`int`
             The default thread auto-archiving durations of this channel.
+        category: :class:`CategoryChannel`
+            The ID of category that this channel should be put in.
         reason: :class:`str`
             The reason for this edit that appears on Audit log.
 
@@ -144,16 +149,19 @@ class TextChannel(GuildChannel, Messageable):
 
         if name is not None:
             payload['name'] = name
-        if topic is not None:
+        if topic is not MISSING:
             payload['topic'] = topic
         if nsfw is not None:
             payload['nsfw'] = nsfw
         if position is not None:
             payload['position'] = position
-        if rate_limit_per_user is not None:
+        if rate_limit_per_user is not MISSING:
             payload['rate_limit_per_user'] = rate_limit_per_user
-        if default_auto_archive_duration is not None:
+        if default_auto_archive_duration is not MISSING:
             payload['default_auto_archive_duration'] = default_auto_archive_duration
+        if category is not MISSING:
+            payload['parent_id'] = category.id
+
 
         await self._state.http.edit_channel(
             channel_id=self.id,
