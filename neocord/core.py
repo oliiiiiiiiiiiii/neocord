@@ -232,7 +232,8 @@ class Client:
             The event name to get listeners for.
         include_temporary: :class:`bool`
             Whether to include temporary listeners, i.e those that are marked
-            to call only once. Defaults to False.
+            to call only once. Defaults to False. Setting this to True would also
+            return the internal listeners i.e the one's that were added by :meth:`.wait_for`
 
         Returns
         -------
