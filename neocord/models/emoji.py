@@ -96,5 +96,5 @@ class Emoji(DiscordModel):
     @property
     def url(self) -> str:
         """:class:`str`: Returns the URL of the emoji."""
-        return CDNAsset.BASE_CDN_URL + f'/emojis/{self.id}.{"gif" if self.animated else "png"}'
+        return  f'{CDNAsset.BASE_CDN_URL}/emojis/{self.id}.{"gif" if self.animated else "png"}'
 
