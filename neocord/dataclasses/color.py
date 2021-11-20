@@ -63,6 +63,9 @@ class Color:
     def g(self) -> int:
         return (self.value >> 8) & 255
 
+    def __int__(self) -> int:
+        return self.value
+
     def __repr__(self):
         return 'Colour({r}, {g}, {b})'.format(r=self.r, g=self.g, b=self.b)
 

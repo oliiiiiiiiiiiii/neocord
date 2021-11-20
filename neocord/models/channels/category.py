@@ -21,18 +21,34 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from typing import Tuple
+from typing import TYPE_CHECKING, Any, List
 
-from .base import *
-from .user import *
-from .gateway import *
-from .guild import *
-from .channels import *
+from neocord.models.channels.base import GuildChannel
 
-class Routes(
-    UsersRoutes,
-    GatewayRoutes,
-    GuildRoutes,
-    ChannelRoutes,
-):
-    pass
+if TYPE_CHECKING:
+    from neocord.models.guild import Guild
+
+
+class CategoryChannel(GuildChannel):
+    """
+    Represents a category channel.
+
+    A category channel can be used to organize other channels in a guild as such
+    other channels can inherit the permissions and options for a category.
+
+
+    """
+    if TYPE_CHECKING:
+        def __init__(self, data: Any, guild: Guild):
+            ...
+
+    @property
+    def channels(self) -> List[GuildChannel]:
+        """
+        Returns the channels within this organizational category.
+
+        Returns
+        -------
+        List[:class:`GuildChannel`]
+        """
+        return [c for c in self.guild.channels if c.category_id == self.id]

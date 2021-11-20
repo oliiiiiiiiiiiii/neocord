@@ -47,7 +47,7 @@ class State(ClientPropertyMixin):
         self.clear()
 
     def clear(self):
-        self.guilds: Dict[int, Any] = {}
+        self.guilds: Dict[int, Guild] = {}
         self.users: Dict[int, User] = {}
         self.messages: Dict[int, Message] = {}
 

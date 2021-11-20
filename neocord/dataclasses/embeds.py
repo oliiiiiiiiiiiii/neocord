@@ -67,6 +67,136 @@ class Embed:
 
         self.type = 'rich'
 
+    def create_field(self, **options: Any) -> EmbedField:
+        """
+        Adds a field in embed at the end.
+
+        Parameters
+        ----------
+        name: :class:`str`
+            The name of field.
+        value: :class:`str`
+            The value of field.
+        inline: :class:`bool`
+            Whether the field should line with last field.
+
+        Returns
+        -------
+        :class:`EmbedField`
+            The added field.
+        """
+        field = EmbedField(**options)
+        self.fields.append(field)
+        return field
+
+    def insert_field(self, index: int, **options):
+        """
+        Adds a field in embed at the provided index.
+
+        Parameters
+        ----------
+        index: :class:`int`
+            The index to add field on.
+        name: :class:`str`
+            The name of field.
+        value: :class:`str`
+            The value of field.
+        inline: :class:`bool`
+            Whether the field should line with last field.
+
+        Returns
+        -------
+        :class:`EmbedField`
+            The added field.
+        """
+        return self.fields.insert(index, EmbedField(**options))
+
+    def remove_field(self, index: int) -> Optional[EmbedField]:
+        """
+        Removes a field from embed.
+
+        This method will not raise the error if field with provided
+        index does not exist.
+
+        Parameters
+        ----------
+        index: :class:`int`
+            The index of field.
+
+        Returns
+        -------
+        Optional[:class:`EmbedField`]
+            The popped field, if any.
+        """
+        try:
+            return self.fields.pop(index)
+        except IndexError:
+            return
+
+    def clear_fields(self) -> List[EmbedField]:
+        """
+        Removes all the fields from embed.
+
+        Returns
+        -------
+        List[:class:`EmbedField`]
+            The list of fields that were removed.
+        """
+        ret = self.fields.copy()
+        self.fields.clear()
+        return ret
+
+    def set_image(self, **options: Any) -> EmbedImage:
+        """
+        Sets an image on embed.
+
+        Parameters
+        ----------
+        url: :class:`str`
+            The URL of image.
+
+        Returns
+        -------
+        :class:`EmbedImage`
+            The added image.
+        """
+        self.image = EmbedImage(**options)
+        return self.image
+
+    def remove_image(self):
+        """
+        Removes the image from embed.
+        """
+        self.image = None
+
+    def set_thumbnail(self, **options: Any) -> EmbedThumbnail:
+        """
+        Sets a thumbnail on embed.
+
+        Parameters
+        ----------
+        url: :class:`str`
+            The URL of thumbnail.
+
+        Returns
+        -------
+        :class:`EmbedThumbnail`
+            The added thumbnail.
+        """
+        self.thumbnail = EmbedThumbnail(**options)
+        return self.thumbnail
+
+    def remove_thumbnail(self):
+        """
+        Removes the thumbnail from embed.
+
+        Returns
+        -------
+        Optional[:class:`EmbedThumbnail`]
+            The removed thumbnail. If any.
+        """
+        self.thumbnail = None
+
     def to_dict(self):
         ret = {}
         if self.title is not None:
@@ -89,6 +219,11 @@ class Embed:
             ret['fields'] = []
             for field in self.fields:
                 ret['fields'].append(field.to_dict())
+        if self.thumbnail:
+            ret['thumbnail'] = self.thumbnail.to_dict()
+        if self.image:
+            ret['image'] = self.image.to_dict()
+
 
         return ret
 

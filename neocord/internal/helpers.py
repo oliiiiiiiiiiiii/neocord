@@ -21,12 +21,16 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from typing import Any, Optional
+from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
 from neocord.internal.missing import MISSING
 
 import datetime
 import base64
+
+if TYPE_CHECKING:
+    from neocord.dataclasses.embeds import Embed
+    from neocord.dataclasses.mentions import AllowedMentions
 
 def get_image_data(data: Optional[bytes]) -> Optional[str]:
     if data is None or data is MISSING:
@@ -53,8 +57,9 @@ def get_snowflake(data: Any, key: str) -> Optional[int]:
     except:
         return
 
-def iso_to_datetime(ts: str) -> datetime.datetime:
-    return datetime.datetime.fromisoformat(ts)
+def iso_to_datetime(ts: Optional[str]) -> Optional[datetime.datetime]:
+    if ts:
+        return datetime.datetime.fromisoformat(ts)
 
 def get_either_or(either: Any, or_: Any, equ: Any = MISSING):
     if either is not equ:
@@ -63,3 +68,31 @@ def get_either_or(either: Any, or_: Any, equ: Any = MISSING):
         return  equ
     else:
         return either or or_
+
+def parse_message_create_payload(client, *,
+    content: Optional[str] = None,
+    embed: Optional[Embed] = None,
+    embeds: Optional[List[Embed]] = None,
+    allowed_mentions: Optional[AllowedMentions] = None,
+    ) -> Dict[str, Any]:
+
+    if embed is not None and embeds is not None:
+        raise TypeError('embed and embeds parameter cannot be mixed.')
+
+    payload = {}
+
+    if embed:
+        payload['embeds'] = [embed.to_dict()]
+    elif embeds:
+        payload['embeds'] = [em.to_dict() for em in embeds]
+
+    if content is not None:
+        payload['content'] = content
+
+    if allowed_mentions is not None:
+        payload['allowed_mentions'] = allowed_mentions.to_dict()
+    else:
+        if client.allowed_mentions is not None:
+            payload['allowed_mentions'] = client.allowed_mentions.to_dict()
+
+    return payload

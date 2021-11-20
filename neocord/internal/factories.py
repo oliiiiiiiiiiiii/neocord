@@ -20,19 +20,19 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+# This module exists to avoid circular imports.
+
 from __future__ import annotations
-from typing import Tuple
+from typing import TYPE_CHECKING, Type, Any
 
-from .base import *
-from .user import *
-from .gateway import *
-from .guild import *
-from .channels import *
+from neocord.models.channels.base import ChannelType, GuildChannel
+from neocord.models.channels.text import TextChannel
+from neocord.models.channels.category import CategoryChannel
 
-class Routes(
-    UsersRoutes,
-    GatewayRoutes,
-    GuildRoutes,
-    ChannelRoutes,
-):
-    pass
+def channel_factory(ctype: int) -> Type[GuildChannel]:
+    if ctype == ChannelType.TEXT:
+        return TextChannel
+    if ctype == ChannelType.CATEGORY:
+        return CategoryChannel
+    else:
+        return GuildChannel

@@ -233,6 +233,41 @@ class Parsers:
         # after = role
         self.dispatch('role_update', before, role)
 
+    def parse_channel_create(self, event):
+        guild = self.state.get_guild(int(event['guild_id']))
+        if guild is None:
+            logger.debug('CHANNEL_CREATE was sent with unknown guild {}, Discarding.'.format(event['guild_id']))
+            return
+
+        channel = guild._add_channel(event)
+        self.dispatch('channel_create', channel)
+
+    def parse_channel_update(self, event):
+        guild = self.state.get_guild(int(event['guild_id']))
+        if guild is None:
+            logger.debug('CHANNEL_UPDATE was sent with unknown guild {}, Discarding.'.format(event['guild_id']))
+            return
+
+        channel = guild.get_channel(int(event['id']))
+        if channel is None:
+            logger.debug('CHANNEL_UPDATE was sent with unknown channel {}, Adding to cache without dispatching.'.format(event['id']))
+            guild._add_channel(event)
+            return
+
+        before = copy.copy(channel)
+        channel._update(event)
+
+        self.dispatch('channel_update', before, channel)
+
+    def parse_channel_delete(self, event):
+        guild = self.state.get_guild(int(event['guild_id']))
+        if guild is None:
+            logger.debug('CHANNEL_DELETE was sent with unknown guild {}, Discarding.'.format(event['guild_id']))
+            return
+
+        channel = guild._remove_channel(int(event['id']))
+        self.dispatch('channel_delete', channel)
+
     def parse_message_create(self, event: MessagePayload):
         message = self.state.add_message(event)
         self.dispatch('message', message)

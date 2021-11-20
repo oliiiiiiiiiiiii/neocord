@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from typing import TYPE_CHECKING, Optional, Any
+from typing import TYPE_CHECKING, Optional, Any, Union
 
 from neocord.models.base import DiscordModel
 from neocord.dataclasses.embeds import Embed
@@ -33,8 +33,13 @@ if TYPE_CHECKING:
     from neocord.api.state import State
     from neocord.models.user import User
     from neocord.models.guild import Guild
+    from neocord.abc import Messageable
     from neocord.typings.message import Message as MessagePayload
     from neocord.typings.member import Member as MemberPayload
+
+    from neocord.models.channels.text import TextChannel
+
+    MessageableChannel = Union[TextChannel]
 
 class MessageInteraction(DiscordModel):
     """
@@ -137,8 +142,8 @@ class Message(DiscordModel):
                 # resolve it to user.
                 self.author = self.guild.get_member(int(author['id']))
 
-            if self.author is None:
-                self.author = self.state.get_user(int(author['id'])) or self.state.add_user(author)
+            else:
+                self.author = self._state.get_user(int(author['id'])) or self._state.add_user(author)
 
         self.interaction = None
         inter = data.get('interaction')
@@ -162,7 +167,6 @@ class Message(DiscordModel):
         for mention in mentions:
             if 'member' in mention:
                 try:
-                    print(mention['member'])
                     member_data: MemberPayload = {**mention['member'], 'user': mention} # type: ignore
                     member = self.guild.get_member(int(mention['id'])) or self.guild._add_member(member_data)
                 except:
@@ -195,11 +199,34 @@ class Message(DiscordModel):
         """
         return self._state.get_guild(self.guild_id) # type: ignore
 
+    @property
+    def channel(self) -> Optional[MessageableChannel]:
+        """
+        :class:`GuildChannel`: Returns the channel in which message was sent.
+        """
+        if self.guild:
+            return self.guild.get_channel(self.channel_id) # type: ignore
+
     def is_interaction_response(self):
         """
         Returns a boolean showing whether this message is an interaction i.e application
         command or message component's response.
         """
         return (self.application_id is not None)
+
+    async def delete(self):
+        """
+        Deletes the message.
+
+        Raises
+        ------
+        Forbidden:
+            You are not allowed to delete this message.
+        HTTPError:
+            The message sending failed somehow.
+        """
+        # channel here would *always* be a subclass of abc.Messageable
+
+        await self.channel.delete_message(self) # type: ignore
 
     # TODO: Add API methods when guild channels are implemented.

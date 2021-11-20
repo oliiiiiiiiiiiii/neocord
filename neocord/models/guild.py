@@ -21,19 +21,19 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from neocord.typings.role import _RoleTagsOptional
-from neocord.typings.member import Member
-from typing import List, Optional, TYPE_CHECKING
+from typing import List, Optional, Any, TYPE_CHECKING
 
 from neocord.models.base import DiscordModel
 from neocord.models.asset import CDNAsset
 from neocord.models.role import Role
 from neocord.models.member import GuildMember
-from neocord.dataclasses.flags.system import SystemChannelFlags
+from neocord.internal.factories import channel_factory
 from neocord.internal import helpers
+from neocord.dataclasses.flags.system import SystemChannelFlags
 from neocord.internal.missing import MISSING
 
 if TYPE_CHECKING:
+    from neocord.models.channels.base import GuildChannel
     from neocord.typings.guild import Guild as GuildPayload
     from neocord.typings.role import Role as RolePayload
     from neocord.typings.member import Member as MemberPayload
@@ -133,6 +133,9 @@ class Guild(DiscordModel):
 
         for member in data.get('members', []):
             self._add_member(member)
+
+        for channel in data.get('channels', []):
+            self._add_channel(channel)
 
 
     def _update(self, data: GuildPayload):
@@ -390,12 +393,12 @@ class Guild(DiscordModel):
 
         Parameters
         ----------
-        member: :class:`DiscordModel`
+        member: :class:`Member`
             The member that will be edited. :class:`ModelMimic` can be passed
             to avoid fetching or getting the member explicitly.
         nick: :class:`str`
             The new nickname of member.
-        roles: List[:class:`DiscordModel`]
+        roles: List[:class:`Role`]
             List of roles (or :class:`ModelMimic`) that should be assigned to member.
         mute: :class:`bool`
             Whether to mute the member in voice channel. Requires member to be in voice
@@ -403,7 +406,7 @@ class Guild(DiscordModel):
         deaf: :class:`bool`
             Whether to deafen the member in voice channel. Requires member to be in voice
             channel.
-        voice_channel: :class:`DiscordModel`
+        voice_channel: :class:`VoiceChannel`
             The voice channel to move the member to. Requires member to be in voice
             channel.
         reason: :class:`str`
@@ -441,7 +444,7 @@ class Guild(DiscordModel):
 
         Parameters
         ----------
-        member: :class:`DiscordModel`
+        member: :class:`Member`
             The member that will be kicked. :class:`ModelMimic` can be passed
             to avoid fetching or getting the member explicitly.
         reason: :class:`str`
@@ -452,3 +455,41 @@ class Guild(DiscordModel):
             member_id=member.id,
             reason=reason
             )
+
+    def _add_channel(self, data: Any) -> GuildChannel:
+        cls = channel_factory(int(data['type']))
+        channel = cls(data, guild=self)
+        self._channels[channel.id] = channel
+        return channel
+
+    def _remove_channel(self, id: int, /) -> Optional[GuildChannel]:
+        return self._channels.pop(id, None)
+
+    @property
+    def channels(self) -> List[GuildChannel]:
+        """List[:class:`GuildChannel`]: Returns the list of channels in guild.
+
+        These are sorted in the same way as in the Discord client i.e voice channels
+        below other channels.
+        """
+        channels = list(self._channels.values())
+        channels.sort(key=lambda c: c.position)
+
+        return channels
+
+    def get_channel(self, id: int, /) -> Optional[GuildChannel]:
+        """
+        Gets a channel from the guild. This method returns None is the channel with ID
+        is not found.
+
+        Parameters
+        ----------
+        id: :class:`int`
+            The ID of the channel.
+
+        Returns
+        -------
+        :class:`GuildChannel`
+            The requested channel.
+        """
+        return self._channels.get(id)

@@ -62,6 +62,9 @@ class Client:
         then 1000. 0 can be passed to disable the message cache. On reaching this amount,
         The client would discard all the previous messages and would start re-filling
         the cache. Defaults to ``500``
+    allowed_mentions: :class:`AllowedMentions`
+        The global mentions configuration that applies to every bot's message. This can
+        be overridden per message.
     """
     if TYPE_CHECKING:
         loop: asyncio.AbstractEventLoop
@@ -77,6 +80,8 @@ class Client:
             self.message_cache_limit = 0
         elif self.message_cache_limit > 1000:
             raise ValueError('message cache limit cannot be larger then 1000.')
+
+        self.allowed_mentions = params.get('allowed_mentions')
 
         # internal stuff:
         self.http  = HTTPClient(session=params.get('session'))
@@ -227,7 +232,8 @@ class Client:
             The event name to get listeners for.
         include_temporary: :class:`bool`
             Whether to include temporary listeners, i.e those that are marked
-            to call only once. Defaults to False.
+            to call only once. Defaults to False. Setting this to True would also
+            return the internal listeners i.e the one's that were added by :meth:`.wait_for`
 
         Returns
         -------
