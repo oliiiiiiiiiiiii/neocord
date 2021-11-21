@@ -10,6 +10,7 @@
 - Pythonic API interface using asyncio.
 - Object Oriented design with no dirty payloads involved.
 - Consistent & Actively maintained.
+- Performant and highly optimized.
 
 ## Usage
 ```py
@@ -42,13 +43,16 @@ free to explore the library's [documentation](https://neocord.rtfd.io) and
 discover the possibilites. -->
 
 
-## Inspiration from discord.py
+## Inspiration from [discord.py](https://github.com/Rapptz/discord.py)
 This library started as an inspiration of the amazing Python library, discord.py and that's
 why the API might be similar to that of discord.py in many ways to discord.py.
 
 ## Acknowledgments
 This library is still in alpha stage and is currently actively developed. While we try
 our best to avoid making breaking changes, some versions might bring some breaking changes for compatibility or consistencies purposes.
+
+Furthermore, you might find many missing, incomplete, or potentially broken features in
+the library but we assure that latest version would be mostly stable.
 
 ## Contributing
 Feel free to suggest features or report bugs using [GitHub Issues](https://github.com/nerdguyahmad/neocord/issues)
