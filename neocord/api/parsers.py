@@ -84,7 +84,10 @@ class Parsers:
         self.state.user = ClientUser(event['user'], state=self.state)
         self.state.users[self.state.user.id] = self.state.user # type: ignore
 
-        self.dispatch('connect')
+        if not self.state.client._connect_hook_called:
+            asyncio.create_task(self.state.client.connect_hook())
+            self.state.client._connect_hook_called = True
+
         asyncio.create_task(self._schedule_ready())
 
     def parse_user_update(self, event: UserPayload):

@@ -89,10 +89,16 @@ class Client:
         self.state = State(client=self)
         self._ready = asyncio.Event(loop=self.loop)
         self._listeners = {}
+        self._connect_hook_called = False
 
     def dispatch(self, event: str, *args: Any):
         if not self._ready.is_set():
             return
+
+        # call the event first
+        coro = getattr(self, f'on_{event}', None)
+        if coro:
+            asyncio.create_task(coro(), name=f'neocord-event-dispatch: {event}')
 
         try:
             listeners = self._listeners[event]
@@ -118,6 +124,20 @@ class Client:
                 self._listeners[event].remove(listener)
             except:
                 continue
+
+    async def connect_hook(self):
+        """
+        A hook that is called whenever the client connects initially to
+        the Discord gateway.
+
+        By default, This method does nothing however, it can be overridden to add
+        functionality like creating a database connection etc.
+
+        Note that this hook is called *BEFORE* ready event is fired which means
+        that you shouldn't rely on client's cache in this hook as it is more then likely
+        that it is not filled at all or is in process of filling.
+        """
+        pass
 
     def is_ready(self) -> bool:
         """
@@ -208,6 +228,40 @@ class Client:
 
     # listeners
 
+    def event(self, func: Callable[..., Any]) -> Callable[..., Any]:
+        """
+        A decorator that registers a callback for an event.
+
+        Example::
+
+            @client.event
+            async def on_ready():
+                print('Ready called')
+
+        This is equivalent to:
+
+        Example::
+
+            class Client(neocord.Client):
+                def __init__(self):
+                    ...
+
+                async def on_ready():
+                    print('Ready called.')
+
+        .. warning::
+            You cannot register multiple callbacks using this decorator, Consider
+            using listeners API for that. See documentation for :meth:`.on` decorator.
+
+        .. note::
+            The callback's name MUST be prefixed with ``on_``.
+        """
+        if not iscoroutinefunction(func):
+            raise TypeError('callback function must be a coroutine.')
+
+        setattr(self, func.__name__, func)
+        return func
+
     def clear_listeners(self, event: str) -> None:
         """
         Removes all the listeners for the provided event.
@@ -277,6 +331,9 @@ class Client:
         if not iscoroutinefunction(listener):
             raise TypeError('listener callback must be a coroutine.')
 
+        if name.startswith('on_'):
+            name = name[3:]
+
         listener.__neocord_event_listener_options__ = {}
         listener.__neocord_event_listener_options__['once'] = once
 
@@ -290,6 +347,27 @@ class Client:
     def on(self, *args, **kwargs):
         """
         A decorator that registers a listener to listen to gateway events.
+
+        Example::
+
+            @client.on('on_ready')
+            # or
+            # @client.on('ready')
+
+            async def ready_event():
+                print('Ready.')
+
+        Unlike :meth:`.event`, You can register as many events you want.
+
+        Example::
+
+            @client.on('ready')
+            async def ready1():
+                print('Ready called.')
+
+            @client.on('ready')
+            async def ready2():
+                print('Ready 2 called.')
 
         Parameters
         ----------
