@@ -592,32 +592,6 @@ class Guild(DiscordModel):
         data = await self._state.http.get_guild_emojis(guild_id=self.id)
         return [Emoji(emj, guild=self) for emj in data]
 
-    async def delete_emoji(self, emoji: DiscordModel, *, reason: Optional[str] = None):
-        """
-        Deletes a custom emoji from the guild.
-
-        Parameters
-        ----------
-        emoji: :class:`Emoji`
-            The emoji to delete.
-        reason: :class:`str`
-            The reason to delete that shows up on audit log.
-
-        Raises
-        ------
-        Forbidden:
-            You don't have permissions to delete this emoji.
-        NotFound:
-            Emoji not found.
-        HTTPError
-            Deleting of emoji failed.
-        """
-        await self._state.http.delete_guild_emoji(
-            guild_id=self.id,
-            emoji_id=emoji.id,
-            reason=reason
-        )
-
     async def create_emoji(self, *,
         emoji: bytes,
         name: str,
@@ -661,56 +635,6 @@ class Guild(DiscordModel):
             guild_id=self.id,
             payload=payload,
             reason=reason
-            )
-        return Emoji(data, guild=self)
-
-    async def edit_emoji(self,
-        emoji: DiscordModel,
-        *,
-        name: Optional[str] = None,
-        roles: Optional[List[DiscordModel]] = MISSING,
-        reason: Optional[str] = None,
-        ) -> Emoji:
-        """
-        Edits a custom guild emoji.
-
-        You must have :attr:`~Permissions.manage_emojis` to perform this
-        action in the guild.
-
-        Parameters
-        ----------
-        emoji: :class:`Emoji`
-            The emoji that needs to be edited.
-        name: :class:`str`
-            The new name of emoji.
-        roles: List[:class:`Role`]
-            The list of roles that can use this emoji. None to disable the explicit
-            restriction.
-        reason: :class:`str`
-            Reason for editing this emoji that shows up on guild's audit log.
-
-        Raises
-        ------
-        Forbidden:
-            You don't have permissions to edit an emoji.
-        HTTPError
-            Editing of emoji failed.
-        """
-        payload = {}
-
-        if name is not None:
-            payload['name'] = name
-        if roles is not MISSING:
-            if roles is None:
-                payload['roles'] = []
-            else:
-                payload['roles'] = [r.id for r in roles]
-
-        data = await self._state.http.edit_guild_emoji(
-            guild_id=self.id,
-            emoji_id=emoji.id,
-            payload=payload,
-            reason=reason,
             )
         return Emoji(data, guild=self)
 
