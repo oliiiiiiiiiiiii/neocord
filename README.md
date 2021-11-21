@@ -45,7 +45,9 @@ discover the possibilites. -->
 
 ## Inspiration from [discord.py](https://github.com/Rapptz/discord.py)
 This library started as an inspiration of the amazing Python library, discord.py and that's
-why the API might be similar to that of discord.py in many ways to discord.py.
+why the API might be similar to that of discord.py in many aspects so if you have used
+discord.py, you might be familiar with the API design however, there are many notable
+differences too.
 
 ## Acknowledgments
 This library is still in alpha stage and is currently actively developed. While we try
