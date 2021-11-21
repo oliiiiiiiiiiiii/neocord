@@ -29,18 +29,18 @@ Example::
    # the bot gets ready initally. "once" sets the event to call only once.
    @client.on('ready', once=True)
    async def on_ready():
-   print(f'{client.user} is ready.')
+      print(f'{client.user} is ready.')
 
    # Listen to messages...
    @client.on('message')
    async def on_message(message):
-   if message.author.bot:
-      # Don't respond to bots (or ourselves).
-      return
+      if message.author.bot:
+         # Don't respond to bots (or ourselves).
+         return
 
-   if message.content.lower() == '!ping':
-      # command used, let's send a response!
-      await message.channel.send('Pong from NeoCord!')
+      if message.content.lower() == '!ping':
+         # command used, let's send a response!
+         await message.channel.send('Pong from NeoCord!')
 
    # run the bot.
    client.run('bot-token')
