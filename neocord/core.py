@@ -310,8 +310,10 @@ class Client:
         once: bool = False
         ) -> Callable[..., Any]:
         """
-        Adds an event listener to the bot. This is a non-decorator
-        interface to :meth:`.on` decorator which should be used instead.
+        Adds an event listener to the bot.
+
+        This is a non-decorator and lower level interface to :meth:`.on` decorator. Consider
+        using it instead as it is more easy to use.
 
         Example::
             async def on_message(message):
