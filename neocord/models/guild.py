@@ -636,7 +636,7 @@ class Guild(DiscordModel):
         roles: List[:class:`Role`]
             The list of roles that can use this emoji.
         reason: :class:`str`
-            Reason for creating this role that shows up on guild's audit log.
+            Reason for creating this emoji that shows up on guild's audit log.
 
         Raises
         ------
@@ -657,5 +657,55 @@ class Guild(DiscordModel):
             guild_id=self.id,
             payload=payload,
             reason=reason
+            )
+        return Emoji(data, guild=self)
+
+    async def edit_emoji(self,
+        emoji: DiscordModel,
+        *,
+        name: Optional[str] = None,
+        roles: Optional[List[DiscordModel]] = MISSING,
+        reason: Optional[str] = None,
+        ) -> Emoji:
+        """
+        Edits a custom guild emoji.
+
+        You must have :attr:`~Permissions.manage_emojis` to perform this
+        action in the guild.
+
+        Parameters
+        ----------
+        emoji: :class:`Emoji`
+            The emoji that needs to be edited.
+        name: :class:`str`
+            The new name of emoji.
+        roles: List[:class:`Role`]
+            The list of roles that can use this emoji. None to disable the explicit
+            restriction.
+        reason: :class:`str`
+            Reason for editing this emoji that shows up on guild's audit log.
+
+        Raises
+        ------
+        Forbidden:
+            You don't have permissions to edit an emoji.
+        HTTPException:
+            Editing of emoji failed.
+        """
+        payload = {}
+
+        if name is not None:
+            payload['name'] = name
+        if roles is not MISSING:
+            if roles is None:
+                payload['roles'] = []
+            else:
+                payload['roles'] = [r.id for r in roles]
+
+        data = await self._state.http.edit_guild_emoji(
+            guild_id=self.id,
+            emoji_id=emoji.id,
+            payload=payload,
+            reason=reason,
             )
         return Emoji(data, guild=self)
