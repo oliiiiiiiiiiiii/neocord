@@ -565,7 +565,7 @@ class Guild(DiscordModel):
         HTTPException:
             Fetching of emoji failed.
         """
-        data = self._state.http.get_guild_emoji(guild_id=self.id, emoji_id=id)
+        data = await self._state.http.get_guild_emoji(guild_id=self.id, emoji_id=id)
         return Emoji(data, guild=self)
 
     async def fetch_emojis(self) -> List[Emoji]:
@@ -585,7 +585,7 @@ class Guild(DiscordModel):
         HTTPException:
             Fetching of emojis failed.
         """
-        data = self._state.http.get_guild_emojis(guild_id=self.id)
+        data = await self._state.http.get_guild_emojis(guild_id=self.id)
         return [Emoji(emj, guild=self) for emj in data]
 
     async def delete_emoji(self, emoji: DiscordModel, *, reason: Optional[str] = None):
