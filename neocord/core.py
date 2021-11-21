@@ -352,9 +352,9 @@ class Client:
 
         Example::
 
-            @client.on('on_ready')
+            @client.on('ready')
             # or
-            # @client.on('ready')
+            # @client.on('on_ready')
 
             async def ready_event():
                 print('Ready.')
