@@ -271,3 +271,14 @@ class Parsers:
     def parse_message_create(self, event: MessagePayload):
         message = self.state.add_message(event)
         self.dispatch('message', message)
+
+    def parse_guild_emojis_update(self, event):
+        guild = self.state.get_guild(int(event['guild_id']))
+        if guild is None:
+            logger.debug('GUILD_EMOJIS_UPDATE was sent with unknown guild {}, Discarding.'.format(event['guild_id']))
+            return
+
+        before = guild._emojis.copy()
+        guild._bulk_overwrite_emojis(event['emojis'])
+
+        self.dispatch('emojis_update', before.values(), guild.emojis)
