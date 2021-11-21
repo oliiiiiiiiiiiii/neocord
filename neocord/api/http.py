@@ -89,13 +89,15 @@ class HTTPClient(Routes):
                         retry_after: float = data["retry_after"] # type: ignore
                         is_global = data.get('global', False) # type: ignore
 
-                        fmt = '{message}, Retrying after %ss (%s %s)' % (str(retry_after), route.request, route.route)
+                        retry_after_msg = 'Retrying after %ss (%s %s)' % (str(retry_after), route.request, route.route)
 
                         if is_global:
-                            msg = fmt.format(message='A global ratelimit has occured')
+                            msg = 'A global ratelimit has occured. {0}'
                             self.ratelimit_handler.set_ratelimit()
                         else:
-                            msg = fmt.format(message='A ratelimit has occured')
+                            msg = 'A ratelimit has occured. {0}'
+
+                        msg = msg.format(retry_after_msg)
 
                         logger.warn(msg)
                         await asyncio.sleep(retry_after)
