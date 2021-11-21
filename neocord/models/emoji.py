@@ -21,11 +21,12 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import Any, TYPE_CHECKING, Optional, List
 
 from neocord.models.base import DiscordModel
 from neocord.models.asset import CDNAsset
 from neocord.internal import helpers
+from neocord.internal.missing import MISSING
 
 if TYPE_CHECKING:
     from neocord.models.guild import Guild
@@ -98,3 +99,49 @@ class Emoji(DiscordModel):
         """:class:`str`: Returns the URL of the emoji."""
         return  f'{CDNAsset.BASE_CDN_URL}/emojis/{self.id}.{"gif" if self.animated else "png"}'
 
+    async def edit(self, **kwargs: Any) -> Emoji:
+        """
+        Edits the custom emoji.
+
+        You must have :attr:`~Permissions.manage_emojis` to perform this
+        action in the guild.
+
+        Parameters
+        ----------
+        name: :class:`str`
+            The new name of emoji.
+        roles: List[:class:`Role`]
+            The list of roles that can use this emoji. None to disable the explicit
+            restriction.
+        reason: :class:`str`
+            Reason for editing this emoji that shows up on guild's audit log.
+
+        Raises
+        ------
+        Forbidden:
+            You don't have permissions to edit an emoji.
+        HTTPException:
+            Editing of emoji failed.
+        """
+        return await self.guild.edit_emoji(self, **kwargs)
+
+    async def delete(self, **kwargs: Any):
+        """
+        Deletes the custom emoji.
+
+        You must have :attr:`~Permissions.manage_emojis` to perform this
+        action in the guild.
+
+        Parameters
+        ----------
+        reason: :class:`str`
+            Reason for deleting this emoji that shows up on guild's audit log.
+
+        Raises
+        ------
+        Forbidden:
+            You don't have permissions to delete an emoji.
+        HTTPException:
+            Deletion of emoji failed.
+        """
+        return await self.guild.delete_emoji(self, **kwargs)
