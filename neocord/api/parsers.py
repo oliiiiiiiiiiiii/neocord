@@ -285,3 +285,35 @@ class Parsers:
         guild._bulk_overwrite_emojis(event['emojis'])
 
         self.dispatch('emojis_update', before.values(), guild.emojis)
+
+    def parse_guild_scheduled_event_create(self, event):
+        guild = self.state.get_guild(int(event['guild_id']))
+        if guild is None:
+            logger.debug('GUILD_SCHEDULED_EVENT_CREATE was sent with unknown guild {}, Discarding.'.format(event['guild_id']))
+            return
+
+        scheduled_event = guild._add_event(event)
+        self.dispatch('scheduled_event_create', scheduled_event)
+
+    def parse_guild_scheduled_event_update(self, event):
+        guild = self.state.get_guild(int(event['guild_id']))
+        if guild is None:
+            logger.debug('GUILD_SCHEDULED_EVENT_UPDATE was sent with unknown guild {}, Discarding.'.format(event['guild_id']))
+            return
+
+        scheduled_event = guild.get_scheduled_event(int(event['id']))
+        before = copy.copy(scheduled_event)
+        scheduled_event._update(event)
+
+        self.dispatch('scheduled_event_update', before, scheduled_event)
+
+    def parse_guild_scheduled_event_delete(self, event):
+        guild = self.state.get_guild(int(event['guild_id']))
+        if guild is None:
+            logger.debug('GUILD_SCHEDULED_EVENT_DELETE was sent with unknown guild {}, Discarding.'.format(event['guild_id']))
+            return
+
+        scheduled_event = guild._remove_event(int(event['id']))
+
+        self.dispatch('scheduled_event_delete', scheduled_event)
+

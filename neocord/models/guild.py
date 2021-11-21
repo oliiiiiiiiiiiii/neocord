@@ -28,6 +28,7 @@ from neocord.models.asset import CDNAsset
 from neocord.models.role import Role
 from neocord.models.member import GuildMember
 from neocord.models.emoji import Emoji
+from neocord.models.events import ScheduledEvent
 from neocord.internal.factories import channel_factory
 from neocord.internal import helpers
 from neocord.dataclasses.flags.system import SystemChannelFlags
@@ -39,6 +40,7 @@ if TYPE_CHECKING:
     from neocord.typings.role import Role as RolePayload
     from neocord.typings.member import Member as MemberPayload
     from neocord.typings.emoji import Emoji as EmojiPayload
+    from neocord.typings.events import GuildScheduledEvent as GuildScheduledEventPayload
     from neocord.api.state import State
     from datetime import datetime
 
@@ -116,7 +118,7 @@ class Guild(DiscordModel):
         'system_channel_id', 'rules_channel_id', 'public_updates_channel_id', 'system_channel_flags',
         '_joined_at', 'verification_level', 'default_message_notifications', 'explicit_content_filter',
         'mfa_level', 'premium_tier', 'nsfw_level', '_icon', '_splash', '_banner', '_discovery_splash',
-        'welcome_screen', 'features', '_roles', '_events',
+        'welcome_screen', 'features', '_roles', '_scheduled_events',
     )
 
     def __init__(self, data: GuildPayload, state: State):
@@ -127,7 +129,7 @@ class Guild(DiscordModel):
         self._presences = {}
         self._stage_instances = {}
         self._stickers = {}
-        self._events = {}
+        self._scheduled_events = {}
 
         self._members = {}
         self._channels = {}
@@ -142,6 +144,8 @@ class Guild(DiscordModel):
             self._add_role(role)
         for member in data.get('members', []):
             self._add_member(member)
+        for event in data.get('guild_scheduled_events', []):
+            self._add_event(event)
 
         self._bulk_overwrite_emojis(data.get('emojis', []))
 
@@ -709,3 +713,36 @@ class Guild(DiscordModel):
             reason=reason,
             )
         return Emoji(data, guild=self)
+
+    def _add_event(self, data: GuildScheduledEventPayload):
+        event = ScheduledEvent(data, guild=self)
+        self._scheduled_events[event.id] = event
+        return event
+
+    def _remove_event(self, id: int):
+        return self._scheduled_events.pop(id, None)
+
+    def get_scheduled_event(self, id: int, /) -> Optional[ScheduledEvent]:
+        """
+        Gets a scheduled event from the guild. This method returns None is the scheduled event
+        with provided ID is not found.
+
+        Parameters
+        ----------
+        id: :class:`int`
+            The ID of the event.
+
+        Returns
+        -------
+        Optional[:class:`ScheduledEvent`]
+            The requested event, if found.
+        """
+        return self._scheduled_events.get(id)
+
+    @property
+    def scheduled_events(self) -> List[ScheduledEvent]:
+        """
+        List[:class:`ScheduledEvent`]: Returns the list of scheduled events that belong to
+        this guild.
+        """
+        return list(self._scheduled_events.values())

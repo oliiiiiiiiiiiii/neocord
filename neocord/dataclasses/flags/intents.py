@@ -85,6 +85,8 @@ class GatewayIntents(BaseFlags):
         Returns ``True`` if the direct messages typing trigger intents are enabled.
     direct_messages_reactions: :class:`bool`
         Returns ``True`` if the DM message reactions intents are enabled.
+    scheduled_events: :class:`bool`
+        Returns ``True`` if the scheduled events intents are enabled.
     """
     # (p): privileged
     VALID_FLAGS = {
@@ -103,7 +105,8 @@ class GatewayIntents(BaseFlags):
         'direct_messages',
         'direct_messages_reactions',
         'direct_messages_typing',
-        "messages"
+        "messages",
+        "scheduled_events"
     }
     def __init__(self, **intents):
         super().__init__(**intents)
@@ -206,3 +209,7 @@ class GatewayIntents(BaseFlags):
     @flag
     def direct_messages_typing(self) -> int:
         return 1 << 14
+
+    @flag
+    def scheduled_events(self) -> int:
+        return 1 << 16

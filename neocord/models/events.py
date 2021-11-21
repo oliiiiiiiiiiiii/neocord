@@ -41,7 +41,7 @@ class ScheduledEvent(DiscordModel):
     __slots__ = (
         'guild', '_state', 'id', 'guild_id', 'channel_id', 'creator_id', 'entity_id',
         'name', 'description', 'starts_at', 'ends_at', 'privacy_level', 'status',
-        'entity_type', 'location'
+        'entity_type', 'location', 'creator'
     )
 
     def __init__(self, data: GuildScheduledEventPayload, guild: Guild):
@@ -76,4 +76,18 @@ class ScheduledEvent(DiscordModel):
         self._apply_metadata(data.get('entity_metadata')) # type: ignore
 
     def _apply_metadata(self, metadata: EntityMetadata):
-        self.location = data.get('location')
+        self.location = metadata.get('location')
+
+    def __repr__(self) -> str:
+        if self.status == 1:
+            status = 'SCHEDULED'
+        elif self.status == 2:
+            status = 'ACTIVE'
+        elif self.status == 3:
+            status = 'COMPLETED'
+        elif self.status == 4:
+            status = 'CANCELLED'
+        else:
+            status = 'UNKNOWN STATUS'
+
+        return f"<ScheduledEvent name={self.name} id={self.id} {status}>"
