@@ -171,8 +171,7 @@ class Client:
         Parameters
         ----------
         token: :class:`str`
-            The token that should be used for login. Get this from the
-            `developer portal`<https://discord.com/developers/applications>__
+            The token that should be used for login.
         """
         self.http.token = token.strip()
         data = await self.http.get_client_user()
@@ -200,8 +199,7 @@ class Client:
         Parameters
         ----------
         token: :class:`str`
-            The token that should be used for login. Get this from the
-            `developer portal`<https://discord.com/developers/applications>__
+            The token that should be used for login.
         """
         await self.login(token)
         await self.connect()
@@ -212,10 +210,9 @@ class Client:
         loop handling.
 
         Parameters
-         ----------
+        ----------
         token: :class:`str`
-            The token that should be used for login. Get this from the
-            `developer portal`<https://discord.com/developers/applications>__
+            The token that should be used for login.
         """
         async def runner():
             await self.login(token)
