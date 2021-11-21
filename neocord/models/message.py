@@ -220,9 +220,9 @@ class Message(DiscordModel):
 
         Raises
         ------
-        Forbidden:
+        Forbidden
             You are not allowed to delete this message.
-        HTTPError:
+        HTTPError
             The message sending failed somehow.
         """
         # channel here would *always* be a subclass of abc.Messageable

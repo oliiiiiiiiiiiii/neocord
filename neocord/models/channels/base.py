@@ -117,9 +117,9 @@ class GuildChannel(DiscordModel):
 
         Raises
         ------
-        Forbidden:
+        Forbidden
             You are not allowed to delete this channel.
-        HTTPError:
+        HTTPError
             The deletion failed somehow.
         """
         await self._state.http.delete_channel(channel_id=self.id, reason=reason)

@@ -75,9 +75,9 @@ class CategoryChannel(GuildChannel):
 
         Raises
         ------
-        Forbidden:
+        Forbidden
             You are not allowed to edit this channel.
-        HTTPError:
+        HTTPError
             The editing of category channel failed somehow.
         """
         payload = {}

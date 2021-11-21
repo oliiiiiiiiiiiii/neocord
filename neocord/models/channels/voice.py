@@ -109,9 +109,9 @@ class VoiceChannel(GuildChannel):
 
         Raises
         ------
-        Forbidden:
+        Forbidden
             You are not allowed to edit this channel.
-        HTTPError:
+        HTTPError
             The editing of voice channel failed somehow.
         """
         payload = {}

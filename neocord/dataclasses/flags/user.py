@@ -29,7 +29,39 @@ class UserFlags(BaseFlags):
     Represents the public flags of a user that appear on the user accounts.
     They are often referred as "badges" in the UI and are shown on the profile
     of users.
-    This class should not be created manually.
+
+    This class is not generally created manually.
+
+    Attributes
+    ----------
+    value: :class:`int`
+        The raw integer value of flags.
+    discord_employee: :class:`bool`
+        Returns ``True`` if the user is a Discord staff.
+    partnered_server_owner: :class:`bool`
+        Returns ``True`` if the user has the partnered server owner badge.
+    hypesquad_events: :class:`bool`
+        Returns ``True`` if the user has Hypesquad events badge.
+    bug_hunter_level_1: :class:`bool`
+        Returns ``True`` if the user has the level one of bug hunter badge.
+    house_bravery: :class:`bool`
+        Returns ``True`` if the user's house is HypeSquad Bravery.
+    house_brilliance: :class:`bool`
+        Returns ``True`` if the user's house is HypeSquad Brilliance.
+    house_balance: :class:`bool`
+        Returns ``True`` if the user's house is HypeSquad Balance.
+    early_supporter: :class:`bool`
+        Returns ``True`` if the user has the "Early Supporter" badge.
+    team_user: :class:`bool`
+        Returns ``True`` if user is a "team user".
+    bug_hunter_level_2: :class:`bool`
+        Returns ``True`` if the has the user level two on bug hunter badge.
+    verified_bot: :class:`bool`
+        Returns ``True`` if the has the user is a verified bot.
+    early_verified_bot_developer: :class:`bool`
+        Returns ``True`` if the has the "Early Verified Bot Developer" badge.
+    discord_certified_moderator: :class:`bool`
+        Returns ``True`` if the has the "Certified Discord Moderator" badge.
     """
     VALID_FLAGS = {
         'discord_employee',
@@ -52,65 +84,52 @@ class UserFlags(BaseFlags):
 
     @flag
     def discord_employee(self) -> int:
-        """:class:`bool`: Returns ``True`` if the user is a Discord staff."""
         return 1 << 0
 
     @flag
     def partnered_server_owner(self) -> int:
-        """:class:`bool`: Returns ``True`` if the user has the partnered server owner badge."""
         return 1 << 1
 
     @flag
     def hypesquad_events(self) -> int:
-        """:class:`bool`: Returns ``True`` if the user has Hypesquad events badge."""
         return 1 << 2
 
     @flag
     def bug_hunter_level_1(self) -> int:
-        """:class:`bool`: Returns ``True`` if the user has the level one of bug hunter badge."""
         return 1 << 3
 
     @flag
     def house_bravery(self) -> int:
-        """:class:`bool`: Returns ``True`` if the user's house is HypeSquad Bravery."""
         return 1 << 6
 
     @flag
     def house_brilliance(self) -> int:
-        """:class:`bool`: Returns ``True`` if the user's house is HypeSquad Brilliance."""
         return 1 << 7
 
     @flag
     def house_balance(self) -> int:
-        """:class:`bool`: Returns ``True`` if the user's house is HypeSquad Balance."""
         return 1 << 8
 
     @flag
     def early_supporter(self) -> int:
-        """:class:`bool`: Returns ``True`` if the user has the "Early Supporter" badge."""
         return 1 << 9
 
     @flag
     def team_user(self) -> int:
-        """:class:`bool`: Returns ``True`` if user is a "team user"."""
         return 1 << 10
 
     @flag
     def bug_hunter_level_2(self) -> int:
-        """:class:`bool`: Returns ``True`` if the has the user level two on bug hunter badge."""
         return 1 << 14
 
     @flag
     def verified_bot(self) -> int:
-        """:class:`bool`: Returns ``True`` if the has the user is a verified bot."""
         return 1 << 16
 
     @flag
     def early_verified_bot_developer(self) -> int:
-        """:class:`bool`: Returns ``True`` if the has the "Early Verified Bot Developer" badge."""
         return 1 << 17
 
     @flag
     def discord_certified_moderator(self) -> int:
-        """:class:`bool`: Returns ``True`` if the has the "Certified Discord Moderator" badge."""
         return 1 << 18

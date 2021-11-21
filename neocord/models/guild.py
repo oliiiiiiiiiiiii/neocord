@@ -373,7 +373,7 @@ class Guild(DiscordModel):
         ------
         NotFound:
             Member not found.
-        HTTPException:
+        HTTPError
             Fetching of member failed.
         """
         data = await self.state.http.get_guild_member(guild_id=self.id, member_id=id)
@@ -562,7 +562,7 @@ class Guild(DiscordModel):
         ------
         NotFound:
             Emoji not found.
-        HTTPException:
+        HTTPError
             Fetching of emoji failed.
         """
         data = await self._state.http.get_guild_emoji(guild_id=self.id, emoji_id=id)
@@ -582,7 +582,7 @@ class Guild(DiscordModel):
 
         Raises
         ------
-        HTTPException:
+        HTTPError
             Fetching of emojis failed.
         """
         data = await self._state.http.get_guild_emojis(guild_id=self.id)
@@ -605,7 +605,7 @@ class Guild(DiscordModel):
             You don't have permissions to delete this emoji.
         NotFound:
             Emoji not found.
-        HTTPException:
+        HTTPError
             Deleting of emoji failed.
         """
         await self._state.http.delete_guild_emoji(
@@ -642,7 +642,7 @@ class Guild(DiscordModel):
         ------
         Forbidden:
             You don't have permissions to create an emoji.
-        HTTPException:
+        HTTPError
             Creation of emoji failed.
         """
         payload = {}
@@ -689,7 +689,7 @@ class Guild(DiscordModel):
         ------
         Forbidden:
             You don't have permissions to edit an emoji.
-        HTTPException:
+        HTTPError
             Editing of emoji failed.
         """
         payload = {}
