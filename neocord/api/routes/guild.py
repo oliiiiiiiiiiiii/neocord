@@ -48,7 +48,7 @@ class GuildRoutes(BaseRouteMixin):
     def delete_role(self, guild_id: Snowflake, role_id: Snowflake, reason: Optional[str]):
         return self.request(Route('DELETE', '/guilds/{guild_id}/roles/{role_id}', guild_id=guild_id, role_id=role_id), reason=reason)
 
-    # members
+    # members management
 
     def get_guild_member(self, guild_id: Snowflake, member_id: Snowflake):
         route = Route('GET', '/guilds/{guild_id}/members/{member_id}', guild_id=guild_id, member_id=member_id)
@@ -61,3 +61,20 @@ class GuildRoutes(BaseRouteMixin):
     def kick_guild_member(self, guild_id: Snowflake, member_id: Snowflake, reason: str = None):
         route = Route('DELETE', '/guilds/{guild_id}/members/{member_id}', guild_id=guild_id, member_id=member_id)
         return self.request(route, reason=reason)
+
+    # emojis management
+
+    def get_guild_emojis(self, guild_id: Snowflake):
+        return self.request(Route('GET', '/guilds/{guild_id}/emojis', guild_id=guild_id))
+
+    def get_guild_emoji(self, guild_id: Snowflake, emoji_id: Snowflake):
+        return self.request(Route('GET', '/guilds/{guild_id}/emojis/{emoji_id}', guild_id=guild_id, emoji_id=emoji_id))
+
+    def create_guild_emoji(self, guild_id: Snowflake, payload, reason: str = None):
+        return self.request(Route('POST', '/guilds/{guild_id}/emojis', guild_id=guild_id), reason=reason, json=payload)
+
+    def delete_guild_emoji(self, guild_id: Snowflake, emoji_id: Snowflake, reason: str = None):
+        return self.request(Route('DELETE', '/guilds/{guild_id}/emojis/{emoji_id}', guild_id=guild_id, emoji_id=emoji_id), reason=reason)
+
+    def edit_guild_emoji(self, guild_id: Snowflake, emoji_id: Snowflake, payload, reason: str = None):
+        return self.request(Route('PATCH', '/guilds/{guild_id}/emojis/{emoji_id}', guild_id=guild_id, emoji_id=emoji_id), reason=reason, json=payload)

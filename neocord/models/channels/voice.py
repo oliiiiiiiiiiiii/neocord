@@ -53,13 +53,14 @@ class VoiceChannel(GuildChannel):
     nsfw: :class:`bool`
         Whether this channel is NSFW or not.
     """
-    __slots__ = ('bitrate', 'user_limit', 'rtc_region', 'voice_quality_mode', 'nsfw')
+    __slots__ = ('bitrate', 'user_limit', 'rtc_region', 'video_quality_mode', 'nsfw')
 
     if TYPE_CHECKING:
         def __init__(self, data: Any, guild: Guild):
             ...
 
     def _update(self, data: Any):
+        super()._update(data)
         try:
             self.bitrate = int(data['bitrate'])
         except KeyError:

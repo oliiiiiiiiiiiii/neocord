@@ -27,6 +27,7 @@ from neocord.models.base import DiscordModel
 from neocord.models.asset import CDNAsset
 from neocord.models.role import Role
 from neocord.models.member import GuildMember
+from neocord.models.emoji import Emoji
 from neocord.internal.factories import channel_factory
 from neocord.internal import helpers
 from neocord.dataclasses.flags.system import SystemChannelFlags
@@ -37,6 +38,7 @@ if TYPE_CHECKING:
     from neocord.typings.guild import Guild as GuildPayload
     from neocord.typings.role import Role as RolePayload
     from neocord.typings.member import Member as MemberPayload
+    from neocord.typings.emoji import Emoji as EmojiPayload
     from neocord.api.state import State
     from datetime import datetime
 
@@ -114,29 +116,34 @@ class Guild(DiscordModel):
         'system_channel_id', 'rules_channel_id', 'public_updates_channel_id', 'system_channel_flags',
         '_joined_at', 'verification_level', 'default_message_notifications', 'explicit_content_filter',
         'mfa_level', 'premium_tier', 'nsfw_level', '_icon', '_splash', '_banner', '_discovery_splash',
-        'welcome_screen', 'features', '_roles'
+        'welcome_screen', 'features', '_roles', '_events',
     )
 
     def __init__(self, data: GuildPayload, state: State):
         self._state = state
+
         self._voice_states = {}
-        self._members = {}
-        self._channels = {}
         self._threads = {}
         self._presences = {}
         self._stage_instances = {}
         self._stickers = {}
+        self._events = {}
+
+        self._members = {}
+        self._channels = {}
         self._emojis = {}
         self._roles = {}
 
         self._update(data)
 
+        for channel in data.get('channels', []):
+            self._add_channel(channel)
+        for role in data.get('roles', []):
+            self._add_role(role)
         for member in data.get('members', []):
             self._add_member(member)
 
-        for channel in data.get('channels', []):
-            self._add_channel(channel)
-
+        self._bulk_overwrite_emojis(data.get('emojis', []))
 
     def _update(self, data: GuildPayload):
         self.name = data.get('name')
@@ -191,8 +198,6 @@ class Guild(DiscordModel):
         # objects
         self.welcome_screen = data.get('welcome_screen')
 
-        for role in data.get('roles', []):
-            self._add_role(role)
 
     # assets
 
@@ -493,3 +498,214 @@ class Guild(DiscordModel):
             The requested channel.
         """
         return self._channels.get(id)
+
+    def _add_emoji(self, data: EmojiPayload):
+        emoji = Emoji(data, guild=self)
+        self._emojis[emoji.id] = emoji
+        return emoji
+
+    def _remove_emoji(self, id: int):
+        return self._emojis.pop(id, None)
+
+    def _bulk_overwrite_emojis(self, emojis: List[EmojiPayload]):
+        # This is for GUILD_EMOJIS_UPDATE event, we don't have separate
+        # create or delete events for emojis.
+
+        self._emojis.clear()
+
+        for emoji in emojis:
+            self._add_emoji(emoji)
+
+
+    def get_emoji(self, id: int, /) -> Optional[Emoji]:
+        """
+        Gets a custom emoji from the guild. This method returns None is the emoji with
+        provided ID is not found.
+
+        Parameters
+        ----------
+        id: :class:`int`
+            The ID of the emoji.
+
+        Returns
+        -------
+        :class:`Emoji`
+            The requested emoji.
+        """
+        return self._emojis.get(id)
+
+    @property
+    def emojis(self) -> List[Emoji]:
+        """
+        List[:class:`Emoji`]: Returns the list of custom emojis that belong to this guild.
+        """
+        return list(self._emojis.values())
+
+    async def fetch_emoji(self, id: int, /) -> Emoji:
+        """
+        Fetches a custom emoji from the guild.
+
+        This is a direct API call and shouldn't be used in general cases.
+        Consider using :meth:`.get_emoji` instead.
+
+        Parameters
+        ----------
+        id: :class:`int`
+            The snowflake ID of emoji.
+
+        Returns
+        -------
+        :class:`Emoji`
+            The requested emoji.
+
+        Raises
+        ------
+        NotFound:
+            Emoji not found.
+        HTTPException:
+            Fetching of emoji failed.
+        """
+        data = await self._state.http.get_guild_emoji(guild_id=self.id, emoji_id=id)
+        return Emoji(data, guild=self)
+
+    async def fetch_emojis(self) -> List[Emoji]:
+        """
+        Fetches all custom emojis from the guild.
+
+        This is a direct API call and shouldn't be used in general cases.
+        Consider using :attr:`.emojis` instead.
+
+        Returns
+        -------
+        List[:class:`Emoji`]
+            The list of emojis in the guild.
+
+        Raises
+        ------
+        HTTPException:
+            Fetching of emojis failed.
+        """
+        data = await self._state.http.get_guild_emojis(guild_id=self.id)
+        return [Emoji(emj, guild=self) for emj in data]
+
+    async def delete_emoji(self, emoji: DiscordModel, *, reason: Optional[str] = None):
+        """
+        Deletes a custom emoji from the guild.
+
+        Parameters
+        ----------
+        emoji: :class:`Emoji`
+            The emoji to delete.
+        reason: :class:`str`
+            The reason to delete that shows up on audit log.
+
+        Raises
+        ------
+        Forbidden:
+            You don't have permissions to delete this emoji.
+        NotFound:
+            Emoji not found.
+        HTTPException:
+            Deleting of emoji failed.
+        """
+        await self._state.http.delete_guild_emoji(
+            guild_id=self.id,
+            emoji_id=emoji.id,
+            reason=reason
+        )
+
+    async def create_emoji(self, *,
+        emoji: bytes,
+        name: str,
+        roles: Optional[List[DiscordModel]] = None,
+        reason: Optional[str] = None,
+        ) -> Emoji:
+        """
+        Creates a custom guild emoji.
+
+        You must have :attr:`~Permissions.manage_emojis` to perform this
+        action in the guild.
+
+        Parameters
+        ----------
+        emoji: :class:`bytes`
+            The bytes like object of data representing the emoji. The size must be less
+            then or equal to 256kb. Supported types are GIF, PNG, JPEG, and WebP.
+        name: :class:`str`
+            The name of emoji.
+        roles: List[:class:`Role`]
+            The list of roles that can use this emoji.
+        reason: :class:`str`
+            Reason for creating this emoji that shows up on guild's audit log.
+
+        Raises
+        ------
+        Forbidden:
+            You don't have permissions to create an emoji.
+        HTTPException:
+            Creation of emoji failed.
+        """
+        payload = {}
+
+        payload['image'] = helpers.get_image_data(emoji)
+        payload['name'] = str(name)
+
+        if roles is not None:
+            payload['roles'] = [r.id for r in roles]
+
+        data = await self._state.http.create_guild_emoji(
+            guild_id=self.id,
+            payload=payload,
+            reason=reason
+            )
+        return Emoji(data, guild=self)
+
+    async def edit_emoji(self,
+        emoji: DiscordModel,
+        *,
+        name: Optional[str] = None,
+        roles: Optional[List[DiscordModel]] = MISSING,
+        reason: Optional[str] = None,
+        ) -> Emoji:
+        """
+        Edits a custom guild emoji.
+
+        You must have :attr:`~Permissions.manage_emojis` to perform this
+        action in the guild.
+
+        Parameters
+        ----------
+        emoji: :class:`Emoji`
+            The emoji that needs to be edited.
+        name: :class:`str`
+            The new name of emoji.
+        roles: List[:class:`Role`]
+            The list of roles that can use this emoji. None to disable the explicit
+            restriction.
+        reason: :class:`str`
+            Reason for editing this emoji that shows up on guild's audit log.
+
+        Raises
+        ------
+        Forbidden:
+            You don't have permissions to edit an emoji.
+        HTTPException:
+            Editing of emoji failed.
+        """
+        payload = {}
+
+        if name is not None:
+            payload['name'] = name
+        if roles is not MISSING:
+            if roles is None:
+                payload['roles'] = []
+            else:
+                payload['roles'] = [r.id for r in roles]
+
+        data = await self._state.http.edit_guild_emoji(
+            guild_id=self.id,
+            emoji_id=emoji.id,
+            payload=payload,
+            reason=reason,
+            )
+        return Emoji(data, guild=self)
