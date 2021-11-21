@@ -45,6 +45,46 @@ class GatewayIntents(BaseFlags):
     ----------
     value: :class:`int`
         The raw integer value of the intents.
+    messages: :class:`bool`
+        A shorthand that represents both :attr:`.guild_messages` and :attr:`.direct_messages`
+    reactions: :class:`bool`
+        A shorthand that represents both :attr:`.guild_messages_reactions` and :attr:`.direct_messages_reactions`
+    typing: :class:`bool`
+        A shorthand that represents both :attr:`.guild_messages_typing` and :attr:`.direct_messages_typing`
+    guilds: :class:`bool`
+        Returns ``True`` if the guild intents are enabled.
+    members: :class:`bool`
+        Returns ``True`` if the guild members intents are enabled.
+
+        This is a privileged intent and must be explicitly enabled from Developers portal.
+        If your bot is in more then 100 Guilds, you would require verification and
+        intents whitelisting.
+    bans: :class:`bool`
+        Returns ``True`` if the guild bans intents are enabled.
+    emojis_and_stickers: :class:`bool`
+        Returns ``True`` if the emojis and stickers intents are enabled.
+    integrations: :class:`bool`
+        Returns ``True`` if the guild integrations intents are enabled.
+    webhooks: :class:`bool`
+        Returns ``True`` if the guild webhooks intents are enabled.
+    invites: :class:`bool`
+        Returns ``True`` if the guild invites intents are enabled.
+    voice_states: :class:`bool`
+        Returns ``True`` if the voice states intents are enabled.
+    presences: :class:`bool`
+        Returns ``True`` if the guild members presences intents are enabled.
+    guild_messages: :class:`bool`
+        Returns ``True`` if the guild messages intents are enabled.
+    guild_messages_typing: :class:`bool`
+        Returns ``True`` if the guild messages typing trigger intents are enabled.
+    guild_messages_reactions: :class:`bool`
+        Returns ``True`` if the guild message reactions intents are enabled.
+    direct_messages: :class:`bool`
+        Returns ``True`` if the direct messages intents are enabled.
+    direct_messages_typing: :class:`bool`
+        Returns ``True`` if the direct messages typing trigger intents are enabled.
+    direct_messages_reactions: :class:`bool`
+        Returns ``True`` if the DM message reactions intents are enabled.
     """
     # (p): privileged
     VALID_FLAGS = {
@@ -97,95 +137,72 @@ class GatewayIntents(BaseFlags):
 
     @flag
     def messages(self) -> int:
-        """A shorthand that represents both :attr:`.guild_messages` and :attr:`.direct_messages`"""
         return 1 << 9 | 1 << 12
 
     @flag
-    def messages_reactions(self) -> int:
-        """A shorthand that represents both :attr:`.guild_messages_reactions` and :attr:`.direct_messages_reactions`"""
+    def reactions(self) -> int:
         return 1 << 10 | 1 << 13
 
     @flag
     def typing(self) -> int:
-        """A shorthand that represents both :attr:`.guild_messages_typing` and :attr:`.direct_messages_typing`"""
         return 1 << 11 | 1 << 14
 
     @flag
     def guilds(self) -> int:
-        """:class:`bool`: Returns ``True`` if the guild intents are enabled."""
         return 1 << 0
 
     @flag
     def members(self) -> int:
-        """:class:`bool`: Returns ``True`` if the guild members intents are enabled.
-
-        This is a privileged intent and must be explicitly enabled from Developers portal.
-        If your bot is in more then 100 Guilds, you would require verification and
-        intents whitelisting.
-        """
         return 1 << 1
 
     @flag
     def bans(self) -> int:
-        """:class:`bool`: Returns ``True`` if the guild bans intents are enabled."""
         return 1 << 2
 
     @flag
     def emojis_and_stickers(self) -> int:
-        """:class:`bool`: Returns ``True`` if the emojis and stickers intents are enabled."""
         return 1 << 3
 
     @flag
     def integrations(self) -> int:
-        """:class:`bool`: Returns ``True`` if the guild integrations intents are enabled."""
         return 1 << 4
 
     @flag
     def webhooks(self) -> int:
-        """:class:`bool`: Returns ``True`` if the guild webhooks intents are enabled."""
         return 1 << 5
 
     @flag
     def invites(self) -> int:
-        """:class:`bool`: Returns ``True`` if the guild invites intents are enabled."""
         return 1 << 6
 
     @flag
     def voice_states(self) -> int:
-        """:class:`bool`: Returns ``True`` if the voice states intents are enabled."""
         return 1 << 7
 
     @flag
     def presences(self) -> int:
-        """:class:`bool`: Returns ``True`` if the guild members presences intents are enabled."""
         return 1 << 8
 
     @flag
     def guild_messages(self) -> int:
-        """:class:`bool`: Returns ``True`` if the guild messages intents are enabled."""
         return 1 << 9
 
     @flag
     def guild_messages_reactions(self) -> int:
-        """:class:`bool`: Returns ``True`` if the guild message reactions intents are enabled."""
         return 1 << 10
 
     @flag
     def guild_messages_typing(self) -> int:
-        """:class:`bool`: Returns ``True`` if the guild messages typing trigger intents are enabled."""
         return 1 << 11
 
     @flag
     def direct_messages(self) -> int:
-        """:class:`bool`: Returns ``True`` if the direct messages intents are enabled."""
         return 1 << 12
 
     @flag
     def direct_messages_reactions(self) -> int:
-        """:class:`bool`: Returns ``True`` if the direct message reactions intents are enabled."""
         return 1 << 13
 
     @flag
     def direct_messages_typing(self) -> int:
-        """:class:`bool`: Returns ``True`` if the direct messages typing trigger intents are enabled."""
         return 1 << 14

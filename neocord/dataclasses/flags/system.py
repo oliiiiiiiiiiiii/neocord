@@ -31,6 +31,14 @@ class SystemChannelFlags(BaseFlags):
     ----------
     value: :class:`int`
         The raw integer value of flag.
+    suppress_join_notifications: :class:`bool`
+        Returns True if join notifications is enabled in system channels.
+    suppress_premium_subscriptions: :class:`bool`
+        Returns True if server boosts notifications is enabled in system channels.
+    suppress_guild_reminder_notifications: :class:`bool`
+        Returns True if guild reminders in system channels is enabled.
+    suppress_join_notification_replies: :class:`bool`
+        Returns True if user are allowed to reply to system channel join messages.
     """
     VALID_FLAGS = {
         "suppress_join_notifications",
@@ -42,20 +50,16 @@ class SystemChannelFlags(BaseFlags):
 
     @flag
     def suppress_join_notifications(self) -> int:
-        """Returns True if join notifications is enabled in system channels."""
         return 1 << 0
 
     @flag
     def suppress_premium_subscriptions(self) -> int:
-        """Returns True if server boosts notifications is enabled in system channels."""
         return 1 << 1
 
     @flag
     def suppress_guild_reminder_notifications(self) -> int:
-        """Returns True if guild reminders in system channels is enabled."""
         return 1 << 2
 
     @flag
     def suppress_join_notification_replies(self) -> int:
-        """Returns True if user are allowed to reply to system channel join messages."""
         return 1 << 3
