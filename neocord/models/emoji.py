@@ -99,6 +99,13 @@ class Emoji(DiscordModel):
         """:class:`str`: Returns the URL of the emoji."""
         return  f'{CDNAsset.BASE_CDN_URL}/emojis/{self.id}.{"gif" if self.animated else "png"}'
 
+    @property
+    def mention(self) -> str:
+        """
+        :class:`str`: Returns a string representation that is used to use an emoji in Discord.
+        """
+        return f'<{"a" if self.animated else ""}:{self.name}:{self.id}>'
+
     async def edit(self, **kwargs: Any) -> Emoji:
         """
         Edits the custom emoji.
