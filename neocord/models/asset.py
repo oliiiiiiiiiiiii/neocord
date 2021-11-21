@@ -74,7 +74,7 @@ class CDNAsset:
 
         Raises
         ------
-        ValueError:
+        ValueError
             The provided size is not valid.
 
         Returns

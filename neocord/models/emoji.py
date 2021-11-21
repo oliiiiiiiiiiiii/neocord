@@ -125,9 +125,9 @@ class Emoji(DiscordModel):
 
         Raises
         ------
-        Forbidden:
+        Forbidden
             You don't have permissions to edit an emoji.
-        HTTPException:
+        HTTPError
             Editing of emoji failed.
         """
         return await self.guild.edit_emoji(self, **kwargs)

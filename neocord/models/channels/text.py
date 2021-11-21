@@ -140,9 +140,9 @@ class TextChannel(GuildChannel, Messageable):
 
         Raises
         ------
-        Forbidden:
+        Forbidden
             You are not allowed to edit this channel.
-        HTTPError:
+        HTTPError
             The editing of text channel failed somehow.
         """
         payload = {}

@@ -406,7 +406,7 @@ class Client:
 
         Raises
         ------
-        asyncio.TimeoutError:
+        asyncio.TimeoutError
             The timeout period expired and event was not dispatched.
         """
         if not check:
@@ -477,9 +477,9 @@ class Client:
 
         Raises
         ------
-        NotFound:
+        NotFound
             Provided user ID is invalid.
-        HTTPException:
+        HTTPError
             The user fetch failed somehow.
 
         Returns
@@ -521,9 +521,9 @@ class Client:
 
         Raises
         ------
-        NotFound:
+        NotFound
             Provided guild ID is invalid.
-        HTTPException:
+        HTTPError
             The guild fetch failed somehow.
 
         Returns

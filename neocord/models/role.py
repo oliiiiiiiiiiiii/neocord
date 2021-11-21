@@ -197,7 +197,7 @@ class Role(DiscordModel):
         ------
         Forbidden:
             You don't have permissions to edit the role.
-        HTTPException:
+        HTTPError
             The editing of role failed somehow.
         """
         payload = {}
@@ -247,7 +247,7 @@ class Role(DiscordModel):
         ------
         Forbidden:
             You don't have permissions to delete the role.
-        HTTPException:
+        HTTPError
             The deletion of role failed somehow.
         """
         await self._state.http.delete_role(
