@@ -173,7 +173,7 @@ class Emoji(DiscordModel):
             Deleting of emoji failed.
         """
         await self._state.http.delete_guild_emoji(
-            guild_id=self.id,
+            guild_id=self.guild.id,
             emoji_id=self.id,
             reason=reason
         )
