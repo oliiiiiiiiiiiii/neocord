@@ -31,6 +31,20 @@ if TYPE_CHECKING:
         EntityMetadata
     )
 
+class ScheduledEventStatus:
+    SCHEDULED = 1
+    ACTIVE = 2
+    COMPLETED = 3
+    CANCELLED = 4
+
+class EntityType:
+    VOICE_CHANNEL = 1
+    STAGE_INSTANCE = 2
+    EXTERNAL = 3
+
+class EventPrivacyLevel:
+    GUILD_ONLY = 2
+
 class ScheduledEvent(DiscordModel):
     """Represents a guild scheduled event.
 
