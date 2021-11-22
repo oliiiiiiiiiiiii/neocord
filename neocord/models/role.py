@@ -226,6 +226,8 @@ class Role(DiscordModel):
                 reason=reason,
                 payload=payload,
                 )
+            if data:
+                self._update(data)
 
         if position is not None:
             payload = {'position': position, 'id': self.id}

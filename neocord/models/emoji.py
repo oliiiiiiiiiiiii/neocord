@@ -111,7 +111,7 @@ class Emoji(DiscordModel):
         name: Optional[str] = None,
         roles: Optional[List[DiscordModel]] = MISSING,
         reason: Optional[str] = None,
-        ) -> Emoji:
+        ):
         """
         Edits the custom guild emoji.
 
@@ -127,11 +127,6 @@ class Emoji(DiscordModel):
             restriction.
         reason: :class:`str`
             Reason for editing this emoji that shows up on guild's audit log.
-
-        Returns
-        -------
-        :class:`Emoji`
-            The updated emoji.
 
         Raises
         ------
@@ -156,11 +151,10 @@ class Emoji(DiscordModel):
             payload=payload,
             reason=reason,
             )
-        self._update(data)
-        return self
+        if data:
+            self._update(data)
 
-
-    async def delete(self, *, reason: Optional[str] = None) -> Emoji:
+    async def delete(self, *, reason: Optional[str] = None):
         """
         Deletes the custom emoji from the guild.
 
@@ -168,11 +162,6 @@ class Emoji(DiscordModel):
         ----------
         reason: :class:`str`
             The reason to delete that shows up on audit log.
-
-        Returns
-        -------
-        :class:`Emoji`
-            The deleted emoji.
 
         Raises
         ------
@@ -188,4 +177,3 @@ class Emoji(DiscordModel):
             emoji_id=self.id,
             reason=reason
         )
-        return self

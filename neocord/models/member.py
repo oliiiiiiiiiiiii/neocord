@@ -227,7 +227,9 @@ class GuildMember(DiscordModel):
             The reason for this action that shows up on audit log.
 
         """
-        await self.guild.edit_member(self, **kwargs)
+        data =  await self.guild.edit_member(self, **kwargs)
+        if data:
+            self._update(data)
 
     async def kick(self, **kwargs: Any):
         """

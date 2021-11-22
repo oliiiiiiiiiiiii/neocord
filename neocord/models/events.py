@@ -91,3 +91,27 @@ class ScheduledEvent(DiscordModel):
             status = 'UNKNOWN STATUS'
 
         return f"<ScheduledEvent name={self.name} id={self.id} {status}>"
+
+    async def delete(self):
+        """
+        Deletes the guild scheduled event.
+
+        Returns
+        -------
+        :class:`ScheduledEvent`
+            The deleted event.
+
+        Raises
+        ------
+        Forbidden:
+            You don't have permissions to delete this event.
+        NotFound:
+            Event not found.
+        HTTPError
+            Deleting of event failed.
+        """
+        await self._state.http.delete_guild_event(
+            guild_id=self.guild.id,
+            event_id=self.id,
+        )
+

@@ -670,3 +670,50 @@ class Guild(DiscordModel):
         this guild.
         """
         return list(self._scheduled_events.values())
+
+    async def fetch_scheduled_event(self, id: int, /) -> ScheduledEvent:
+        """
+        Fetches a scheduled event from the guild.
+
+        This is a direct API call and shouldn't be used in general cases.
+        Consider using :meth:`.get_scheduled_event` instead.
+
+        Parameters
+        ----------
+        id: :class:`int`
+            The snowflake ID of scheduled event.
+
+        Returns
+        -------
+        :class:`ScheduledEvent`
+            The requested event.
+
+        Raises
+        ------
+        NotFound:
+            Event not found.
+        HTTPError
+            Fetching of event failed.
+        """
+        data = await self._state.http.get_guild_event(guild_id=self.id, event_id=id)
+        return ScheduledEvent(data, guild=self)
+
+    async def fetch_scheduled_events(self) -> List[ScheduledEvent]:
+        """
+        Fetches all scheduled events from the guild.
+
+        This is a direct API call and shouldn't be used in general cases.
+        Consider using :attr:`.scheduled_events` instead.
+
+        Returns
+        -------
+        List[:class:`ScheduledEvent`]
+            The list of events in the guild.
+
+        Raises
+        ------
+        HTTPError
+            Fetching of events failed.
+        """
+        data = await self._state.http.get_guild_events(guild_id=self.id)
+        return [ScheduledEvent(event, guild=self) for event in data]
