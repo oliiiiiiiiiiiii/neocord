@@ -28,7 +28,7 @@ from neocord.models.asset import CDNAsset
 from neocord.models.role import Role
 from neocord.models.member import GuildMember
 from neocord.models.emoji import Emoji
-from neocord.models.events import ScheduledEvent
+from neocord.models.events import ScheduledEvent, EventPrivacyLevel
 from neocord.internal.factories import channel_factory
 from neocord.internal import helpers
 from neocord.dataclasses.flags.system import SystemChannelFlags
@@ -717,3 +717,95 @@ class Guild(DiscordModel):
         """
         data = await self._state.http.get_guild_events(guild_id=self.id)
         return [ScheduledEvent(event, guild=self) for event in data]
+
+    async def create_scheduled_event(self, *,
+        name: str,
+        starts_at: datetime.datetime,
+        ends_at: Optional[datetime.datetime] = None,
+        entity_type: Optional[int] = None,
+        description: Optional[str] = None,
+        channel: Optional[DiscordModel] = None,
+        location: Optional[str] = None,
+        privacy_level: Optional[int] = EventPrivacyLevel.GUILD_ONLY,
+    ) -> ScheduledEvent:
+        """Creates a new scheduled event in the guild.
+
+        Requires you to have :attr:`Permissions.manage_events` in the targeted guild.
+
+        Parameters
+        ----------
+        name: :class:`str`
+            The name of event.
+        starts_at: :class:`datetime.datetime`
+            The datetime representation of the time when the event will be scheduled
+            to start.
+        ends_at: :class:`datetime.datetime`
+            The datetime representation of the time when the event will be scheduled
+            to end. Ending time is required for external events but optional for non-external
+            events.
+        description: :class:`str`
+            The description of event.
+        channel: Union[:class:`VoiceChannel`, `StageChannel`]
+            The channel where the event is being hosted. Cannot be mixed with ``location``.
+        location: :class:`str`
+            The external location name where event is being hosted. Cannot be mixed with ``channel``.
+        privacy_level: :class:`EventPrivacyLevel`
+            The privacy level of event. Defaults to :attr:`~EventPrivacyLevel.GUILD_ONLY`
+        entity_type: :class:`EntityType`
+            The type of entity where event is being hosted. This is usually automatically
+            determined by library depending on parameters that you pass. However, you can
+            set it manually.
+
+        Raises
+        ------
+        Forbidden:
+            You don't have permissions to create an event.
+        HTTPError
+            Creation of event failed.
+
+        Returns
+        -------
+        :class:`ScheduledEvent`
+            The created event.
+        """
+        if location is None and channel is None:
+            raise TypeError('Either one of location or channel parameter must be passed.')
+        if location is no None and channel is None:
+            raise TypeError('channel and location parameters cannot be mixed.')
+        if ends_at is None and location is not None:
+            raise TypeError('ends_at parameter is required when location is supplied.')
+
+        payload = {
+            'name': name,
+            'scheduled_start_time': starts_at.isoformat(),
+            'privacy_level': privacy_level or EventPrivacyLevel.GUILD_ONLY,
+        }
+
+        if entity_type is not None:
+            if location is not None:
+                entity_type = EntityType.EXTERNAL
+            if channel is not None:
+                if isinstance(channel, VoiceChannel):
+                    entity_type = EntityType.VOICE_CHANNEL
+                # elif isinstance(channel, StageChannel):
+                #     entity_type = EntityType.STAGE_INSTANCE
+                else:
+                    raise TypeError(f'unsupported type was passed in channel {channel.__class__.__name__}')
+
+        payload['entity_type'] = entity_type
+
+        if ends_at is not None:
+            payload['scheduled_end_time'] = ends_at.isoformat()
+        if description is not None:
+            payload['description'] = description
+        if channel is not None:
+            payload['channel_id'] = channel.id
+        if location is not None:
+            payload['entity_metadata'] = {'location': location}
+
+
+        data = await self._state.http.create_guild_event(
+            guild_id=self.id,
+            payload=payload
+        )
+        return ScheduledEvent(data, guild=self)
