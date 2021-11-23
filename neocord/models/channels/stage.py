@@ -21,7 +21,13 @@
 # SOFTWARE.
 
 from __future__ import annotations
+from typing import TYPE_CHECKING
 
+from neocord.models.channels.base import GuildChannel
+from neocord.internal.missing import MISSING
+
+if TYPE_CHECKING:
+    from neocord.models.base import DiscordModel
 
 class StageChannel(GuildChannel):
     """
@@ -71,7 +77,7 @@ class StageChannel(GuildChannel):
         reason: Optional[str] = None,
     ) -> None:
         """
-        Edits the voice channel.
+        Edits the stage channel.
 
         Parameters
         ----------
