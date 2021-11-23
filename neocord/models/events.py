@@ -145,6 +145,17 @@ class ScheduledEvent(DiscordModel):
         entity_type: :class:`EntityType`
             The type of entity where event is being hosted. You must provide this
             to edit the entity of event from channel to location and vice versa.
+        status: :class:`EventStatus`
+            The new status of the event. This parameter can be used to start, end or cancel
+            the event.
+
+            There are some considerations for this parameter. Some major ones
+            are mentioned below:
+
+            * You cannot start an already active event.
+            * You cannot cancel an active event.
+            * You cannot end a scheduled event. You can only cancel it.
+            * You can only end an active event.
 
         Raises
         ------
