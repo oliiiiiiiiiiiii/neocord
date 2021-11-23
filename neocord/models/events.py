@@ -148,7 +148,7 @@ class ScheduledEvent(DiscordModel):
 
         Raises
         ------
-        Forbidden:
+        Forbidden
             You don't have permissions to edit an event.
         HTTPError
             Editing of event failed.
@@ -204,9 +204,9 @@ class ScheduledEvent(DiscordModel):
 
         Raises
         ------
-        Forbidden:
+        Forbidden
             You don't have permissions to delete this event.
-        NotFound:
+        NotFound
             Event not found.
         HTTPError
             Deleting of event failed.
