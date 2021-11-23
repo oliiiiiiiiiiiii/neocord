@@ -23,6 +23,7 @@ from typing import TYPE_CHECKING
 
 from neocord.models.base import DiscordModel
 from neocord.internal import helpers
+from neocord.internal.missing import MISSING
 
 if TYPE_CHECKING:
     from neocord.models.guild import Guild

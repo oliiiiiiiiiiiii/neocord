@@ -38,10 +38,10 @@ class ChannelType:
     CATEGORY = 4
     NEWS = 5
     STORE = 6
-    NEWS_THREAD = 7
-    PUBLIC_THREAD = 8
-    PRIVATE_THREAD = 9
-    STAGE = 10
+    NEWS_THREAD = 10
+    PUBLIC_THREAD = 11
+    PRIVATE_THREAD = 12
+    STAGE = 13
 
 class GuildChannel(DiscordModel):
     """
