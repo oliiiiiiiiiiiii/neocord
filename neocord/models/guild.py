@@ -770,7 +770,7 @@ class Guild(DiscordModel):
         """
         if location is None and channel is None:
             raise TypeError('Either one of location or channel parameter must be passed.')
-        if location is no None and channel is None:
+        if location is not None and channel is None:
             raise TypeError('channel and location parameters cannot be mixed.')
         if ends_at is None and location is not None:
             raise TypeError('ends_at parameter is required when location is supplied.')
