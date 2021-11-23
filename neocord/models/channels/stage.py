@@ -85,8 +85,8 @@ class StageChannel(GuildChannel):
             The new position of channel.
         rtc_region: :class:`str`
             The new voice region of channel.
-        video_quality_mode: :class:`VideoQualityMode`
-            The new video streaming quality mode of the channel.
+        topic: :class:`str`
+            The topic of the channel.
         category: :class:`CategoryChannel`
             The ID of category that this channel should be put in.
         nsfw: :class:`bool`
