@@ -106,6 +106,93 @@ class ScheduledEvent(DiscordModel):
 
         return f"<ScheduledEvent name={self.name} id={self.id} {status}>"
 
+    async def edit(self, *,
+        channel: Optional[DiscordModel] = MISSING,
+        location: Optional[str] = MISSING,
+        name: Optional[str] = MISSING,
+        privacy_level: Optional[int] = MISSING,
+        starts_at: Optional[datetime.datetime] = MISSING,
+        ends_at: Optional[datetime.datetime] = MISSING,
+        description: Optional[str] = MISSING,
+        entity_type: Optional[int] = MISSING,
+        status: Optional[int] = MISSING,
+    ):
+        """
+        Edits the scheduled event.
+
+        Requires you to have :attr:`Permissions.manage_events` in the event's guild.
+
+        Parameters
+        ----------
+        name: :class:`str`
+            The name of event.
+        starts_at: :class:`datetime.datetime`
+            The datetime representation of the time when the event will be scheduled
+            to start.
+        ends_at: :class:`datetime.datetime`
+            The datetime representation of the time when the event will be scheduled
+            to end. Ending time is required for external events but optional for non-external
+            events.
+        description: :class:`str`
+            The description of event.
+        channel: Union[:class:`VoiceChannel`, `StageChannel`]
+            The channel where the event is being hosted. Cannot be mixed with ``location``.
+        location: :class:`str`
+            The external location name where event is being hosted. Cannot be mixed with
+            ``channel``.
+        privacy_level: :class:`EventPrivacyLevel`
+            The privacy level of event. Defaults to :attr:`~EventPrivacyLevel.GUILD_ONLY`
+        entity_type: :class:`EntityType`
+            The type of entity where event is being hosted. You must provide this
+            to edit the entity of event from channel to location and vice versa.
+
+        Raises
+        ------
+        Forbidden:
+            You don't have permissions to edit an event.
+        HTTPError
+            Editing of event failed.
+        """
+        payload = {}
+
+        if channel is not MISSING:
+            if channel is None:
+                payload['channel_id'] = None
+            else:
+                payload['channel_id'] = channel.id
+
+        if location is not MISSING:
+            payload['entity_metadata'] = {'location': location}
+
+        if name is not MISSING:
+            payload['name'] = name
+
+        if privacy_level is not MISSING:
+            payload['privacy_level'] = privacy_level
+
+        if starts_at is not MISSING:
+            payload['scheduled_start_time'] = starts_at.isoformat()
+
+        if ends_at is not MISSING:
+            payload['scheduled_end_time'] = ends_at.isoformat()
+
+        if description is not MISSING:
+            payload['description'] = description
+
+        if entity_type is not MISSING:
+            payload['entity_type'] = entity_type
+
+        if status is not MISSING:
+            payload['status'] = status
+
+        if payload:
+            data = await self._state.http.edit_guild_event(
+                guild_id=self.guild.id,
+                event_id=self.id,
+                payload=payload,
+            )
+            self._update(data)
+
     async def delete(self):
         """
         Deletes the guild scheduled event.
