@@ -137,8 +137,10 @@ class VoiceChannel(GuildChannel):
         if video_quality_mode is not None:
             payload['video_quality_mode'] = video_quality_mode
 
-        await self._state.http.edit_channel(
-            channel_id=self.id,
-            payload=payload,
-            reason=reason,
-        )
+        if payload:
+            data = await self._state.http.edit_channel(
+                channel_id=self.id,
+                payload=payload,
+                reason=reason,
+            )
+            self._update(data)

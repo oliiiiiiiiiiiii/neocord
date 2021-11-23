@@ -165,10 +165,9 @@ class TextChannel(GuildChannel, Messageable):
             else:
                 payload['parent_id'] = category.id
 
-
-
-        await self._state.http.edit_channel(
-            channel_id=self.id,
-            payload=payload,
-            reason=reason,
-        )
+        if payload:
+            data = await self._state.http.edit_channel(
+                channel_id=self.id,
+                payload=payload,
+                reason=reason,
+            )

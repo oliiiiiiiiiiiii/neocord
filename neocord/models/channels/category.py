@@ -89,4 +89,6 @@ class CategoryChannel(GuildChannel):
         if nsfw is not None:
             payload['nsfw'] = nsfw
 
-        await self._state.http.edit_channel(channel_id=self.id, payload=payload, reason=reason)
+        if payload:
+            data = await self._state.http.edit_channel(channel_id=self.id, payload=payload, reason=reason)
+            self._update(data)

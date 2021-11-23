@@ -130,8 +130,10 @@ class StageChannel(GuildChannel):
         if topic is not MISSING:
             payload['topic'] = topic
 
-        await self._state.http.edit_channel(
-            channel_id=self.id,
-            payload=payload,
-            reason=reason,
-        )
+        if payload:
+            data = await self._state.http.edit_channel(
+                channel_id=self.id,
+                payload=payload,
+                reason=reason,
+            )
+            self._update(data)
