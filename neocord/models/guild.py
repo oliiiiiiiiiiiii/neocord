@@ -29,10 +29,13 @@ from neocord.models.role import Role
 from neocord.models.member import GuildMember
 from neocord.models.emoji import Emoji
 from neocord.models.events import ScheduledEvent, EventPrivacyLevel
+from neocord.models.channels.voice import VoiceChannel
+from neocord.models.channels.stage import StageChannel
 from neocord.internal.factories import channel_factory
 from neocord.internal import helpers
 from neocord.dataclasses.flags.system import SystemChannelFlags
 from neocord.internal.missing import MISSING
+
 
 if TYPE_CHECKING:
     from neocord.models.channels.base import GuildChannel
@@ -787,8 +790,8 @@ class Guild(DiscordModel):
             if channel is not None:
                 if isinstance(channel, VoiceChannel):
                     entity_type = EntityType.VOICE_CHANNEL
-                # elif isinstance(channel, StageChannel):
-                #     entity_type = EntityType.STAGE_INSTANCE
+                elif isinstance(channel, StageChannel):
+                    entity_type = EntityType.STAGE_INSTANCE
                 else:
                     raise TypeError(f'unsupported type was passed in channel {channel.__class__.__name__}')
 
