@@ -29,6 +29,7 @@ from neocord.models.channels.base import ChannelType, GuildChannel
 from neocord.models.channels.text import TextChannel
 from neocord.models.channels.category import CategoryChannel
 from neocord.models.channels.voice import VoiceChannel
+from neocord.models.channels.stage import StageChannel
 
 def channel_factory(ctype: int) -> Type[GuildChannel]:
     if ctype == ChannelType.TEXT:
@@ -37,5 +38,7 @@ def channel_factory(ctype: int) -> Type[GuildChannel]:
         return CategoryChannel
     if ctype == ChannelType.VOICE:
         return VoiceChannel
+    if ctype == ChannelType.STAGE:
+        return StageChannel
     else:
         return GuildChannel
