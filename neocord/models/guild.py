@@ -31,6 +31,7 @@ from neocord.models.emoji import Emoji
 from neocord.models.events import ScheduledEvent, EventPrivacyLevel
 from neocord.models.channels.voice import VoiceChannel
 from neocord.models.channels.stage import StageChannel
+from neocord.models.stage_instance import StageInstance
 from neocord.internal.factories import channel_factory
 from neocord.internal import helpers
 from neocord.dataclasses.flags.system import SystemChannelFlags
@@ -44,6 +45,7 @@ if TYPE_CHECKING:
     from neocord.typings.member import Member as MemberPayload
     from neocord.typings.emoji import Emoji as EmojiPayload
     from neocord.typings.events import GuildScheduledEvent as GuildScheduledEventPayload
+    from neocord.typings.stage_instance import StageInstance as StageInstancePayload
     from neocord.api.state import State
     from datetime import datetime
 
@@ -130,14 +132,14 @@ class Guild(DiscordModel):
         self._voice_states = {}
         self._threads = {}
         self._presences = {}
-        self._stage_instances = {}
         self._stickers = {}
-        self._scheduled_events = {}
 
-        self._members = {}
-        self._channels = {}
-        self._emojis = {}
-        self._roles = {}
+        self._members: Dict[int, GuildMember] = {}
+        self._channels: Dict[int, GuildChannel] = {}
+        self._emojis: Dict[int, Emoji] = {}
+        self._roles: Dict[int, Role] = {}
+        self._scheduled_events: Dict[int, ScheduledEvent] = {}
+        self._stage_instances: Dict[int, StageInstance] = {}
 
         self._update(data)
 
@@ -149,6 +151,8 @@ class Guild(DiscordModel):
             self._add_member(member)
         for event in data.get('guild_scheduled_events', []):
             self._add_event(event)
+        for stage_instance in data.get('stage_instances', []):
+            self._add_stage_instance(stage_instance)
 
         self._bulk_overwrite_emojis(data.get('emojis', []))
 
@@ -812,3 +816,37 @@ class Guild(DiscordModel):
             payload=payload
         )
         return ScheduledEvent(data, guild=self)
+
+    def _add_stage_instance(self, data: StageInstancePayload):
+        instance = StageInstance(data, guild=self)
+        self._stage_instances[instance.id] = instance
+        return instance
+
+    def _remove_stage_instance(self, id: int):
+        return self._stage_instances.pop(id, None)
+
+
+    def get_stage_instance(self, id: int, /) -> Optional[StageInstance]:
+        """
+        Gets a live stage instance from the guild. This method returns None is no instance
+        with provided ID is not found.
+
+        Parameters
+        ----------
+        id: :class:`int`
+            The ID of the stage instance.
+
+        Returns
+        -------
+        Optional[:class:`StageInstance`]
+            The requested instance, if found.
+        """
+        return self._stage_instances.get(id)
+
+    @property
+    def stage_instances(self) -> List[StageInstance]:
+        """
+        List[:class:`StageInstance`]: Returns the list of stage instances that are active in
+        this guild.
+        """
+        return list(self._stage_instances.values())

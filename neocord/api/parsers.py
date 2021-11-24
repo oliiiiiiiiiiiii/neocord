@@ -317,3 +317,39 @@ class Parsers:
 
         self.dispatch('scheduled_event_delete', scheduled_event)
 
+
+    def parse_stage_instance_create(self, event):
+        guild = self.state.get_guild(int(event['guild_id']))
+        if guild is None:
+            logger.debug('STAGE_INSTANCE_CREATE was sent with unknown guild {}, Discarding.'.format(event['guild_id']))
+            return
+
+        instance = guild._add_stage_instance(event)
+
+        self.dispatch('stage_instance_create', instance)
+
+    def parse_stage_instance_update(self, event):
+        guild = self.state.get_guild(int(event['guild_id']))
+        if guild is None:
+            logger.debug('STAGE_INSTANCE_UPDATE was sent with unknown guild {}, Discarding.'.format(event['guild_id']))
+            return
+
+        instance = guild.get_stage_instance(int(event['id']))
+
+        before = copy.copy(instance)
+        instance._update(event)
+
+        self.dispatch('stage_instance_update', before, instance)
+
+    def parse_stage_instance_delete(self, event):
+        guild = self.state.get_guild(int(event['guild_id']))
+        if guild is None:
+            logger.debug('STAGE_INSTANCE_DELETE was sent with unknown guild {}, Discarding.'.format(event['guild_id']))
+            return
+
+        instance = guild._remove_stage_instance(int(event['id']))
+
+        self.dispatch('stage_instance_delete', instance)
+
+
+
