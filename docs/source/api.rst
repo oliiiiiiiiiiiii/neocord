@@ -14,6 +14,157 @@ Client
 .. autoclass:: Client()
     :members:
 
+Events Reference
+----------------
+
+This section outlines the gateway events. These events are sent by Discord over websocket
+and can be listened to, using the events listener.
+
+Listening to events
+~~~~~~~~~~~~~~~~~~~~
+
+A very basic way of listening to an event is simply overriding it::
+
+    class MyClient(neocord.Client):
+        async def on_ready():
+            print('The bot is ready.')
+
+However, there is another easy way of doing above task::
+
+    @client.event
+    async def on_ready():
+        print('The bot is ready.')
+
+Both methods are equivalent.
+
+However there are one problem here, that you cannot register multiple events listeners using
+above method and that's why library provides a more granular system for listeners handling that
+is using :meth:`Client.on` decorator::
+
+    @client.on('ready')
+    # or
+    # @client.on('on_ready')
+    async def ready_listener():
+        print('The bot is ready.')
+
+You can easily register any number of listeners you want using this method. See relevant
+documentation for more information.
+
+Below section will list all the gateway events that are sent by Discord and can be listened
+to.
+
+.. function:: on_ready
+
+    An event that fires when the client's internal cache is completely filled.
+
+    Important point to note is that this event is not guranteed to call once and similarly,
+    This is also not the very first event to call.
+
+    You shouldn't rely on this event to do initial stuff as this event can fire many times.
+
+    Consider using :meth:`Client.connect_hook` if you want a hook that calls initally and
+    only once.
+
+.. function:: on_user_update
+
+    Calls when properties of a discord user like name, avatar etc. change.
+
+    :param before: The user before update.
+    :type before: :class:`User`
+    :param after: The user after update.
+    :type after: :class:`User`
+
+.. function:: on_guild_join
+
+    Calls when a guild is joined by the client user.
+
+    Requires :meth:`GatewayIntents.guilds` to be enabled.
+
+
+    :param guild: The guild that was joined.
+    :type guild: :class:`Guild`
+
+
+.. function:: on_guild_update
+
+    Calls when properties of a guild is changed.
+
+    Requires :meth:`GatewayIntents.guilds` to be enabled.
+
+    :param before: The guild before update.
+    :type before: :class:`Guild`
+
+    :param after: The guild after update.
+    :type after: :class:`Guild`
+
+
+.. function:: on_guild_delete
+
+    Calls when a guild is deleted i.e became unavailable due to an outage,
+    the client user was removed etc.
+
+    Consider using :func:`on_guild_leave` or :func:`on_guild_unavailable` for only leave or unavailable events
+    respectively.
+
+    Requires :meth:`GatewayIntents.guilds` to be enabled.
+
+    :param guild: The guild that was deleted.
+    :type guild: :class:`Guild`
+
+
+.. function:: on_guild_leave
+
+    Calls when client user leaves a guild.
+
+    Requires :meth:`GatewayIntents.guilds` to be enabled.
+
+    :param guild: The guild that was left.
+    :type guild: :class:`Guild`
+
+.. function:: on_guild_unavailable
+
+    Calls when a guild becomes unavailable due to an outage etc.
+
+    Requires :meth:`GatewayIntents.guilds` to be enabled.
+
+    :param guild: The guild that became unavailable.
+    :type guild: :class:`Guild`
+
+
+.. function:: on_member_join
+
+    Calls when a member joins a guild etc.
+
+    Requires :meth:`GatewayIntents.members` to be enabled.
+
+    :param member: The joined member.
+    :type member: :class:`GuildMember`
+
+
+
+.. function:: on_member_leave
+
+    Calls when a member leaves a guild etc.
+
+    Requires :meth:`GatewayIntents.members` to be enabled.
+
+    :param member: The member who left the guild.
+    :type member: :class:`GuildMember`
+
+
+.. function:: on_member_update
+
+    Calls when properties of a guild member updates like nickname change, avatar change etc.
+
+    Requires :meth:`GatewayIntents.members` to be enabled.
+
+    :param before: The member before update.
+    :type before: :class:`GuildMember`
+
+    :param after: The member after update.
+    :type after: :class:`GuildMember`
+
+
 Discord Data Models
 -------------------
 
