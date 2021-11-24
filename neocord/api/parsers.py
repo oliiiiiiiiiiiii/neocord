@@ -110,8 +110,6 @@ class Parsers:
             # we assume that guild is joined since client is ready.
             self.dispatch('guild_join', guild)
 
-        self.dispatch('guild_create', guild)
-
         if self._awaiting_guild_create is None:
             return
 
@@ -137,14 +135,14 @@ class Parsers:
     def parse_guild_delete(self, event: GuildPayload):
         guild = self.state.get_guild(int(event['id']))
         if guild is None:
-            logger.debug(f'GUILD_UPDATE was sent with an unknown guild {event["id"]}, Discarding.')
+            logger.debug(f'GUILD_DELETE was sent with an unknown guild {event["id"]}, Discarding.')
             return
 
         if not 'available' in event:
             # the user was removed from guild.
             self.dispatch('guild_leave', guild)
         else:
-            self.dispatch('guild_available', guild)
+            self.dispatch('guild_unavailable', guild)
 
         self.state.pop_guild(guild.id)
         self.dispatch('guild_delete', guild)
