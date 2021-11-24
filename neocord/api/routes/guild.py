@@ -78,3 +78,24 @@ class GuildRoutes(BaseRouteMixin):
 
     def edit_guild_emoji(self, guild_id: Snowflake, emoji_id: Snowflake, payload, reason: str = None):
         return self.request(Route('PATCH', '/guilds/{guild_id}/emojis/{emoji_id}', guild_id=guild_id, emoji_id=emoji_id), reason=reason, json=payload)
+
+    # scheduled events management
+
+    def get_guild_events(self, guild_id: Snowflake):
+        return self.request(Route('GET', '/guilds/{guild_id}/scheduled-events', guild_id=guild_id))
+
+    def get_guild_event(self, guild_id: Snowflake, event_id: Snowflake):
+        return self.request(Route('GET', '/guilds/{guild_id}/scheduled-events/{event_id}', guild_id=guild_id, event_id=event_id))
+
+    def create_guild_event(self, guild_id: Snowflake, payload):
+        return self.request(Route('POST', '/guilds/{guild_id}/scheduled-events', guild_id=guild_id), json=payload)
+
+    def edit_guild_event(self, guild_id: Snowflake, event_id: Snowflake, payload):
+        return self.request(Route('PATCH', '/guilds/{guild_id}/scheduled-events/{event_id}', guild_id=guild_id, event_id=event_id), json=payload)
+
+    def delete_guild_event(self, guild_id: Snowflake, event_id: Snowflake):
+        return self.request(Route('DELETE', '/guilds/{guild_id}/scheduled-events/{event_id}', guild_id=guild_id, event_id=event_id))
+
+    def get_guild_event_subscribers(self, guild_id: Snowflake, event_id: Snowflake):
+        return self.request(Route('GET', '/guilds/{guild_id}/scheduled-events/{event_id}/users', guild_id=guild_id, event_id=event_id))
+

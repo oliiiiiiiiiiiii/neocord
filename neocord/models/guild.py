@@ -28,6 +28,7 @@ from neocord.models.asset import CDNAsset
 from neocord.models.role import Role
 from neocord.models.member import GuildMember
 from neocord.models.emoji import Emoji
+from neocord.models.events import ScheduledEvent, EventPrivacyLevel
 from neocord.internal.factories import channel_factory
 from neocord.internal import helpers
 from neocord.dataclasses.flags.system import SystemChannelFlags
@@ -39,6 +40,7 @@ if TYPE_CHECKING:
     from neocord.typings.role import Role as RolePayload
     from neocord.typings.member import Member as MemberPayload
     from neocord.typings.emoji import Emoji as EmojiPayload
+    from neocord.typings.events import GuildScheduledEvent as GuildScheduledEventPayload
     from neocord.api.state import State
     from datetime import datetime
 
@@ -116,7 +118,7 @@ class Guild(DiscordModel):
         'system_channel_id', 'rules_channel_id', 'public_updates_channel_id', 'system_channel_flags',
         '_joined_at', 'verification_level', 'default_message_notifications', 'explicit_content_filter',
         'mfa_level', 'premium_tier', 'nsfw_level', '_icon', '_splash', '_banner', '_discovery_splash',
-        'welcome_screen', 'features', '_roles', '_events',
+        'welcome_screen', 'features', '_roles', '_scheduled_events',
     )
 
     def __init__(self, data: GuildPayload, state: State):
@@ -127,7 +129,7 @@ class Guild(DiscordModel):
         self._presences = {}
         self._stage_instances = {}
         self._stickers = {}
-        self._events = {}
+        self._scheduled_events = {}
 
         self._members = {}
         self._channels = {}
@@ -142,6 +144,8 @@ class Guild(DiscordModel):
             self._add_role(role)
         for member in data.get('members', []):
             self._add_member(member)
+        for event in data.get('guild_scheduled_events', []):
+            self._add_event(event)
 
         self._bulk_overwrite_emojis(data.get('emojis', []))
 
@@ -588,32 +592,6 @@ class Guild(DiscordModel):
         data = await self._state.http.get_guild_emojis(guild_id=self.id)
         return [Emoji(emj, guild=self) for emj in data]
 
-    async def delete_emoji(self, emoji: DiscordModel, *, reason: Optional[str] = None):
-        """
-        Deletes a custom emoji from the guild.
-
-        Parameters
-        ----------
-        emoji: :class:`Emoji`
-            The emoji to delete.
-        reason: :class:`str`
-            The reason to delete that shows up on audit log.
-
-        Raises
-        ------
-        Forbidden:
-            You don't have permissions to delete this emoji.
-        NotFound:
-            Emoji not found.
-        HTTPError
-            Deleting of emoji failed.
-        """
-        await self._state.http.delete_guild_emoji(
-            guild_id=self.id,
-            emoji_id=emoji.id,
-            reason=reason
-        )
-
     async def create_emoji(self, *,
         emoji: bytes,
         name: str,
@@ -660,52 +638,174 @@ class Guild(DiscordModel):
             )
         return Emoji(data, guild=self)
 
-    async def edit_emoji(self,
-        emoji: DiscordModel,
-        *,
-        name: Optional[str] = None,
-        roles: Optional[List[DiscordModel]] = MISSING,
-        reason: Optional[str] = None,
-        ) -> Emoji:
-        """
-        Edits a custom guild emoji.
+    def _add_event(self, data: GuildScheduledEventPayload):
+        event = ScheduledEvent(data, guild=self)
+        self._scheduled_events[event.id] = event
+        return event
 
-        You must have :attr:`~Permissions.manage_emojis` to perform this
-        action in the guild.
+    def _remove_event(self, id: int):
+        return self._scheduled_events.pop(id, None)
+
+    def get_scheduled_event(self, id: int, /) -> Optional[ScheduledEvent]:
+        """
+        Gets a scheduled event from the guild. This method returns None is the scheduled event
+        with provided ID is not found.
 
         Parameters
         ----------
-        emoji: :class:`Emoji`
-            The emoji that needs to be edited.
+        id: :class:`int`
+            The ID of the event.
+
+        Returns
+        -------
+        Optional[:class:`ScheduledEvent`]
+            The requested event, if found.
+        """
+        return self._scheduled_events.get(id)
+
+    @property
+    def scheduled_events(self) -> List[ScheduledEvent]:
+        """
+        List[:class:`ScheduledEvent`]: Returns the list of scheduled events that belong to
+        this guild.
+        """
+        return list(self._scheduled_events.values())
+
+    async def fetch_scheduled_event(self, id: int, /) -> ScheduledEvent:
+        """
+        Fetches a scheduled event from the guild.
+
+        This is a direct API call and shouldn't be used in general cases.
+        Consider using :meth:`.get_scheduled_event` instead.
+
+        Parameters
+        ----------
+        id: :class:`int`
+            The snowflake ID of scheduled event.
+
+        Returns
+        -------
+        :class:`ScheduledEvent`
+            The requested event.
+
+        Raises
+        ------
+        NotFound:
+            Event not found.
+        HTTPError
+            Fetching of event failed.
+        """
+        data = await self._state.http.get_guild_event(guild_id=self.id, event_id=id)
+        return ScheduledEvent(data, guild=self)
+
+    async def fetch_scheduled_events(self) -> List[ScheduledEvent]:
+        """
+        Fetches all scheduled events from the guild.
+
+        This is a direct API call and shouldn't be used in general cases.
+        Consider using :attr:`.scheduled_events` instead.
+
+        Returns
+        -------
+        List[:class:`ScheduledEvent`]
+            The list of events in the guild.
+
+        Raises
+        ------
+        HTTPError
+            Fetching of events failed.
+        """
+        data = await self._state.http.get_guild_events(guild_id=self.id)
+        return [ScheduledEvent(event, guild=self) for event in data]
+
+    async def create_scheduled_event(self, *,
+        name: str,
+        starts_at: datetime.datetime,
+        ends_at: Optional[datetime.datetime] = None,
+        entity_type: Optional[int] = None,
+        description: Optional[str] = None,
+        channel: Optional[DiscordModel] = None,
+        location: Optional[str] = None,
+        privacy_level: Optional[int] = EventPrivacyLevel.GUILD_ONLY,
+    ) -> ScheduledEvent:
+        """Creates a new scheduled event in the guild.
+
+        Requires you to have :attr:`Permissions.manage_events` in the targeted guild.
+
+        Parameters
+        ----------
         name: :class:`str`
-            The new name of emoji.
-        roles: List[:class:`Role`]
-            The list of roles that can use this emoji. None to disable the explicit
-            restriction.
-        reason: :class:`str`
-            Reason for editing this emoji that shows up on guild's audit log.
+            The name of event.
+        starts_at: :class:`datetime.datetime`
+            The datetime representation of the time when the event will be scheduled
+            to start.
+        ends_at: :class:`datetime.datetime`
+            The datetime representation of the time when the event will be scheduled
+            to end. Ending time is required for external events but optional for non-external
+            events.
+        description: :class:`str`
+            The description of event.
+        channel: Union[:class:`VoiceChannel`, `StageChannel`]
+            The channel where the event is being hosted. Cannot be mixed with ``location``.
+        location: :class:`str`
+            The external location name where event is being hosted. Cannot be mixed with ``channel``.
+        privacy_level: :class:`EventPrivacyLevel`
+            The privacy level of event. Defaults to :attr:`~EventPrivacyLevel.GUILD_ONLY`
+        entity_type: :class:`EntityType`
+            The type of entity where event is being hosted. This is usually automatically
+            determined by library depending on parameters that you pass. However, you can
+            set it manually.
 
         Raises
         ------
         Forbidden:
-            You don't have permissions to edit an emoji.
+            You don't have permissions to create an event.
         HTTPError
-            Editing of emoji failed.
+            Creation of event failed.
+
+        Returns
+        -------
+        :class:`ScheduledEvent`
+            The created event.
         """
-        payload = {}
+        if location is None and channel is None:
+            raise TypeError('Either one of location or channel parameter must be passed.')
+        if location is no None and channel is None:
+            raise TypeError('channel and location parameters cannot be mixed.')
+        if ends_at is None and location is not None:
+            raise TypeError('ends_at parameter is required when location is supplied.')
 
-        if name is not None:
-            payload['name'] = name
-        if roles is not MISSING:
-            if roles is None:
-                payload['roles'] = []
-            else:
-                payload['roles'] = [r.id for r in roles]
+        payload = {
+            'name': name,
+            'scheduled_start_time': starts_at.isoformat(),
+            'privacy_level': privacy_level or EventPrivacyLevel.GUILD_ONLY,
+        }
 
-        data = await self._state.http.edit_guild_emoji(
+        if entity_type is not None:
+            if location is not None:
+                entity_type = EntityType.EXTERNAL
+            if channel is not None:
+                if isinstance(channel, VoiceChannel):
+                    entity_type = EntityType.VOICE_CHANNEL
+                # elif isinstance(channel, StageChannel):
+                #     entity_type = EntityType.STAGE_INSTANCE
+                else:
+                    raise TypeError(f'unsupported type was passed in channel {channel.__class__.__name__}')
+
+        payload['entity_type'] = entity_type
+
+        if ends_at is not None:
+            payload['scheduled_end_time'] = ends_at.isoformat()
+        if description is not None:
+            payload['description'] = description
+        if channel is not None:
+            payload['channel_id'] = channel.id
+        if location is not None:
+            payload['entity_metadata'] = {'location': location}
+
+
+        data = await self._state.http.create_guild_event(
             guild_id=self.id,
-            emoji_id=emoji.id,
-            payload=payload,
-            reason=reason,
-            )
-        return Emoji(data, guild=self)
+            payload=payload
+        )
+        return ScheduledEvent(data, guild=self)

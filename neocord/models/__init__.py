@@ -12,3 +12,4 @@ from .member import *
 from .message import *
 from .role import *
 from .user import *
+from .events import *

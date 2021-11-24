@@ -57,6 +57,9 @@ def get_snowflake(data: Any, key: str) -> Optional[int]:
     except:
         return
 
+# alias
+int_or_none = get_snowflake
+
 def iso_to_datetime(ts: Optional[str]) -> Optional[datetime.datetime]:
     if ts:
         return datetime.datetime.fromisoformat(ts)

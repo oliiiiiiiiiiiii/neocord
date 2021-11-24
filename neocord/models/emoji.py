@@ -106,9 +106,14 @@ class Emoji(DiscordModel):
         """
         return f'<{"a" if self.animated else ""}:{self.name}:{self.id}>'
 
-    async def edit(self, **kwargs: Any) -> Emoji:
+    async def edit(self,
+        *,
+        name: Optional[str] = None,
+        roles: Optional[List[DiscordModel]] = MISSING,
+        reason: Optional[str] = None,
+        ):
         """
-        Edits the custom emoji.
+        Edits the custom guild emoji.
 
         You must have :attr:`~Permissions.manage_emojis` to perform this
         action in the guild.
@@ -125,30 +130,50 @@ class Emoji(DiscordModel):
 
         Raises
         ------
-        Forbidden
+        Forbidden:
             You don't have permissions to edit an emoji.
         HTTPError
             Editing of emoji failed.
         """
-        return await self.guild.edit_emoji(self, **kwargs)
+        payload = {}
 
-    async def delete(self, **kwargs: Any):
+        if name is not None:
+            payload['name'] = name
+        if roles is not MISSING:
+            if roles is None:
+                payload['roles'] = []
+            else:
+                payload['roles'] = [r.id for r in roles]
+
+        data = await self._state.http.edit_guild_emoji(
+            guild_id=self.id,
+            emoji_id=self.id,
+            payload=payload,
+            reason=reason,
+            )
+        if data:
+            self._update(data)
+
+    async def delete(self, *, reason: Optional[str] = None):
         """
-        Deletes the custom emoji.
-
-        You must have :attr:`~Permissions.manage_emojis` to perform this
-        action in the guild.
+        Deletes the custom emoji from the guild.
 
         Parameters
         ----------
         reason: :class:`str`
-            Reason for deleting this emoji that shows up on guild's audit log.
+            The reason to delete that shows up on audit log.
 
         Raises
         ------
         Forbidden:
-            You don't have permissions to delete an emoji.
-        HTTPException:
-            Deletion of emoji failed.
+            You don't have permissions to delete this emoji.
+        NotFound:
+            Emoji not found.
+        HTTPError
+            Deleting of emoji failed.
         """
-        return await self.guild.delete_emoji(self, **kwargs)
+        await self._state.http.delete_guild_emoji(
+            guild_id=self.guild.id,
+            emoji_id=self.id,
+            reason=reason
+        )
