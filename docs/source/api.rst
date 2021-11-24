@@ -65,7 +65,7 @@ to.
     Consider using :meth:`Client.connect_hook` if you want a hook that calls initally and
     only once.
 
-.. function:: on_user_update
+.. function:: on_user_update(user)
 
     Calls when properties of a discord user like name, avatar etc. change.
 
@@ -74,7 +74,7 @@ to.
     :param after: The user after update.
     :type after: :class:`User`
 
-.. function:: on_guild_join
+.. function:: on_guild_join(guild)
 
     Calls when a guild is joined by the client user.
 
@@ -85,7 +85,7 @@ to.
     :type guild: :class:`Guild`
 
 
-.. function:: on_guild_update
+.. function:: on_guild_update(before, after)
 
     Calls when properties of a guild is changed.
 
@@ -98,7 +98,7 @@ to.
     :type after: :class:`Guild`
 
 
-.. function:: on_guild_delete
+.. function:: on_guild_delete(guild)
 
     Calls when a guild is deleted i.e became unavailable due to an outage,
     the client user was removed etc.
@@ -112,7 +112,7 @@ to.
     :type guild: :class:`Guild`
 
 
-.. function:: on_guild_leave
+.. function:: on_guild_leave(guild)
 
     Calls when client user leaves a guild.
 
@@ -121,7 +121,7 @@ to.
     :param guild: The guild that was left.
     :type guild: :class:`Guild`
 
-.. function:: on_guild_unavailable
+.. function:: on_guild_unavailable(guild)
 
     Calls when a guild becomes unavailable due to an outage etc.
 
@@ -131,7 +131,7 @@ to.
     :type guild: :class:`Guild`
 
 
-.. function:: on_member_join
+.. function:: on_member_join(member)
 
     Calls when a member joins a guild etc.
 
@@ -142,7 +142,7 @@ to.
 
 
 
-.. function:: on_member_leave
+.. function:: on_member_leave(member)
 
     Calls when a member leaves a guild etc.
 
@@ -152,7 +152,7 @@ to.
     :type member: :class:`GuildMember`
 
 
-.. function:: on_member_update
+.. function:: on_member_update(before, after)
 
     Calls when properties of a guild member updates like nickname change, avatar change etc.
 
