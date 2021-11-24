@@ -25,7 +25,8 @@ from typing import Any, Literal
 
 class Missing:
     def __repr__(self) -> str:
-        return '<neocord.utils.missing.MISSING>'
+        # repr for docs.
+        return '...'
 
     def __eq__(self, other: Any) -> Literal[False]:
         return False
