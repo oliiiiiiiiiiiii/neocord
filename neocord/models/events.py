@@ -51,7 +51,37 @@ class ScheduledEvent(DiscordModel):
 
     Attributes
     ----------
-    ...
+    guild: :class:`Guild`
+        The guild that this event belongs to.
+    id: :class:`int`
+        The ID of this event.
+    channel_id: Optional[:class:`int`]
+        The ID of voice or stage channel where the event is hosted. Could be None if
+        event is external.
+    creator_id: Optional[:class:`int`]
+        The ID of user that created this event. Could be None in some rare cases.
+    entity_id: :class:`int`
+        The iD of associated entity i.e stage channel.
+    name: :class:`str`
+        The name of event.
+    description: Optional[:class:`str`]
+        The description of event.
+    starts_at: :class:`datetime.datetime`
+        The datetime representation of time when the event is scheduled to start.
+    ends_at: Optional[:class:`datetime.datetime`]
+        The datetime representation of time when the event is scheduled to end. Could
+        be None if no time is set.
+    privacy_level: :class:`EventPrivacyLevel`
+        The privacy level of event.
+    status: :class:`EventStatus`
+        The current status of event.
+    entity_type: :class:`entity_type`
+        The entity type of event.
+    location: Optional[:class:`str`]
+        The external location where event is being hosted. Could be None if event is hosted
+        in a channel.
+    creator: Optional[:class:`User`]
+        The creator of this event. Could be None in some rare cases.
     """
     __slots__ = (
         'guild', '_state', 'id', 'guild_id', 'channel_id', 'creator_id', 'entity_id',
@@ -106,6 +136,18 @@ class ScheduledEvent(DiscordModel):
             status = 'UNKNOWN STATUS'
 
         return f"<ScheduledEvent name={self.name} id={self.id} {status}>"
+
+    @property
+    def channel(self) -> Optional[Union[VoiceChannel, StageChannel]]:
+        """
+        Returns the channel that this event is hosted in. Could be None if
+        the event is hosted externally.
+
+        Returns
+        -------
+        Optional[Union[:class:`VoiceChannel`, :class:`StageChannel`]]
+        """
+        return self.guild.get_channel(self.channel_id) # type: ignore
 
     async def edit(self, *,
         channel: Optional[DiscordModel] = MISSING,
