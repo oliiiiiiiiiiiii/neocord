@@ -25,7 +25,7 @@ from typing import Any, Dict
 
 from .base import BaseRouteMixin, Route
 
-class UsersRoutes(BaseRouteMixin):
+class Users(BaseRouteMixin):
     def get_client_user(self):
         return self.request(Route('GET', '/users/@me'))
 

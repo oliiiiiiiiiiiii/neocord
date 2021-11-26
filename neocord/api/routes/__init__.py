@@ -28,11 +28,13 @@ from .user import *
 from .gateway import *
 from .guild import *
 from .channels import *
+from .stage_instance import *
 
 class Routes(
-    UsersRoutes,
-    GatewayRoutes,
-    GuildRoutes,
-    ChannelRoutes,
+    Users,
+    Gateway,
+    Guilds,
+    Channels,
+    StageInstances,
 ):
     pass

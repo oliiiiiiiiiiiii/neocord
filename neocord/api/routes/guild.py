@@ -28,7 +28,7 @@ from .base import BaseRouteMixin, Route
 if TYPE_CHECKING:
     from neocord.typings.snowflake import Snowflake
 
-class GuildRoutes(BaseRouteMixin):
+class Guilds(BaseRouteMixin):
 
     def get_guild(self, guild_id: Snowflake):
         return self.request(Route('GET', '/guilds/{guild_id}', guild_id=guild_id))

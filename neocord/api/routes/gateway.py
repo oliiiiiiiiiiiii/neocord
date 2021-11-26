@@ -24,7 +24,7 @@ from __future__ import annotations
 
 from .base import BaseRouteMixin, Route
 
-class GatewayRoutes(BaseRouteMixin):
+class Gateway(BaseRouteMixin):
     def ws_connect(self, url: str):
         return self.session.ws_connect(url)
 

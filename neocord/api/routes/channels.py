@@ -28,7 +28,7 @@ from .base import BaseRouteMixin, Route
 if TYPE_CHECKING:
     from neocord.typings.snowflake import Snowflake
 
-class ChannelRoutes(BaseRouteMixin):
+class Channels(BaseRouteMixin):
 
     def edit_channel(self, channel_id: Snowflake, payload, reason: Optional[str]):
         return self.request(Route('PATCH', '/channels/{channel_id}', channel_id=channel_id), json=payload, reason=reason)
