@@ -553,16 +553,16 @@ class Client:
         """
         return self.state.get_message(id)
 
-    async def fetch_stage_instance(self, id: int, /):
-        """Fetches a stage instance by it's ID.
+    async def fetch_stage_instance(self, channel_id: int, /):
+        """Fetches a stage instance by the stage channel ID.
 
-        This is an API call. If you have the parent guild, Consider using
-        :meth:`Guild.get_stage_instance` instead.
+        This is an API call. Consider using :meth:`Guild.get_stage_instance` or
+        :attr:`StageChannel.instance` instead.
 
         Parameters
         ----------
         id: :class:`int`
-            The ID of stage instance.
+            The ID of stage channel.
 
         Returns
         -------
@@ -576,5 +576,5 @@ class Client:
         HTTPError
             An error occured while fetching.
         """
-        data = await self.http.get_stage_instance(instance_id=id)
+        data = await self.http.get_stage_instance(channel_id=channel_id)
         return StageInstance(data, state=self.state)
