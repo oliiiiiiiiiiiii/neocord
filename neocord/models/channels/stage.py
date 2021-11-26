@@ -166,9 +166,10 @@ class StageChannel(GuildChannel):
         Raises
         ------
         NotFound
-            The stage instance was not found.
+            The stage instance was not found i.e there is no instance associated to channel.
         HTTPError
             An error occured while fetching.
         """
         data = await self.http.get_stage_instance(channel_id=self.id)
         return StageInstance(data, state=self.state)
+
