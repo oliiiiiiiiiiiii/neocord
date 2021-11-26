@@ -260,6 +260,20 @@ CategoryChannel
     :members:
     :inherited-members:
 
+StageInstance
+~~~~~~~~~~~~~
+
+.. autoclass:: StageInstance()
+    :members:
+
+ScheduledEvent
+~~~~~~~~~~~~~~~~
+
+.. autoclass:: ScheduledEvent()
+    :members:
+
+
+
 Dataclasses
 -------------
 
