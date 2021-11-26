@@ -33,13 +33,13 @@ class StageInstances(BaseRouteMixin):
     def get_stage_instance(self, instance_id: Snowflake):
         return self.request(Route('GET', '/stage-instances/{instance_id}', instance_id=instance_id))
 
-    def create_stage_instance(self, payload: Any):
-        return self.request(Route('POST', '/stage-instances'), json=payload)
+    def create_stage_instance(self, payload: Any, reason: Optional[str] = None):
+        return self.request(Route('POST', '/stage-instances'), json=payload, reason=reason)
 
-    def edit_stage_instance(self, instance_id: Snowflake, payload: Any):
-        return self.request(Route('PATCH', '/stage-instances/{instance_id}', instance_id=instance_id), json=payload)
+    def edit_stage_instance(self, instance_id: Snowflake, payload: Any, reason: Optional[str] = None):
+        return self.request(Route('PATCH', '/stage-instances/{instance_id}', instance_id=instance_id), json=payload, reason=reason)
 
-    def delete_stage_instance(self, instance_id: Snowflake):
-        return self.request(Route('DELETE', '/stage-instances/{instance_id}', instance_id=instance_id))
+    def delete_stage_instance(self, instance_id: Snowflake, reason: Optional[str] = None):
+        return self.request(Route('DELETE', '/stage-instances/{instance_id}', instance_id=instance_id), reason=reason)
 
 
