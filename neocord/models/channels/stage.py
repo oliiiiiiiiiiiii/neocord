@@ -137,3 +137,38 @@ class StageChannel(GuildChannel):
                 reason=reason,
             )
             self._update(data)
+
+    @property
+    def instance(self) -> Optional[StageInstance]:
+        """
+        Optional[:class:`StageInstance`]: Returns the live stage instance that is currently
+        running in stage channel. Returns None if no instance is running.
+        """
+        for instance in self.guild.stage_instances:
+            if instance.channel_id == self.id:
+                return instance
+
+    async def fetch_instance(self, id: int, /):
+        """Fetches a stage instance that is associated with this stage channel.
+
+        This is an API call. Consider using :attr:`instance` instead.
+
+        Parameters
+        ----------
+        id: :class:`int`
+            The ID of stage instance.
+
+        Returns
+        -------
+        :class:`StageInstance`
+            The fetched stage instance.
+
+        Raises
+        ------
+        NotFound
+            The stage instance was not found.
+        HTTPError
+            An error occured while fetching.
+        """
+        data = await self.http.get_stage_instance(channel_id=self.id)
+        return StageInstance(data, state=self.state)

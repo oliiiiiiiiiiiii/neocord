@@ -100,6 +100,6 @@ class StageInstance(DiscordModel):
             An error occured while performing this action.
         """
         await self._state.http.delete_stage_instance(
-            instance_id=self.id,
+            channel_id=self.channel_id,
             reason=reason,
         )
