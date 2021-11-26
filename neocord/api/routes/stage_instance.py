@@ -30,16 +30,16 @@ if TYPE_CHECKING:
 
 class StageInstances(BaseRouteMixin):
 
-    def get_stage_instance(self, instance_id: Snowflake):
-        return self.request(Route('GET', '/stage-instances/{instance_id}', instance_id=instance_id))
+    def get_stage_instance(self, channel_id: Snowflake):
+        return self.request(Route('GET', '/stage-instances/{channel_id}', channel_id=channel_id))
 
     def create_stage_instance(self, payload: Any, reason: Optional[str] = None):
         return self.request(Route('POST', '/stage-instances'), json=payload, reason=reason)
 
-    def edit_stage_instance(self, instance_id: Snowflake, payload: Any, reason: Optional[str] = None):
-        return self.request(Route('PATCH', '/stage-instances/{instance_id}', instance_id=instance_id), json=payload, reason=reason)
+    def edit_stage_instance(self, channel_id: Snowflake, payload: Any, reason: Optional[str] = None):
+        return self.request(Route('PATCH', '/stage-instances/{channel_id}', channel_id=channel_id), json=payload, reason=reason)
 
-    def delete_stage_instance(self, instance_id: Snowflake, reason: Optional[str] = None):
-        return self.request(Route('DELETE', '/stage-instances/{instance_id}', instance_id=instance_id), reason=reason)
+    def delete_stage_instance(self, channel_id: Snowflake, reason: Optional[str] = None):
+        return self.request(Route('DELETE', '/stage-instances/{channel_id}', channel_id=channel_id), reason=reason)
 
 
