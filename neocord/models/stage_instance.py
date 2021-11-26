@@ -25,11 +25,16 @@ from typing import TYPE_CHECKING, Optional
 
 from neocord.models.base import DiscordModel
 from neocord.internal import helpers
+from neocord.internal.missing import MISSING
 
 if TYPE_CHECKING:
     from neocord.typings.stage_instance import StageInstance as StageInstancePayload
     from neocord.models.guild import Guild
     from neocord.api.state import State
+
+class StagePrivacyLevel:
+    PUBLIC = 1
+    GUILD_ONLY = 2
 
 class StageInstance(DiscordModel):
     """Represents a stage instance.
@@ -54,7 +59,7 @@ class StageInstance(DiscordModel):
     """
     __slots__ = (
         'id', 'channel_id', 'topic', 'privacy_level', 'discoverable_disabled',
-        'guild', '_state', 'guild_id',
+        '_state', 'guild_id',
     )
     def __init__(self, data: StageInstancePayload, state: State):
         self._state = state
@@ -103,3 +108,49 @@ class StageInstance(DiscordModel):
             channel_id=self.channel_id,
             reason=reason,
         )
+
+
+    async def edit(self, *,
+        topic: Optional[str] = MISSING,
+        privacy_level: Optional[int] = MISSING,
+        reason: Optional[str] = None
+        ):
+        """Edits the stage instance.
+
+        The user has to be stage moderator to perform this action i.e has following
+        permissions:
+
+        * :attr:`Permissions.manage_channels`
+        * :attr:`Permissions.mute_members`
+        * :attr:`Permissions.move_members`
+
+        Parameters
+        ----------
+        topic: :class:`str`
+            The topic of stage instance.
+        privacy_level: :class:`StagePrivacyLevel`
+            The privacy level of stage instance.
+        reason: :class:`str`
+            The reason for editing the stage instance. Shows up on audit log.
+
+        Raises
+        ------
+        Forbidden
+            You are not allowed to edit this instance.
+        HTTPError
+            An error occured while performing this action.
+        """
+        payload = {}
+        if topic is not MISSING:
+            payload['topic'] = topic
+        if privacy_level is not MISSING:
+            payload['privacy_level'] = privacy_level
+
+        if payload:
+            data = await self._state.http.edit_stage_instance(
+                channel_id=self.channel_id,
+                payload=payload,
+                reason=reason,
+            )
+            if data:
+                self._update(data)
