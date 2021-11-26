@@ -818,7 +818,7 @@ class Guild(DiscordModel):
         return ScheduledEvent(data, guild=self)
 
     def _add_stage_instance(self, data: StageInstancePayload):
-        instance = StageInstance(data, guild=self)
+        instance = StageInstance(data, state=self._state)
         self._stage_instances[instance.id] = instance
         return instance
 

@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from neocord.models.base import DiscordModel
 from neocord.internal import helpers
@@ -29,6 +29,7 @@ from neocord.internal import helpers
 if TYPE_CHECKING:
     from neocord.typings.stage_instance import StageInstance as StageInstancePayload
     from neocord.models.guild import Guild
+    from neocord.api.state import State
 
 class StageInstance(DiscordModel):
     """Represents a stage instance.
@@ -38,10 +39,10 @@ class StageInstance(DiscordModel):
 
     Attributes
     ----------
-    guild: :class:`Guild`
-        The guild that this instance belongs to.
     id: :class:`int`
         The snowflake ID of this instance.
+    guild_id: :class:`int`
+        The guild ID that this instance belongs to.
     channel_id: :class:`int`
         The snowflake ID of the stage channel that this instance is associated to.
     topic: Optional[:class:`str`]
@@ -53,16 +54,52 @@ class StageInstance(DiscordModel):
     """
     __slots__ = (
         'id', 'channel_id', 'topic', 'privacy_level', 'discoverable_disabled',
-        'guild', '_state'
+        'guild', '_state', 'guild_id',
     )
-    def __init__(self, data: StageInstancePayload, guild: Guild):
-        self.guild = guild
-        self._state = guild._state
+    def __init__(self, data: StageInstancePayload, state: State):
+        self._state = state
         self._update(data)
 
+    @property
+    def guild(self) -> Optional[Guild]:
+        """
+        Optional[:class:`Guild`]: Returns the guild that belongs to this stage instance.
+
+        Requires :attr:`GatewayIntents.guilds` to be enabled.
+        """
+        return self._state.get_guild(self.guild_id) # type: ignore
+
     def _update(self, data: StageInstancePayload):
+        self.guild_id = int(data['guild_id'])
         self.id = int(data['id'])
         self.channel_id = int(data['channel_id'])
         self.topic = data.get('topic')
         self.privacy_level = helpers.int_or_none(data, 'privacy_level') or 2
         self.discoverable_disabled = data.get('discoverable_disabled', False)
+
+    async def delete(self, *, reason: Optional[str] = None):
+        """Deletes the stage instance or in other words end the live stage.
+
+        The user has to be stage moderator to perform this action i.e has following
+        permissions:
+
+        * :attr:`Permissions.manage_channels`
+        * :attr:`Permissions.mute_members`
+        * :attr:`Permissions.move_members`
+
+        Parameters
+        ----------
+        reason: :class:`str`
+            The reason for deleting the stage instance. Shows up on audit log.
+
+        Raises
+        ------
+        Forbidden
+            You are not allowed to delete this instance.
+        HTTPError
+            An error occured while performing this action.
+        """
+        await self._state.http.delete_stage_instance(
+            instance_id=self.id,
+            reason=reason,
+        )
