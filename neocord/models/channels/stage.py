@@ -25,6 +25,7 @@ from typing import TYPE_CHECKING
 
 from neocord.models.channels.base import GuildChannel
 from neocord.internal.missing import MISSING
+from neocord.models.stage_instance import StageInstance, StagePrivacyLevel
 
 if TYPE_CHECKING:
     from neocord.models.base import DiscordModel
@@ -170,6 +171,47 @@ class StageChannel(GuildChannel):
         HTTPError
             An error occured while fetching.
         """
-        data = await self.http.get_stage_instance(channel_id=self.id)
+        data = await self._state.http.get_stage_instance(channel_id=self.id)
         return StageInstance(data, state=self.state)
 
+    async def create_instance(self, *,
+        topic: str,
+        privacy_level: int = StagePrivacyLevel.GUILD_ONLY,
+        reason: Optional[str] = None,
+        ) -> StageInstance:
+        """Creates a new "live" stage instance in this stage channel.
+
+        The user has to be stage moderator to perform this action i.e has following
+        permissions:
+
+        * :attr:`Permissions.manage_channels`
+        * :attr:`Permissions.mute_members`
+        * :attr:`Permissions.move_members`
+
+        Parameters
+        ----------
+        topic: :class:`str`
+            The topic of stage instance.
+        privacy_level: :class:`StagePrivacyLevel`
+            The privacy level of stage instance. Defaults to :attr:`~StagePrivacyLevel.GUILD_ONLY`
+        reason: :class:`str`
+            The reason for creating the stage instance. Shows up on audit log.
+
+        Returns
+        -------
+        :class:`StageInstance`:
+            The created instance.
+
+        Raises
+        ------
+        Forbidden
+            You are not allowed to create this instance.
+        HTTPError
+            An error occured while performing this action.
+        """
+        payload = {'channel_id': self.id, 'topic': topic, 'privacy_level': privacy_level}
+        data = await self._state.http.create_stage_instance(
+            payload=payload,
+            reason=reason,
+        )
+        return StageInstance(data, state=self._state)
