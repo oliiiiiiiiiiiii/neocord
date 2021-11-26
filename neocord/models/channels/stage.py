@@ -148,7 +148,7 @@ class StageChannel(GuildChannel):
             if instance.channel_id == self.id:
                 return instance
 
-    async def fetch_instance(self, id: int, /):
+    async def fetch_instance(self):
         """Fetches a stage instance that is associated with this stage channel.
 
         This is an API call. Consider using :attr:`instance` instead.
