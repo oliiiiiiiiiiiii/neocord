@@ -552,3 +552,29 @@ class Client:
             The requested message, if found.
         """
         return self.state.get_message(id)
+
+    async def fetch_stage_instance(self, id: int, /):
+        """Fetches a stage instance by it's ID.
+
+        This is an API call. If you have the parent guild, Consider using
+        :meth:`Guild.get_stage_instance` instead.
+
+        Parameters
+        ----------
+        id: :class:`int`
+            The ID of stage instance.
+
+        Returns
+        -------
+        :class:`StageInstance`
+            The fetched stage instance.
+
+        Raises
+        ------
+        NotFound
+            The stage instance was not found.
+        HTTPError
+            An error occured while fetching.
+        """
+        data = await self.http.get_stage_instance(instance_id=id)
+        return StageInstance(data, state=self.state)
