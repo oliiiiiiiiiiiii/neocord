@@ -438,6 +438,15 @@ class Client:
 
         return result
 
+
+    @property
+    def users(self) -> List[User]:
+        """
+        List[:class:`User`]: Returns the users that the client can see. This requires
+        :attr:`GatewayIntents.users`.
+        """
+        return self.state.users
+
     @property
     def user(self) -> Optional[ClientUser]:
         """
@@ -490,6 +499,14 @@ class Client:
         data = await self.http.get_user(id)
         user = self.state.add_user(data)
         return user
+
+
+    @property
+    def guilds(self) -> List[Guild]:
+        """
+        List[:class:`Guild`]: Returns the guilds that the client can see.
+        """
+        return self.state.guilds
 
     def get_guild(self, id: int, /) -> Optional[Guild]:
         """
