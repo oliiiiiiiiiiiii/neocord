@@ -50,17 +50,26 @@ class Channels(BaseRouteMixin):
     def create_message_with_files(self, channel_id: Snowflake, files: List[File], payload: Any = None):
         route = Route('POST', '/channels/{channel_id}/messages', channel_id=channel_id)
 
-        form_data = aiohttp.FormData()
-        if payload:
-            form_data.add_field(name='payload_json', value=json.dumps(payload))
+        form_data = aiohttp.FormData(quote_fields=False)
+        attachments = []
+
+        if payload is None:
+            payload = {}
 
         for n, file in enumerate(files):
             form_data.add_field(
-                name=f'file{n}',
+                name=f'files[{n}]',
                 value=file.fp,
                 filename=file.proper_name,
                 content_type='application/octet-stream'
                 )
+            attachments.append({'id': n, 'filename': file.proper_name, 'description': file.description})
+
+        if attachments:
+            payload['attachments'] = attachments
+
+        if payload:
+            form_data.add_field(name='payload_json', value=json.dumps(payload))
 
         return self.request(route, data=form_data)
 

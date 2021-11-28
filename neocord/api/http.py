@@ -117,6 +117,9 @@ class HTTPClient(Routes):
                     if response.status in {500, 502, 504}:
                         await asyncio.sleep(1 + tries * 2)
                         continue
+                    else:
+                        print(data)
+                        raise HTTPError(response, data)
 
             except OSError as err:
                 if tries < 4 and err.errno in (54, 10054):

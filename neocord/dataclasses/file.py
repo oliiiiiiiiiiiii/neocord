@@ -56,7 +56,7 @@ class File:
         spoiler: bool = False,
         description: Optional[str] = None,
     ):
-        self.description = None
+        self.description = description
         if isinstance(fp, str):
             self._owner = True
             self.fp = open(fp, 'rb')
