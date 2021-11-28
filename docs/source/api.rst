@@ -484,3 +484,10 @@ UserFlags
 
 .. autoclass:: UserFlags()
     :members:
+
+
+MessageFlags
+~~~~~~~~~~~~
+
+.. autoclass:: MessageFlags()
+    :members:

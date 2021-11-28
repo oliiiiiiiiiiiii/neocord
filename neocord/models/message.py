@@ -25,6 +25,7 @@ from typing import TYPE_CHECKING, Optional, Any, Union
 
 from neocord.models.base import DiscordModel
 from neocord.dataclasses.embeds import Embed
+from neocord.dataclasses.flags.message import MessageFlags
 
 from neocord.internal import helpers
 
@@ -115,11 +116,14 @@ class Message(DiscordModel):
         The list of role IDs that are mentioned in message.
     mentions: [:class:`User`, :class:`GuildMember`]
         The mentions that are done in the message.
+    flags: :class:`MessageFlags`
+        The flags attached to this message.
     """
     __slots__ = (
         'id', 'channel_id', 'guild_id', 'content', 'created_at', '_edited_timestamp',
         'tts', 'mention_everyone', 'pinned', 'type', 'webhook_id', 'author', '_state',
-        'mentions', 'role_mentions', 'raw_role_mentions', 'embeds', 'interaction', 'application_id'
+        'mentions', 'role_mentions', 'raw_role_mentions', 'embeds', 'interaction', 'application_id',
+        'flags'
     )
 
     def __init__(self, data: MessagePayload, state: State) -> None:
@@ -190,6 +194,7 @@ class Message(DiscordModel):
 
 
         self.embeds = [Embed.from_dict(e) for e in data.get('embeds', [])]
+        self.flags = MessageFlags(data.get('flags', 0))
 
     @property
     def guild(self) -> Optional[Guild]:
