@@ -12,6 +12,15 @@ An elegant asynchronous API wrapper around [Discord Bot API](https://discord.dev
 - Performant and highly optimized for all use cases.
 - Easy to use and completely beginner friendly.
 
+## :electric_plug: Installation
+**NeoCord requires Python 3.8 or higher.**
+
+This library can be installed by the traditional and python's favorite package manager pip.
+```sh
+pip install -U neocord
+```
+This would install some extra [dependencies](requirements.txt) that this library depends on.
+
 ## :control_knobs: Usage
 ```py
 import neocord
