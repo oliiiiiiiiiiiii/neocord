@@ -53,6 +53,9 @@ documentation for more information.
 Below section will list all the gateway events that are sent by Discord and can be listened
 to.
 
+Library Events
+~~~~~~~~~~~~~~~~
+
 .. function:: on_ready
 
     An event that fires when the client's internal cache is completely filled.
@@ -65,6 +68,9 @@ to.
     Consider using :meth:`Client.connect_hook` if you want a hook that calls initally and
     only once.
 
+User Events
+~~~~~~~~~~~~
+
 .. function:: on_user_update(user)
 
     Calls when properties of a discord user like name, avatar etc. change.
@@ -74,11 +80,14 @@ to.
     :param after: The user after update.
     :type after: :class:`User`
 
+Guild Events
+~~~~~~~~~~~~~~
+
 .. function:: on_guild_join(guild)
 
     Calls when a guild is joined by the client user.
 
-    Requires :meth:`GatewayIntents.guilds` to be enabled.
+    Requires :attr:`GatewayIntents.guilds` to be enabled.
 
 
     :param guild: The guild that was joined.
@@ -89,7 +98,7 @@ to.
 
     Calls when properties of a guild is changed.
 
-    Requires :meth:`GatewayIntents.guilds` to be enabled.
+    Requires :attr:`GatewayIntents.guilds` to be enabled.
 
     :param before: The guild before update.
     :type before: :class:`Guild`
@@ -106,7 +115,7 @@ to.
     Consider using :func:`on_guild_leave` or :func:`on_guild_unavailable` for only leave or unavailable events
     respectively.
 
-    Requires :meth:`GatewayIntents.guilds` to be enabled.
+    Requires :attr:`GatewayIntents.guilds` to be enabled.
 
     :param guild: The guild that was deleted.
     :type guild: :class:`Guild`
@@ -116,7 +125,7 @@ to.
 
     Calls when client user leaves a guild.
 
-    Requires :meth:`GatewayIntents.guilds` to be enabled.
+    Requires :attr:`GatewayIntents.guilds` to be enabled.
 
     :param guild: The guild that was left.
     :type guild: :class:`Guild`
@@ -125,17 +134,20 @@ to.
 
     Calls when a guild becomes unavailable due to an outage etc.
 
-    Requires :meth:`GatewayIntents.guilds` to be enabled.
+    Requires :attr:`GatewayIntents.guilds` to be enabled.
 
     :param guild: The guild that became unavailable.
     :type guild: :class:`Guild`
 
 
+Member Events
+~~~~~~~~~~~~~~
+
 .. function:: on_member_join(member)
 
     Calls when a member joins a guild etc.
 
-    Requires :meth:`GatewayIntents.members` to be enabled.
+    Requires :attr:`GatewayIntents.members` to be enabled.
 
     :param member: The joined member.
     :type member: :class:`GuildMember`
@@ -146,7 +158,7 @@ to.
 
     Calls when a member leaves a guild etc.
 
-    Requires :meth:`GatewayIntents.members` to be enabled.
+    Requires :attr:`GatewayIntents.members` to be enabled.
 
     :param member: The member who left the guild.
     :type member: :class:`GuildMember`
@@ -156,13 +168,48 @@ to.
 
     Calls when properties of a guild member updates like nickname change, avatar change etc.
 
-    Requires :meth:`GatewayIntents.members` to be enabled.
+    Requires :attr:`GatewayIntents.members` to be enabled.
 
     :param before: The member before update.
     :type before: :class:`GuildMember`
 
     :param after: The member after update.
     :type after: :class:`GuildMember`
+
+Role Events
+~~~~~~~~~~~~
+
+.. function:: on_role_create(role)
+
+    Calls when a role is created in a guild.
+
+    Requires :attr:`GatewayIntents.guilds` to be enabled.
+
+    :param role: The created role.
+    :type role: :class:`Role`
+
+
+.. function:: on_role_update(before, after)
+
+    Calls when a role is updated in a guild.
+
+    Requires :attr:`GatewayIntents.guilds` to be enabled.
+
+    :param before: Role before the update.
+    :type before: :class:`Role`
+
+    :param after: Role after the update.
+    :type after: :class:`Role`
+
+.. function:: on_role_delete(role)
+
+    Calls when a role is deleted in a guild.
+
+    Requires :attr:`GatewayIntents.guilds` to be enabled.
+
+    :param role: The deleted role.
+    :type role: :class:`Role`
+
 
 
 Discord Data Models
