@@ -112,9 +112,9 @@ class HTTPClient(Routes):
 
                     if response.status == 404:
                         raise NotFound(response, data) # type: ignore
-                    if response.status in [403, 401]:
+                    if response.status in {403, 401}:
                         raise Forbidden(response, data) # type: ignore
-                    if response.status in (500, 502, 504):
+                    if response.status in {500, 502, 504}:
                         await asyncio.sleep(1 + tries * 2)
                         continue
 
