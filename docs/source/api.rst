@@ -337,6 +337,12 @@ Due to the nature of these objects that they are often cached, All objects have 
 ``__slots__`` to avoid memory issues so it is impossible to have dynamic attributes on these
 classes.
 
+Attachment
+~~~~~~~~~~
+
+.. autoclass:: Attachment()
+    :members:
+
 CDNAsset
 ~~~~~~~~
 

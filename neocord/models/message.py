@@ -24,6 +24,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional, Any, Union
 
 from neocord.models.base import DiscordModel
+from neocord.models.attachment import Attachment
 from neocord.dataclasses.embeds import Embed
 from neocord.dataclasses.flags.message import MessageFlags
 
@@ -118,12 +119,14 @@ class Message(DiscordModel):
         The mentions that are done in the message.
     flags: :class:`MessageFlags`
         The flags attached to this message.
+    attachments: List[:class:`Attachment`]
+        The list of attachments attached to this message.
     """
     __slots__ = (
         'id', 'channel_id', 'guild_id', 'content', 'created_at', '_edited_timestamp',
         'tts', 'mention_everyone', 'pinned', 'type', 'webhook_id', 'author', '_state',
         'mentions', 'role_mentions', 'raw_role_mentions', 'embeds', 'interaction', 'application_id',
-        'flags'
+        'flags', 'attachments'
     )
 
     def __init__(self, data: MessagePayload, state: State) -> None:
@@ -192,7 +195,7 @@ class Message(DiscordModel):
 
             self.raw_role_mentions.append(int(role)) # type: ignore
 
-
+        self.attachments = [Attachment(a) for a in data.get('attachments', [])]
         self.embeds = [Embed.from_dict(e) for e in data.get('embeds', [])]
         self.flags = MessageFlags(data.get('flags', 0))
 

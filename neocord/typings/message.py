@@ -65,6 +65,20 @@ class _MessageOptional(TypedDict, total=False):
     # stickers: List[Sticker]
     # sticker_items: List[StickerItem]
 
+class _AttachmentOptional(TypedDict, total=False):
+    ephemeral: bool
+    height: Optional[int]
+    width: Optional[int]
+    description: str
+
+class Attachment(_AttachmentOptional):
+    id: Snowflake
+    filename: str
+    content_type: str
+    size: int
+    url: str
+    proxy_url: str
+
 class Message(_MessageOptional):
     id: Snowflake
     channel_id: Snowflake
