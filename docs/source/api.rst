@@ -244,6 +244,67 @@ Channel Events
     :param channel: The deleted channel.
     :type channel: :class:`GuildChannel`
 
+Message Events
+~~~~~~~~~~~~~~
+
+.. function:: on_message(message)
+
+    Calls when a message is sent in either a guild channel or a DM channel.
+
+    Requires :attr:`GatewayIntents.messages` to be enabled.
+
+    :param message: The sent message.
+    :type message: :class:`Message`
+
+Scheduled Events
+~~~~~~~~~~~~~~~~~
+
+.. function:: on_scheduled_event_create(event)
+
+    Calls when a scheduled event is created in a guild.
+
+    Requires :attr:`GatewayIntents.scheduled_events` to be enabled.
+
+    :param event: The created scheduled event.
+    :type event: :class:`ScheduledEvent`
+
+
+.. function:: on_scheduled_event_update(before, after)
+
+    Calls when a scheduled event's properties are updated.
+
+    Requires :attr:`GatewayIntents.scheduled_events` to be enabled.
+
+    :param before: Scheduled event before the update.
+    :type before: :class:`ScheduledEvent`
+
+    :param after: Scheduled event after the update.
+    :type after: :class:`ScheduledEvent`
+
+
+.. function:: on_scheduled_event_delete(event)
+
+    Calls when a scheduled event is deleted, ended or cancelled.
+
+    Requires :attr:`GatewayIntents.scheduled_events` to be enabled.
+
+    :param event: The deleted scheduled event.
+    :type event: :class:`ScheduledEvent`
+
+Emojis Events
+~~~~~~~~~~~~~~
+
+.. function:: on_emojis_update(before, after)
+
+    Calls when emojis of a guild update i.e either some emojis were added or removed.
+
+    Requires :attr:`GatewayIntents.emojis_and_stickers` to be enabled.
+
+    :param before: The list of emojis before update was applied.
+    :type before: List[:class:`Emoji`]
+
+    :param after: The list of emojis after update was applied.
+    :type after: List[:class:`Emoji`]
 
 Discord Data Models
 -------------------
