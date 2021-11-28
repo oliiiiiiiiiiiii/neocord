@@ -52,6 +52,9 @@ class State(ClientPropertyMixin):
         self.messages: Dict[int, Message] = {}
 
     def parse_event(self, event: str, data: Any):
+        if self.client.debug_events:
+            self.client.dispatch('socket_dispatch', event, data)
+
         parser = self.parsers.get_parser(event)
         if parser is None:
             logger.debug(f'Unknown event {event}, Discarding.')
