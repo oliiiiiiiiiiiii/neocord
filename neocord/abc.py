@@ -33,6 +33,7 @@ if TYPE_CHECKING:
     from neocord.models.base import DiscordModel
     from neocord.dataclasses.embeds import Embed
     from neocord.dataclasses.mentions import AllowedMentions
+    from neocord.dataclasses.file import File
     from neocord.api.state import State
 
 class Messageable:
@@ -49,6 +50,8 @@ class Messageable:
         embeds: Optional[List[Embed]] = None,
         delete_after: Optional[float] = None,
         allowed_mentions: Optional[AllowedMentions] = None,
+        file: Optional[File] = None,
+        files: Optional[List[File]] = None,
     ) -> Message:
         """
         Sends a message to the destination.
@@ -61,6 +64,10 @@ class Messageable:
             The embed shown in message. This parameter cannot be mixed with ``embeds``
         embeds: List[:class:`Embed`]
             The list of embeds shown in message. This parameter cannot be mixed with ``embed``
+        file: :class:`File`
+            The file sent in message. This parameter cannot be mixed with ``files``
+        files: List[:class:`File`]
+            The list of files sent in message. This parameter cannot be mixed with ``file``
         delete_after: :class:`float`
             The interval after which this message would be deleted automatically.
 
@@ -76,6 +83,9 @@ class Messageable:
         HTTPError:
             The message sending failed somehow.
         """
+        if file is not None and files is not None:
+            raise TypeError('file and files parameter cannot be mixed.')
+
         channel = await self._get_messageable_channel()
         payload = helpers.parse_message_create_payload(
             self._state.client,
@@ -84,10 +94,21 @@ class Messageable:
             embeds=embeds,
             allowed_mentions=allowed_mentions,
         )
-        data = await self._state.http.create_message(
-            channel_id=channel.id,
-            payload=payload,
+
+        if file is not None:
+            files = [file]
+
+        if files:
+            data = await self._state.http.create_message_with_files(
+                channel_id=channel.id,
+                payload=payload,
+                files=files,
             )
+        else:
+            data = await self._state.http.create_message(
+                channel_id=channel.id,
+                payload=payload,
+                )
 
         message = Message(data, state=self._state)
 

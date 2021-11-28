@@ -4,7 +4,8 @@ neocord.dataclasses
 
 User constructable data classes.
 """
-from .flags import *
 from .color import *
 from .embeds import *
+from .file import *
+from .flags import *
 from .mentions import *

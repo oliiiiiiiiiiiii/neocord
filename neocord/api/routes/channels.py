@@ -25,6 +25,9 @@ from typing import Any, Dict, Optional, TYPE_CHECKING
 
 from .base import BaseRouteMixin, Route
 
+import json
+import aiohttp
+
 if TYPE_CHECKING:
     from neocord.typings.snowflake import Snowflake
 
@@ -43,6 +46,23 @@ class Channels(BaseRouteMixin):
     def create_message(self, channel_id: Snowflake, payload: Any):
         route = Route('POST', '/channels/{channel_id}/messages', channel_id=channel_id)
         return self.request(route, json=payload)
+
+    def create_message_with_files(self, channel_id: Snowflake, files: List[File], payload: Any = None):
+        route = Route('POST', '/channels/{channel_id}/messages', channel_id=channel_id)
+
+        form_data = aiohttp.FormData()
+        if payload:
+            form_data.add_field(name='payload_json', value=json.dumps(payload))
+
+        for n, file in enumerate(files):
+            form_data.add_field(
+                name=f'file{n}',
+                value=file.fp,
+                filename=file.proper_name,
+                content_type='application/octet-stream'
+                )
+
+        return self.request(route, data=form_data)
 
     def delete_message(self, channel_id: Snowflake, message_id: Snowflake):
         route = Route('DELETE', '/channels/{channel_id}/messages/{message_id}', channel_id=channel_id, message_id=message_id)
