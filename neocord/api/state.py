@@ -29,6 +29,7 @@ from neocord.api.parsers import Parsers
 from neocord.models.user import User
 from neocord.models.guild import Guild
 from neocord.models.message import Message
+from neocord.models.channels.direct import DMChannel
 import asyncio
 
 if TYPE_CHECKING:
@@ -50,6 +51,8 @@ class State(ClientPropertyMixin):
         self.guilds: Dict[int, Guild] = {}
         self.users: Dict[int, User] = {}
         self.messages: Dict[int, Message] = {}
+        self.dm_channels: Dict[int, DMChannel] = {}
+        self.dm_channels_by_user: Dict[int, DMChannel] = {}
 
     def parse_event(self, event: str, data: Any):
         if self.client.debug_events:
@@ -102,3 +105,27 @@ class State(ClientPropertyMixin):
 
     def pop_message(self, id: int, /):
         return self.messages.pop(id, None)
+
+    def add_dm_channel(self, data):
+        channel = DMChannel(me=self.user, data=data, state=self) # type: ignore
+        self.dm_channels[channel.id] = channel
+        try:
+            self.dm_channels_by_recipient[channel.recipient.id] = channel
+        except:
+            pass
+
+        return channel
+
+    def remove_dm_channel(self, channel: DMChannel):
+        try:
+            self.dm_channels_by_recipient.pop(channel.recipient.id, None)
+        except:
+            pass
+
+        return self.dm_channels.pop(channel.id, None)
+
+    def get_dm_channel_by_recipient(self, id: int) -> Optional[DMChannel]:
+        return self.dm_channels_by_recipient.get(id)
+
+    def get_dm_channel(self, id: int) -> Optional[DMChannel]:
+        return self.dm_channels.get(id)

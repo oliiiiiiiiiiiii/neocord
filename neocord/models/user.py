@@ -29,10 +29,12 @@ from neocord.dataclasses.flags.user import UserFlags
 from neocord.dataclasses.color import Color
 from neocord.internal.missing import MISSING
 from neocord.internal import helpers
+from neocord.abc import Messageable
 
 if TYPE_CHECKING:
     from neocord.api.state import State
     from neocord.typings.user import User as UserPayload
+    from neocord.models.channels.direct import DMChannel
 
 class BaseUser(DiscordModel):
     __slots__ = ('name', 'discriminator', 'bot', 'system', '_avatar',
@@ -189,7 +191,7 @@ class ClientUser(BaseUser):
             self._update(data)
 
 
-class User(BaseUser):
+class User(BaseUser, Messageable):
     """
     Represents a discord user entity.
 
@@ -210,3 +212,51 @@ class User(BaseUser):
     """
     def __init__(self, data: UserPayload, state: State):
         super().__init__(data, state)
+
+    async def _get_messageable_channel(self):
+        return await self.create_dm(use_cache=True)
+
+    @property
+    def dm(self) -> DMChannel:
+        """
+        Optional[:class:`DMChannel`]: Returns the direct message channel with this user.
+
+        This can be None if the direct message channel is not cached. Consider using
+        :meth:`User.send` if you just want to send a message to automatically retrieve
+        channel.
+        """
+        return self._state.get_dm_channel_by_recipient(self.id)
+
+    async def create_dm(self, use_cache: bool = True) -> DMChannel:
+        """Creates a direct message with this user.
+
+        You should not use this to create a DM channel to message in as it is
+        automatically done transparently when using :meth:`User.send`.
+
+        The channel returned by this method is cached and on further uses of
+        this method, The cached channel is returned.
+
+        Parameters
+        ----------
+        use_cache: :class:`bool`
+            Whether to return the cached channel if found. Defaults to True and
+            highly recommended to be True.
+
+        Returns
+        -------
+        :class:`DMChannel`
+            The direct message channel.
+
+        Raises
+        ------
+        HTTPError
+            Channel could not be created.
+        """
+        cached = self.dm
+
+        if cached and use_cache:
+            return cached
+
+        data = await self._state.http.create_dm(recipient_id=str(self.id))
+        channel = self._state.add_dm_channel(data)
+        return channel

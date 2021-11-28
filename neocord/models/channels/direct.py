@@ -21,21 +21,41 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from typing import Any, Dict
+from typing import TYPE_CHECKING, Any
 
-from .base import BaseRouteMixin, Route
-from neocord.typings.snowflake import Snowflake
+from neocord.models.base import DiscordModel
+from neocord.abc import Messageable
 
-class Users(BaseRouteMixin):
-    def get_client_user(self):
-        return self.request(Route('GET', '/users/@me'))
+if TYPE_CHECKING:
+    from neocord.models.user import ClientUser
 
-    def edit_client_user(self, payload: Dict[str, Any]):
-        return self.request(Route('PATCH', '/users/@me'), json=payload)
+class DMChannel(Messageable, DiscordModel):
+    """Represents a direct message channel with another user.
 
-    def get_user(self, user_id: Snowflake):
-        return self.request(Route('GET', '/users/{user_id}', user_id=user_id))
+    Attributes
+    ----------
+    recipient: :class:`User`
+        The user that this channel is with.
+    me: :class:`ClientUser`
+        The user representing the client.
+    id: :class:`int`
+        The ID of this channel.
+    """
+    __slots__ = ('_state', 'recipient', 'me', 'id')
 
-    def create_dm(self, recipient_id: Snowflake):
-        payload = {'recipient_id': recipient_id}
-        return self.request(Route('POST', '/users/@me/channels'), json=payload)
+    # TODO: DMChannelPayload
+    def __init__(self, me: ClientUser, data: Any, state: State):
+        self._state = state
+        self.me = me
+        self._update(data)
+
+    async def _get_messageable_channel(self):
+        return self
+
+    def _update(self, data: Any):
+        # recipients is always a list of single user.
+
+        user = data['recipients'][0] # type: ignore
+
+        self.recipient = self._state.add_user(user)
+        self.id = int(data['id'])

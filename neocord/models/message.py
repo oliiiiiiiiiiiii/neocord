@@ -40,8 +40,9 @@ if TYPE_CHECKING:
     from neocord.typings.member import Member as MemberPayload
 
     from neocord.models.channels.text import TextChannel
+    from neocord.models.channels.direct import DMChannel
 
-    MessageableChannel = Union[TextChannel]
+    MessageableChannel = Union[TextChannel, DMChannel]
 
 class MessageInteraction(DiscordModel):
     """
@@ -269,6 +270,8 @@ class Message(DiscordModel, _MessageReferenceMixin):
         """
         if self.guild:
             return self.guild.get_channel(self.channel_id) # type: ignore
+        else:
+            return self._state.get_dm_channel_by_recipient(self.id)
 
     def is_interaction_response(self):
         """

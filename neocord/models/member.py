@@ -66,7 +66,7 @@ class GuildMember(DiscordModel):
     __slots__ = (
         'guild', '_state', '_roles', 'joined_at', 'deaf', 'mute', 'pending',
         '_user', '_nickname', '_premium_since', '_permissions', '_avatar', 'id',
-        'name', 'bot', 'discriminator'
+        'name', 'bot', 'discriminator', 'send'
         )
 
     def __init__(self, data: MemberPayload, guild: Guild):
@@ -92,6 +92,7 @@ class GuildMember(DiscordModel):
         self.name = self._user.name
         self.bot = self._user.bot
         self.discriminator = self._user.discriminator
+        self.send = self._user.send
 
         for role in data.get('roles', []):
             self._add_role(role)
