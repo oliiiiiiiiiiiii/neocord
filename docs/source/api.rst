@@ -210,6 +210,39 @@ Role Events
     :param role: The deleted role.
     :type role: :class:`Role`
 
+Channel Events
+~~~~~~~~~~~~~~~
+
+.. function:: on_channel_create(channel)
+
+    Calls when a channel is created in a guild.
+
+    Requires :attr:`GatewayIntents.guilds` to be enabled.
+
+    :param channel: The created channel.
+    :type channel: :class:`GuildChannel`
+
+
+.. function:: on_channel_update(before, after)
+
+    Calls when a channel's properties are updated in a guild.
+
+    Requires :attr:`GatewayIntents.guilds` to be enabled.
+
+    :param before: Channel before the update.
+    :type before: :class:`GuildChannel`
+
+    :param after: Channel after the update.
+    :type after: :class:`GuildChannel`
+
+.. function:: on_channel_delete(channel)
+
+    Calls when a channel is deleted in a guild.
+
+    Requires :attr:`GatewayIntents.guilds` to be enabled.
+
+    :param channel: The deleted channel.
+    :type channel: :class:`GuildChannel`
 
 
 Discord Data Models
