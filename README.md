@@ -1,4 +1,4 @@
-<img align='right' width='250' height='250' alt='NeoCord' src='https://media.discordapp.net/attachments/911894799743877163/914529714209706004/LogoMakr_4.png'>
+<img align='right' width='230' height='230' alt='NeoCord' src='https://media.discordapp.net/attachments/911894799743877163/914529714209706004/LogoMakr_4.png'>
 
 # NeoCord
 An elegant, feature rich and asynchronous API wrapper around [Discord Bot API](https://discord.dev)
