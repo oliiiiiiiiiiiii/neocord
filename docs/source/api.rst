@@ -68,6 +68,23 @@ Library Events
     Consider using :meth:`Client.connect_hook` if you want a hook that calls initally and
     only once.
 
+.. function:: on_socket_dispatch(event, data)
+
+    .. note::
+        This is a debug event and will not be called unless opted-in. To enable debug events,
+        Set ``debug_events`` to True in :class:`Client`.
+
+    .. warning::
+        You should never enable ``debug_events`` in production enivornment as it
+        can cause performance issues.
+
+    Calls when an event dispatch is sent by Discord gateway.
+
+    :param event: The name of event.
+    :type event: :class:`str`
+
+    :param data: The raw event data.
+
 User Events
 ~~~~~~~~~~~~
 
