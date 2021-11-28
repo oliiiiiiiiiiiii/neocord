@@ -29,6 +29,7 @@ from neocord.api.http import HTTPClient
 from neocord.api.state import State
 from neocord.models.user import ClientUser
 from neocord.dataclasses.flags.intents import GatewayIntents
+from neocord.internal.logger import logger
 
 import asyncio
 
@@ -65,6 +66,10 @@ class Client:
     allowed_mentions: :class:`AllowedMentions`
         The global mentions configuration that applies to every bot's message. This can
         be overridden per message.
+    debug_events: :class:`bool`
+        Whether to dispatch debug events i.e :func:`on_socket_dispatch`. You should
+        almost never set this to True in production enivornments as this can cause
+        performance issues.
     """
     if TYPE_CHECKING:
         loop: asyncio.AbstractEventLoop
@@ -82,6 +87,13 @@ class Client:
             raise ValueError('message cache limit cannot be larger then 1000.')
 
         self.allowed_mentions = params.get('allowed_mentions')
+        self.debug_events = params.get('debug_events', False)
+
+        if self.debug_events:
+            logger.warn(
+                'debug_events have been enabled. This can unnecessarily raise memory consumption.' \
+                'Set debug_events to False for production enivornments!'
+                )
 
         # internal stuff:
         self.http  = HTTPClient(session=params.get('session'))
@@ -445,7 +457,7 @@ class Client:
         List[:class:`User`]: Returns the users that the client can see. This requires
         :attr:`GatewayIntents.users`.
         """
-        return self.state.users
+        return list(self.state.users.values())
 
     @property
     def user(self) -> Optional[ClientUser]:
@@ -506,7 +518,7 @@ class Client:
         """
         List[:class:`Guild`]: Returns the guilds that the client can see.
         """
-        return self.state.guilds
+        return list(self.state.guilds.values())
 
     def get_guild(self, id: int, /) -> Optional[Guild]:
         """
