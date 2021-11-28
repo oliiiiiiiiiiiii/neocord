@@ -77,7 +77,59 @@ class MessageInteraction(DiscordModel):
         self.type = int(data.get('type', 1))
         self.application_id = application_id
 
-class Message(DiscordModel):
+
+class _MessageReferenceMixin:
+    def _get_reference_message(self) -> DiscordModel:
+        raise NotImplementedError
+
+    def to_message_reference_dict(self):
+        message = self._get_reference_message()
+
+        ret = {
+            'message_id': self.id,
+            'channel_id': self.channel_id,
+        }
+
+        if self.guild_id is not None:
+            ret['guild_id'] = self.guild_id
+
+        return ret
+
+class MessageReference(_MessageReferenceMixin):
+    """Represents the reference "aka" the reply of a message.
+
+    This class can be constructed by users.
+
+    Parameters
+    ----------
+    id: :class:`int`
+        The ID of message being referenced or replied.
+    channel_id: :class:`int`
+        The ID of channel that the message belongs to.
+    guild_id: Optional[:class:`int`]
+        The ID of guild that this message belongs to or None if it's a DM.
+    fail_if_not_exists: :class:`bool`
+        Whether to raise :exc:`HTTPError` if the message being referenced does not
+        exist. Defaults to False.
+    """
+    __slots__ = ('message_id', 'channel_id', 'guild_id', 'fail_if_not_exist')
+
+    def __init__(self, *,
+        id: int,
+        channel_id: int,
+        guild_id: Optional[int] = None,
+        fail_if_not_exists: bool = False,
+    ):
+        self.id = id
+        self.channel_id = channel_id
+        self.guild_id = guild_id
+        self.fail_if_not_exists = fail_if_not_exists
+
+    def _get_reference_message(self):
+        return self
+
+
+class Message(DiscordModel, _MessageReferenceMixin):
     """Represents a discord message entity.
 
     Attributes
@@ -159,6 +211,9 @@ class Message(DiscordModel):
 
         self._update(data)
 
+    def _get_reference_message(self):
+        return self
+
     def _update(self, data: MessagePayload):
         # this only has the fields that are subject to change after
         # initial create.
@@ -181,7 +236,7 @@ class Message(DiscordModel):
                 else:
                     self.mentions.append(member)
             else:
-                user = self.state.get_user(int(mention['id'])) or self.state.add_user(mention)
+                user = self._state.get_user(int(mention['id'])) or self._state.add_user(mention)
                 self.mentions.append(user)
 
         self.role_mentions = []
@@ -236,5 +291,25 @@ class Message(DiscordModel):
         # channel here would *always* be a subclass of abc.Messageable
 
         await self.channel.delete_message(self) # type: ignore
+
+    async def reply(self, *args, **kwargs):
+        """
+        Replies to the message. This is a shorthand for :meth:`TextChannel.send` and
+        so does take same parameters.
+
+        Raises
+        ------
+        Forbidden
+            You are not allowed to send this message.
+        HTTPError
+            The message sending failed somehow.
+
+        Returns
+        -------
+        :class:`Message`
+            The created message.
+        """
+        kwargs.pop('reference', None)
+        return (await self.channel.send(*args, **kwargs, reference=self))
 
     # TODO: Add API methods when guild channels are implemented.

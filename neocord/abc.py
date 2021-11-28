@@ -25,7 +25,7 @@ from typing import Optional, List, TYPE_CHECKING
 
 from neocord.internal.missing import MISSING
 from neocord.internal import helpers
-from neocord.models.message import Message
+from neocord.models.message import Message, _MessageReferenceMixin
 
 import asyncio
 
@@ -52,6 +52,8 @@ class Messageable:
         allowed_mentions: Optional[AllowedMentions] = None,
         file: Optional[File] = None,
         files: Optional[List[File]] = None,
+        reference: Optional[_MessageReferenceMixin] = None,
+        mention_replied_user: Optional[bool] = None,
     ) -> Message:
         """
         Sends a message to the destination.
@@ -68,6 +70,11 @@ class Messageable:
             The file sent in message. This parameter cannot be mixed with ``files``
         files: List[:class:`File`]
             The list of files sent in message. This parameter cannot be mixed with ``file``
+        reference: Union[:class:`MessageReference`, :class:`Message`]
+            The message reference to reply this message for.
+        mention_replied_user: :class:`bool`
+            Whether to mention the author when replying. When set, Overrides the
+            :attr:`AllowedMentions.mention_replied_user`
         delete_after: :class:`float`
             The interval after which this message would be deleted automatically.
 
@@ -93,6 +100,8 @@ class Messageable:
             embed=embed,
             embeds=embeds,
             allowed_mentions=allowed_mentions,
+            reference=reference,
+            mention_replied_user=mention_replied_user,
         )
 
         if file is not None:

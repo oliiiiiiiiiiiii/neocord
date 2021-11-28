@@ -77,6 +77,8 @@ def parse_message_create_payload(client, *,
     embed: Optional[Embed] = None,
     embeds: Optional[List[Embed]] = None,
     allowed_mentions: Optional[AllowedMentions] = None,
+    reference: Optional[MessageReference] = None,
+    mention_replied_user: Optional[bool] = None,
     ) -> Dict[str, Any]:
 
     if embed is not None and embeds is not None:
@@ -97,5 +99,14 @@ def parse_message_create_payload(client, *,
     else:
         if client.allowed_mentions is not None:
             payload['allowed_mentions'] = client.allowed_mentions.to_dict()
+
+    if reference is not None:
+        payload['message_reference'] = reference.to_message_reference_dict()
+
+    if mention_replied_user is not None:
+        if 'allowed_mentions' in payload:
+            payload['allowed_mentions']['replied_user'] = mention_replied_user
+        else:
+            payload['allowed_mentions'] = {'replied_user': True}
 
     return payload
