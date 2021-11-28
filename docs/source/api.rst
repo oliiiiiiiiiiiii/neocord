@@ -424,6 +424,13 @@ CategoryChannel
     :members:
     :inherited-members:
 
+DMChannel
+~~~~~~~~~
+
+.. autoclass:: DMChannel()
+    :members:
+    :inherited-members:
+
 StageInstance
 ~~~~~~~~~~~~~
 
