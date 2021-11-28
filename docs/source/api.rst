@@ -439,6 +439,12 @@ AllowedMentions
 .. autoclass:: AllowedMentions()
     :members:
 
+File
+~~~~
+
+.. autoclass:: File()
+    :members:
+
 Flags
 -----
 
