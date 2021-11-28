@@ -90,10 +90,7 @@ class Client:
         self.debug_events = params.get('debug_events', False)
 
         if self.debug_events:
-            logger.warn(
-                'debug_events have been enabled. This can unnecessarily raise memory consumption.' \
-                'Set debug_events to False for production enivornments!'
-                )
+            logger.warn('debug_events have been enabled. Do not enable this option in production enivornment.')
 
         # internal stuff:
         self.http  = HTTPClient(session=params.get('session'))
