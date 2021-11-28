@@ -52,7 +52,7 @@ class State(ClientPropertyMixin):
         self.users: Dict[int, User] = {}
         self.messages: Dict[int, Message] = {}
         self.dm_channels: Dict[int, DMChannel] = {}
-        self.dm_channels_by_user: Dict[int, DMChannel] = {}
+        self.dm_channels_by_recipient: Dict[int, DMChannel] = {}
 
     def parse_event(self, event: str, data: Any):
         if self.client.debug_events:
