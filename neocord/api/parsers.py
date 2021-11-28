@@ -269,9 +269,25 @@ class Parsers:
         channel = guild._remove_channel(int(event['id']))
         self.dispatch('channel_delete', channel)
 
-    def parse_message_create(self, event: MessagePayload):
+    def parse_message_create(self, event):
         message = self.state.add_message(event)
         self.dispatch('message', message)
+
+    # FIXME: MESSAGE_UPDATE may contain partial message with only channel_id, id
+    # and guild_id. This would mess up the original message when Message._update() is
+    # called. Probably add a raw_message_edit event here.
+
+    def parse_message_update(self, event):
+        message = self.state.get_message(int(event['id']))
+        if message:
+            before = copy.copy(before)
+            message._update(event)
+            self.dispatch('message_edit', before, message)
+
+    def parse_message_delete(self, event):
+        message = self.state.get_message(int(event['id']))
+        if message:
+            self.dispatch('message_delete', message)
 
     def parse_guild_emojis_update(self, event):
         guild = self.state.get_guild(int(event['guild_id']))
