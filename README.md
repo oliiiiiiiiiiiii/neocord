@@ -1,18 +1,18 @@
-<div align="center">
-  <h1>NeoCord</h1>
-  <sup><strong>This project is in alpha stage!</strong></sup>
-  <hr>
-  <p>An asynchronous API wrapper around Discord API written in Python.</p>
-</div>
+<img align='right' alt='NeoCord' src='https://media.discordapp.net/attachments/911894799743877163/914529714209706004/LogoMakr_4.png'>
 
-## Features
+# NeoCord
+An elegant, feature rich and asynchronous API wrapper around [Discord Bot API](https://discord.dev)
+
+## :bulb: Features
 
 - Pythonic API interface using asyncio.
 - Object Oriented design with no dirty payloads involved.
-- Consistent & Actively maintained.
-- Performant and highly optimized.
+- Proper handling of HTTPs ratelimits.
+- Consistent and actively maintained.
+- Performant and highly optimized for all use cases.
+- Easy to use and completely beginner friendly.
 
-## Usage
+## :control_knobs: Usage
 ```py
 import neocord
 
@@ -38,25 +38,18 @@ async def on_message(message):
 # run the bot.
 client.run('bot-token')
 ```
-<!--There are a lot more features that are up to you to discover. Feel
-free to explore the library's [documentation](https://neocord.rtfd.io) and
-discover the possibilites. -->
 
-
-## Inspiration from [discord.py](https://github.com/Rapptz/discord.py)
+## :thinking: Inspiration from [discord.py](https://github.com/Rapptz/discord.py)
 This library started as an inspiration of the amazing Python library, discord.py and that's
 why the API might be similar to that of discord.py in many aspects so if you have used
 discord.py, you might be familiar with the API design however, there are many notable
 differences too.
 
-## Acknowledgments
-This library is still in alpha stage and is currently actively developed. While we try
-our best to avoid making breaking changes, some versions might bring some breaking changes for compatibility or consistencies purposes.
-
-Furthermore, you might find many missing, incomplete, or potentially broken features in
-the library but we assure that latest version would be mostly stable.
-
-## Contributing
+## :handshake: Contributing
 Feel free to suggest features or report bugs using [GitHub Issues](https://github.com/nerdguyahmad/neocord/issues)
 or [Create a pull request](https://github.com/nerdguyahmad/neocord/pulls) to directly
 contribute to the codebase.
+
+## :link: Links
+- [Documentation](https://neocord.readthedocs.io)
+- [Discord Developers Portal](https://discord.com/developers/applications)
