@@ -49,34 +49,6 @@ class OP:
     HELLO = 10
     HEARTBEAT_ACK = 11
 
-class Heartbeater(threading.Thread):
-    """
-    A thread that handles sending of heartbeats after the provided interval.
-    """
-    def __init__(self, ws: DiscordWebsocket) -> None:
-        self.interval: Optional[int] = None
-        self.ws = ws
-        self.last_beat: Optional[float] = None
-        super().__init__(
-            target=self._handler,
-            daemon=True,
-            name='neocord-heartbeat-handler'
-            )
-
-    def ack(self):
-        self.last_beat = time.time()
-
-    def _handler(self):
-        while not self.ws.is_closed():
-            asyncio.run(self.ws.heartbeat())
-            # interval should not be None here as this
-            # thread is only started after interval is set i.e after HELLO
-            # op code.
-            # also, time.sleep shouldn't block our main loop because this
-            # is a separate thread.
-            time.sleep(self.interval) # type: ignore
-
-
 class DiscordWebsocket(ClientPropertyMixin):
     """
     A private class that implements the internal working for management of websocket
@@ -88,17 +60,16 @@ class DiscordWebsocket(ClientPropertyMixin):
     def __init__(self, client: Client) -> None:
         self.client = client
         self.socket = None
-
+        self.heartbeater = None
 
         # websocket related data
 
-        # fmt: off
+        self.heartbeat_interval = None
+        self.last_heartbeat = None
         self.session_id = None
-        self.sequence   = None
-        self.hb         = Heartbeater(ws=self)
-        self.inflator   = zlib.decompressobj()
-        self.buffer     = bytearray()
-        # fmt: on
+        self.sequence = None
+        self.inflator = zlib.decompressobj()
+        self.buffer = bytearray()
 
     # helpers
 
@@ -140,15 +111,11 @@ class DiscordWebsocket(ClientPropertyMixin):
             "op": OP.HEARTBEAT,
             "d": self.sequence
         })
-        if self.hb.last_beat is not None:
-            previous = self.hb.last_beat
-            self.hb.last_beat = time.time()
-            diff = self.hb.interval - (self.hb.last_beat - previous)
 
-            if diff > 5:
-                logger.warn('Heartbeat was blocked for more then {}s'.format(diff))
-        else:
-            self.hb.last_beat = time.time()
+    async def heartbeat_task(self):
+        while True:
+            await self.heartbeat()
+            await asyncio.sleep(self.heartbeat_interval)
 
     async def identify(self):
         logger.debug('Sending IDENTIFY packet.')
@@ -184,9 +151,9 @@ class DiscordWebsocket(ClientPropertyMixin):
             if op == OP.HELLO:
                 # we have got HELLO (10) OP code which is sent initally and
                 # now we have to start heartbeating and identify the session.
-                self.hb.interval = data['heartbeat_interval'] / 1000.0
-                self.hb.start()
+                self.heartbeat_interval = data['heartbeat_interval'] / 1000.0
 
+                self.heartbeater = self.loop.create_task(self.heartbeat_task())
                 await self.identify()
 
             elif op == OP.HEARTBEAT:
