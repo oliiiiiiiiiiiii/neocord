@@ -280,7 +280,7 @@ class Parsers:
     def parse_message_update(self, event):
         message = self.state.get_message(int(event['id']))
         if message:
-            before = copy.copy(before)
+            before = copy.copy(message)
             message._update(event)
             self.dispatch('message_edit', before, message)
 
