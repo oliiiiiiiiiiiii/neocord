@@ -130,6 +130,41 @@ class Messageable:
         await asyncio.sleep(delay)
         await self.delete_message(message)
 
+    async def edit_message(self, message: DiscordModel,
+        content: Optional[str] = MISSING,
+        *,
+        embed: Optional[Embed] = MISSING,
+        embeds: List[Embed] = MISSING,
+        allowed_mentions: Optional[AllowedMentions] = MISSING,
+        attachments: List[Attachment] = MISSING,
+        suppress: Optional[bool] = MISSING,
+        ):
+        if embed is not MISSING and embeds is not MISSING:
+            raise TypeError('embed and embeds parameters cannot be mixed.')
+
+        payload = {}
+
+        if content is not MISSING:
+            payload['content'] = content
+        if embed is not MISSING:
+            embeds = [embed]
+        if embeds:
+            payload['embeds'] = [embed.to_dict()]
+
+        if allowed_mentions is not MISSING:
+            payload['allowed_mentions'] = allowed_mentions.to_dict()
+
+        if attachments is not MISSING:
+            if attachments is None:
+                attachments = []
+
+            payload['attachments'] = [a.to_dict() for a in attachments]
+
+        if suppress:
+            payload['flags'] = 1 << 2
+
+        channel = await self._get_messageable_channel()
+        await self._state.http.edit_message(channel_id=channel.id, message_id=message.id, payload=payload)
 
     async def delete_message(self, message: DiscordModel):
         """

@@ -76,3 +76,7 @@ class Channels(BaseRouteMixin):
     def delete_message(self, channel_id: Snowflake, message_id: Snowflake):
         route = Route('DELETE', '/channels/{channel_id}/messages/{message_id}', channel_id=channel_id, message_id=message_id)
         return self.request(route)
+
+    def edit_message(self, channel_id: Snowflake, message_id: Snowflake, payload):
+        route = Route('PATCH', '/channels/{channel_id}/messages/{message_id}', channel_id=channel_id, message_id=message_id)
+        return self.request(route, json=payload)

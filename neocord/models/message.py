@@ -271,7 +271,7 @@ class Message(DiscordModel, _MessageReferenceMixin):
         if self.guild:
             return self.guild.get_channel(self.channel_id) # type: ignore
         else:
-            return self._state.get_dm_channel_by_recipient(self.id)
+            return self._state.get_dm_channel(self.channel_id)
 
     def is_interaction_response(self):
         """
@@ -294,6 +294,20 @@ class Message(DiscordModel, _MessageReferenceMixin):
         # channel here would *always* be a subclass of abc.Messageable
 
         await self.channel.delete_message(self) # type: ignore
+
+    async def edit(self, *args, **kwargs):
+        """
+        Edits the message.
+
+        Raises
+        ------
+        Forbidden
+            You cannot edit this message.
+        HTTPError
+            Editing of message failed.
+        """
+        await self.channel.edit_message(self, *args, **kwargs)
+
 
     async def reply(self, *args, **kwargs):
         """
