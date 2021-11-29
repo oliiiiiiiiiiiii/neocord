@@ -71,7 +71,7 @@ class Parsers:
         while True:
             self._awaiting_guild_create.clear()
             try:
-                await asyncio.wait_for(self._awaiting_guild_create.wait(), timeout=5.0)
+                await asyncio.wait_for(self._awaiting_guild_create.wait(), timeout=2)
             except asyncio.TimeoutError:
                 break
 
