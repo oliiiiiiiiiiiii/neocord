@@ -88,26 +88,6 @@ class GatewayIntents(BaseFlags):
     scheduled_events: :class:`bool`
         Returns ``True`` if the scheduled events intents are enabled.
     """
-    # (p): privileged
-    VALID_FLAGS = {
-        'guilds',
-        'members', # (p)
-        'bans',
-        'emojis_and_stickers',
-        'integrations',
-        'webhooks',
-        'invites',
-        'voice_states',
-        'presences', # (p)
-        'guild_messages',
-        'guild_messages_reactions',
-        'guild_messages_typing',
-        'direct_messages',
-        'direct_messages_reactions',
-        'direct_messages_typing',
-        "messages",
-        "scheduled_events"
-    }
     def __init__(self, **intents):
         super().__init__(**intents)
 
@@ -121,8 +101,8 @@ class GatewayIntents(BaseFlags):
         -------
         :class:`GatewayIntents`
         """
-        flags = {flag: True for flag in cls.VALID_FLAGS}
-        return cls(**flags)
+        intents = {intent: True for intent in cls._valid_flags}
+        return cls(**intents)
 
     @classmethod
     def unprivileged(cls) -> GatewayIntents:

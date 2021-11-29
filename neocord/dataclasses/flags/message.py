@@ -47,18 +47,6 @@ class MessageFlags(BaseFlags):
         Returns True if the message is an interaction response and the application is
         currently in "Thinking" state.
     """
-    VALID_FLAGS = {
-        "crossposted",
-        "crosspost",
-        "suppress_embeds",
-        "source_message_deleted",
-        "urgent",
-        "thread_parent",
-        "ephemeral",
-        "loading",
-    }
-
-
     @flag
     def crossposted(self) -> int:
         return 1 << 0

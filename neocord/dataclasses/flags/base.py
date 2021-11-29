@@ -26,42 +26,13 @@ from typing import Any, Optional, Set, Callable
 # Inspired by Discord.py
 
 
-class BaseFlags:
-    VALID_FLAGS: Set[str]
-
-    def __init__(self, value: Optional[int] = None, **flags: Any):
-        invalid = set(flags.keys()) - set(self.VALID_FLAGS)
-        if invalid:
-            raise TypeError('Invalid keyword arguments {0} for {1}()'.format(invalid, self.__class__.__name__))
-
-        if value:
-            self._value = value
-        else:
-            self._value = 0
-            for flag in flags:
-                if flag:
-                    self._value |= getattr(self.__class__, flag)
-
-    @property
-    def value(self) -> int:
-        return self._value
-
-    @value.setter
-    def value(self, new: int) -> None:
-        if not isinstance(new, int):
-            raise TypeError('new value must be an int.')
-
-        self._value = new
-
-    @classmethod
-    def from_value(cls, value: int):
-        raise NotImplementedError
-
 class flag:
     def __init__(self, func: Callable[[Any], int]):
         self.func = func
         self.value = func(None)
+
         self.__doc__ = func.__doc__
+        self.__name__ = func.__name__
 
     def __get__(self, instance: Optional[BaseFlags], *_: Any):
         if not instance:
@@ -75,10 +46,42 @@ class flag:
 
         exists = (self.value & instance.value) == self.value
 
-        if val is False and exists:
+        if not val and exists:
             instance._value -= self.value
-        elif val is True and not exists:
+        elif val and not exists:
             instance._value += self.value
 
     def __repr__(self):
         return f'<flag value={self.value}>'
+
+
+class BaseFlags:
+    def __init__(self, value: Optional[int] = None, **flags: Any):
+        self._valid_flags = set()
+
+        for item in self.__class__.__dict__.values():
+            if isinstance(item, flag):
+                self._valid_flags.add(item.__name__)
+
+        invalid = set(flags.keys()) - self._valid_flags
+        if invalid:
+            raise TypeError('Invalid keyword arguments {0} for {1}()'.format(invalid, self.__class__.__name__))
+
+        if value:
+            self._value = value
+        else:
+            self._value = 0
+            for k in flags:
+                if k:
+                    self._value |= getattr(self.__class__, k)
+
+    @property
+    def value(self) -> int:
+        return self._value
+
+    @value.setter
+    def value(self, new: int) -> None:
+        if not isinstance(new, int):
+            raise TypeError('new value must be an int.')
+
+        self._value = new
