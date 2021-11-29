@@ -25,6 +25,7 @@ from typing import TYPE_CHECKING, Any, Optional
 
 from neocord.internal import helpers
 from neocord.models.base import DiscordModel
+from neocord.dataclasses.flags.permissions import Permissions
 
 if TYPE_CHECKING:
     from neocord.models.guild import Guild
@@ -74,7 +75,7 @@ class GuildChannel(DiscordModel):
     """
     __slots__ = (
         'guild', '_state', 'id', 'guild_id', 'category_id', 'type',
-        'position', 'name', '_permissions_overwrite', '_permissions'
+        'position', 'name', '_permissions_overwrite', 'permissions'
         )
     # TODO: Add GuildChannelPayload
     def __init__(self, data: Any, guild: Guild):
@@ -93,7 +94,7 @@ class GuildChannel(DiscordModel):
 
         # TODO
         self._permissions_overwrite = data.get('permissions_overwrite')
-        self._permissions = data.get('permissions')
+        self.permissions = Permissions(data.get('permissions', 0))
 
     @property
     def category(self) -> Optional[CategoryChannel]:

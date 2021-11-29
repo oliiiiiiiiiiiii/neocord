@@ -65,7 +65,7 @@ class GuildMember(DiscordModel):
     """
     __slots__ = (
         'guild', '_state', '_roles', 'joined_at', 'deaf', 'mute', 'pending',
-        '_user', '_nickname', '_premium_since', '_permissions', '_avatar', 'id',
+        '_user', '_nickname', '_premium_since', 'permissions', '_avatar', 'id',
         'name', 'bot', 'discriminator', 'send'
         )
 
@@ -81,11 +81,11 @@ class GuildMember(DiscordModel):
         self.deaf = data.get('deaf', False)
         self.mute = data.get('mute', False)
         self.pending = data.get('pending', False)
+        self.permissions = Permissions(data.get('permissions', 0))
 
         self._user = User(data.get('user'), state=self._state) # type: ignore
         self._nickname = data.get('nick')
         self._premium_since = data.get('premium_since')
-        self._permissions = data.get('permissions')
         self._avatar = data.get('avatar')
 
         self.id = self._user.id

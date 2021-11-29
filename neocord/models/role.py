@@ -26,6 +26,7 @@ from typing import Optional, List, TYPE_CHECKING
 from neocord.models.base import DiscordModel
 from neocord.models.asset import CDNAsset
 from neocord.dataclasses.color import Color
+from neocord.dataclasses.flags.permissions import Permissions
 from neocord.internal.missing import MISSING
 from neocord.internal import helpers
 
@@ -108,7 +109,7 @@ class Role(DiscordModel):
     __slots__ = (
         '_guild', '_state', 'id', 'name', 'hoist', 'position',
         'managed', 'mentionable', 'unicode_emoji', 'color', 'tags',
-        '_icon'
+        '_icon', 'permissions'
     )
 
     def __init__(self, data: RolePayload, guild: Guild):
@@ -128,6 +129,7 @@ class Role(DiscordModel):
         self.tags = RoleTags(data.get('tags', {})) # type: ignore
 
         self._icon = data.get('icon')
+        self.permissions = Permissions(data.get('permissions', 0))
 
     @property
     def icon(self) -> Optional[CDNAsset]:
