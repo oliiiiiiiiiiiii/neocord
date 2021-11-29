@@ -140,15 +140,15 @@ class GatewayIntents(BaseFlags):
 
     @flag
     def messages(self) -> int:
-        return 1 << 9 | 1 << 12
+        return (1 << 9) | (1 << 12)
 
     @flag
     def reactions(self) -> int:
-        return 1 << 10 | 1 << 13
+        return (1 << 10) | (1 << 13)
 
     @flag
     def typing(self) -> int:
-        return 1 << 11 | 1 << 14
+        return (1 << 11) | (1 << 14)
 
     @flag
     def guilds(self) -> int:
