@@ -61,6 +61,7 @@ class flag:
     def __init__(self, func: Callable[[Any], int]):
         self.func = func
         self.value = func(None)
+        self.__doc__ = func.__doc__
 
     def __get__(self, instance: Optional[BaseFlags], *_: Any):
         if not instance:
