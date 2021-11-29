@@ -251,7 +251,7 @@ class Message(DiscordModel, _MessageReferenceMixin):
 
             self.raw_role_mentions.append(int(role)) # type: ignore
 
-        self.attachments = [Attachment(a) for a in data.get('attachments', [])]
+        self.attachments = [Attachment(a, state=self._state) for a in data.get('attachments', [])]
         self.embeds = [Embed.from_dict(e) for e in data.get('embeds', [])]
         self.flags = MessageFlags(data.get('flags', 0))
 
