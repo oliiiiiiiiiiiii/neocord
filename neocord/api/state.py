@@ -111,7 +111,7 @@ class State(ClientPropertyMixin):
         self.dm_channels[channel.id] = channel
         try:
             self.dm_channels_by_recipient[channel.recipient.id] = channel
-        except:
+        except AttributeError:
             pass
 
         return channel
@@ -119,7 +119,7 @@ class State(ClientPropertyMixin):
     def remove_dm_channel(self, channel: DMChannel):
         try:
             self.dm_channels_by_recipient.pop(channel.recipient.id, None)
-        except:
+        except (KeyError, AttributeError):
             pass
 
         return self.dm_channels.pop(channel.id, None)
