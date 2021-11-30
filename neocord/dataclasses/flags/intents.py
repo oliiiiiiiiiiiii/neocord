@@ -101,8 +101,11 @@ class GatewayIntents(BaseFlags):
         -------
         :class:`GatewayIntents`
         """
-        intents = {intent: True for intent in cls._valid_flags}
-        return cls(**intents)
+        intents = cls()
+        for intent in intents._valid_flags:
+            setattr(intents, intent, True)
+
+        return intents
 
     @classmethod
     def unprivileged(cls) -> GatewayIntents:
