@@ -25,7 +25,10 @@ from typing import TYPE_CHECKING, Any, Optional
 
 from neocord.internal import helpers
 from neocord.models.base import DiscordModel
-from neocord.dataclasses.flags.permissions import Permissions
+from neocord.models.role import Role
+from neocord.models.member import GuildMember
+from neocord.models.user import User
+from neocord.dataclasses.permissions import PermissionOverwrite
 
 if TYPE_CHECKING:
     from neocord.models.guild import Guild
@@ -43,6 +46,10 @@ class ChannelType:
     PUBLIC_THREAD = 11
     PRIVATE_THREAD = 12
     STAGE = 13
+
+class ChannelOverwriteType:
+    ROLE = 0
+    MEMBER = 1
 
 class GuildChannel(DiscordModel):
     """
@@ -75,7 +82,7 @@ class GuildChannel(DiscordModel):
     """
     __slots__ = (
         'guild', '_state', 'id', 'guild_id', 'category_id', 'type',
-        'position', 'name', '_permissions_overwrite', 'permissions'
+        'position', 'name', '_permission_overwrites', 'permissions'
         )
     # TODO: Add GuildChannelPayload
     def __init__(self, data: Any, guild: Guild):
@@ -92,9 +99,20 @@ class GuildChannel(DiscordModel):
         self.position = int(data.get('position', 0))
         self.name = data.get('name')
 
-        # TODO
-        self._permissions_overwrite = data.get('permissions_overwrite')
+        # { (ENTITY_ID, ENTITY_TYPE): OVERWRITE }
+        self._permission_overwrites: Dict[Tuple[int, int], Permission] = {}
         self.permissions = helpers.get_permissions(data)
+        self._unroll_overwrites(data)
+
+    def _unroll_overwrites(self, data):
+        overwrites = data.get('permission_overwrites', [])
+
+        for overwrite in overwrites:
+            entity_id = int(overwrite['id'])
+            allow = helpers.get_permissions(overwrite, key='allow')
+            deny = helpers.get_permissions(overwrite, key='deny')
+
+            self._permission_overwrites[(entity_id, overwrite['type'])] = PermissionOverwrite.from_pair(allow, deny)
 
     @property
     def category(self) -> Optional[CategoryChannel]:
@@ -103,6 +121,32 @@ class GuildChannel(DiscordModel):
         channel has no parent category.
         """
         return self.guild.get_channel(self.category_id) # type: ignore
+
+
+    def get_permission_overwrite_for(self, entity: Union[Role, GuildMember]) -> PermissionOverwrite:
+        """Returns a permission overwrite for requested entity.
+
+        The entity can either be a :class:`Role` or a :class:`GuildMember`. If no
+        overwrite is found, This method would return a default overwrite with
+        all values set to default.
+
+        Parameters
+        ----------
+        entity: Union[:class:`Role`, :class:`GuildMember`]
+            The entity to get overwrite for. Either a role or member.
+        """
+        if isinstance(entity, Role):
+            entity_type = ChannelOverwriteType.ROLE
+        elif isinstance(entity, (GuildMember, User)):
+            entity_type = ChannelOverwriteType.MEMBER
+
+        try:
+            overwrite = self._permission_overwrites[(entity.id, entity_type)]
+        except KeyError:
+            # create default overwrite:
+            overwrite = PermissionOverwrite()
+
+        return overwrite
 
     async def edit(self, **kw: Any) -> None:
         raise NotImplementedError

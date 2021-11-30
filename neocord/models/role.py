@@ -26,7 +26,6 @@ from typing import Optional, List, TYPE_CHECKING
 from neocord.models.base import DiscordModel
 from neocord.models.asset import CDNAsset
 from neocord.dataclasses.color import Color
-from neocord.dataclasses.flags.permissions import Permissions
 from neocord.internal.missing import MISSING
 from neocord.internal import helpers
 
