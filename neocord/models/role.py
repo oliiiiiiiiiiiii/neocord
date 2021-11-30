@@ -129,7 +129,7 @@ class Role(DiscordModel):
         self.tags = RoleTags(data.get('tags', {})) # type: ignore
 
         self._icon = data.get('icon')
-        self.permissions = Permissions(data.get('permissions', 0))
+        self.permissions = helpers.get_permissions(data)
 
     @property
     def icon(self) -> Optional[CDNAsset]:

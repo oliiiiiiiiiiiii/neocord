@@ -94,7 +94,7 @@ class GuildChannel(DiscordModel):
 
         # TODO
         self._permissions_overwrite = data.get('permissions_overwrite')
-        self.permissions = Permissions(data.get('permissions', 0))
+        self.permissions = helpers.get_permissions(data)
 
     @property
     def category(self) -> Optional[CategoryChannel]:

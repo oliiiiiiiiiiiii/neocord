@@ -81,7 +81,7 @@ class GuildMember(DiscordModel):
         self.deaf = data.get('deaf', False)
         self.mute = data.get('mute', False)
         self.pending = data.get('pending', False)
-        self.permissions = Permissions(data.get('permissions', 0))
+        self.permissions = helpers.get_permissions(data)
 
         self._user = User(data.get('user'), state=self._state) # type: ignore
         self._nickname = data.get('nick')
