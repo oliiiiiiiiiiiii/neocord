@@ -40,6 +40,10 @@ class SystemChannelFlags(BaseFlags):
     suppress_join_notification_replies: :class:`bool`
         Returns True if user are allowed to reply to system channel join messages.
     """
+    VALID_FLAGS = {
+        'suppress_join_notifications', 'suppress_premium_subscriptions',
+        'suppress_guild_reminder_notifications', 'suppress_join_notification_replies',
+    }
 
     @flag
     def suppress_join_notifications(self) -> int:

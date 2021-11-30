@@ -63,7 +63,12 @@ class UserFlags(BaseFlags):
     discord_certified_moderator: :class:`bool`
         Returns ``True`` if the has the "Certified Discord Moderator" badge.
     """
-
+    VALID_FLAGS = {
+        'discord_employee', 'partnered_server_owner', 'hypesquad_events',
+        'bug_hunter_level_1', 'house_bravery', 'house_brilliance', 'house_balance',
+        'early_supporter', 'team_user', 'bug_hunter_level_2', 'verified_bot',
+        'early_verified_bot_developer', 'discord_certified_moderator'
+    }
     def __init__(self, value: int):
         super().__init__(value=value)
 
