@@ -42,6 +42,7 @@ packages = [
     'neocord.internal',
     'neocord.models',
     'neocord.typings',
+    'neocord.utils',
 ]
 
 setup(name='neocord',
