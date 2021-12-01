@@ -29,6 +29,7 @@ from .gateway import *
 from .guild import *
 from .channels import *
 from .stage_instance import *
+from .stickers import *
 
 class Routes(
     Users,
@@ -36,5 +37,6 @@ class Routes(
     Guilds,
     Channels,
     StageInstances,
+    Stickers,
 ):
     pass
