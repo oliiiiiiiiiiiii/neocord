@@ -14,4 +14,5 @@ from .member import *
 from .message import *
 from .role import *
 from .stage_instance import *
+from .stickers import *
 from .user import *

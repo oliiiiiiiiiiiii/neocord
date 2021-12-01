@@ -46,4 +46,14 @@ class Sticker(_StickerOptional):
     type: StickerType
     format_type: StickerFormatType
 
+class _StickerPackOptional(TypedDict, total=False):
+    cover_sticker_id: Snowflake
 
+
+class StickerPack(_StickerPackOptional):
+    id: Snowflake
+    stickers: List[Sticker]
+    name: str
+    sku_id: Snowflake
+    description: str
+    banner_asset_id: Snowflake
