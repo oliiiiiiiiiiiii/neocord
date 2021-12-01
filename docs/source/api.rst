@@ -475,6 +475,12 @@ File
 .. autoclass:: File()
     :members:
 
+PermissionOverwrite
+~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: PermissionOverwrite()
+    :members:
+
 Flags
 -----
 
@@ -503,4 +509,10 @@ MessageFlags
 ~~~~~~~~~~~~
 
 .. autoclass:: MessageFlags()
+    :members:
+
+Permissions
+~~~~~~~~~~~
+
+.. autoclass:: Permissions()
     :members:
