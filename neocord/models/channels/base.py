@@ -123,17 +123,21 @@ class GuildChannel(DiscordModel):
         return self.guild.get_channel(self.category_id) # type: ignore
 
 
-    def get_permission_overwrite_for(self, entity: Union[Role, GuildMember]) -> PermissionOverwrite:
+    def get_permission_overwrite_for(self, entity: Union[Role, GuildMember]) -> Optional[PermissionOverwrite]:
         """Returns a permission overwrite for requested entity.
 
         The entity can either be a :class:`Role` or a :class:`GuildMember`. If no
-        overwrite is found, This method would return a default overwrite with
-        all values set to default.
+        overwrite is found for provided entity, None is returned.
 
         Parameters
         ----------
         entity: Union[:class:`Role`, :class:`GuildMember`]
             The entity to get overwrite for. Either a role or member.
+
+        Returns
+        -------
+        Optional[:class:`PermissionOverwrite`]
+            The permission overwrite for relevant entity.
         """
         if isinstance(entity, Role):
             entity_type = ChannelOverwriteType.ROLE
@@ -141,12 +145,9 @@ class GuildChannel(DiscordModel):
             entity_type = ChannelOverwriteType.MEMBER
 
         try:
-            overwrite = self._permission_overwrites[(entity.id, entity_type)]
+            return self._permission_overwrites[(entity.id, entity_type)]
         except KeyError:
-            # create default overwrite:
-            overwrite = PermissionOverwrite()
-
-        return overwrite
+            return None
 
     async def edit(self, **kw: Any) -> None:
         raise NotImplementedError
