@@ -203,3 +203,35 @@ class StandardSticker(BaseSticker):
             self.sort_value = 0
         else:
             self.sort_value = sort_value
+
+    async def pack(self):
+        """Fetches the pack that this standard sticker belongs to.
+
+        Returns
+        -------
+        :class:`StickerPack`
+            The fetched sticker pack.
+
+        Raises
+        ------
+        NotFound
+            The pack isn't found.
+        HTTPError
+            Could not fetch this pack.
+        """
+        # https://github.com/discord/discord-api-docs/pull/4193
+        # TODO: Use /sticker-packs/{pack.id} when the PR is merged.
+
+        packs = await self._state.http.get_sticker_packs()
+
+        sticker_pack = None
+
+        for pack in packs:
+            if int(pack['id']) == self.pack_id:
+                sticker_pack = pack
+
+        if sticker_pack is None:
+            # FIXME: Add some exception class for this.
+            raise Exception(f'Sticker pack with ID {self.pack_id} could not be fetched.')
+
+        return StickerPack(sticker_pack, state=self._state)
