@@ -28,8 +28,10 @@ from typing import Any, Union, Literal, Callable, Dict, List, Optional, TYPE_CHE
 from neocord.api.http import HTTPClient
 from neocord.api.state import State
 from neocord.models.user import ClientUser
+from neocord.models.stickers import StickerPack
 from neocord.dataclasses.flags.intents import GatewayIntents
 from neocord.internal.logger import logger
+from neocord.internal.factories import sticker_factory
 
 import asyncio
 
@@ -604,3 +606,43 @@ class Client:
         """
         data = await self.http.get_stage_instance(channel_id=channel_id)
         return StageInstance(data, state=self.state)
+
+    async def fetch_sticker_packs(self) -> List[StickerPack]:
+        """Fetches the list of standard nitro sticker packs.
+
+        Returns
+        -------
+        List[:class:`StickerPack`]
+            The list of sticker packs.
+
+        Raises
+        ------
+        HTTPError
+            The fetching failed.
+        """
+        data = await self.state.http.get_sticker_packs()
+        return [StickerPack(pack, state=self._state) for pack in data]
+
+    async def fetch_sticker(self, id: int, /) -> Sticker:
+        """Fetches a sticker by ID.
+
+        Parameters
+        ----------
+        id: :class:`int`
+            The ID of sticker.
+
+        Returns
+        -------
+        :class:`Sticker`
+            The requested sticker.
+
+        Raises
+        ------
+        NotFound
+            The sticker ID is invalid.
+        HTTPError
+            The fetching failed.
+        """
+        data = await self.state.http.get_sticker(id)
+        cls = sticker_factory(int(data['type']))
+        return cls(data, state=self.state)

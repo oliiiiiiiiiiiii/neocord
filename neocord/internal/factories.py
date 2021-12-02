@@ -25,11 +25,20 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Type, Any
 
-from neocord.models.channels.base import ChannelType, GuildChannel
-from neocord.models.channels.text import TextChannel
-from neocord.models.channels.category import CategoryChannel
-from neocord.models.channels.voice import VoiceChannel
-from neocord.models.channels.stage import StageChannel
+
+from neocord.models.channels import (
+    ChannelType,
+    GuildChannel,
+    TextChannel,
+    CategoryChannel,
+    VoiceChannel,
+    StageChannel
+)
+from neocord.models.stickers import (
+    StickerType,
+    Sticker,
+    StandardSticker,
+)
 
 def channel_factory(ctype: int) -> Type[GuildChannel]:
     if ctype == ChannelType.TEXT:
@@ -42,3 +51,9 @@ def channel_factory(ctype: int) -> Type[GuildChannel]:
         return StageChannel
     else:
         return GuildChannel
+
+def sticker_factory(stype: int) -> Type[Sticker]:
+    if stype == StickerType.STANDARD:
+        return StandardSticker
+    else:
+        return Sticker
