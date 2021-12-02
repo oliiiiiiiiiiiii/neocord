@@ -87,15 +87,6 @@ class Sticker(DiscordModel):
         self.type = data.get('type')
         self.format_type = data.get('format_type')
 
-        self._tags = data.get('tags')
-
-    @property
-    def tags(self) -> List[str]:
-        """
-        List[:class:`str`]: Returns a list of autocomplete tags for this sticker.
-        """
-        return [tag.strip() for tag in self._tags.split(',')]
-
     @property
     def url(self) -> str:
         """
@@ -219,6 +210,15 @@ class StandardSticker(Sticker):
             self.sort_value = 0
         else:
             self.sort_value = sort_value
+
+        self._tags = data.get('tags')
+
+    @property
+    def tags(self) -> List[str]:
+        """
+        List[:class:`str`]: Returns a list of autocomplete tags for this sticker.
+        """
+        return [tag.strip() for tag in self._tags.split(',')]
 
     async def pack(self, use_cache: bool = True):
         """Fetches the pack that this standard sticker belongs to.
