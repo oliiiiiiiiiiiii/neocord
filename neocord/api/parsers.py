@@ -199,7 +199,7 @@ class Parsers:
             logger.debug(f'GUILD_ROLE_CREATE was sent with an unknown guild {event["guild_id"]}, Discarding.') # type: ignore
             return
 
-        role = guild._add_role(event)
+        role = guild._add_role(event['role'])
         self.dispatch('role_create', role)
 
     def parse_guild_role_delete(self, event: dict):

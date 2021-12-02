@@ -9,3 +9,4 @@ from .embeds import *
 from .file import *
 from .flags import *
 from .mentions import *
+from .permissions import *

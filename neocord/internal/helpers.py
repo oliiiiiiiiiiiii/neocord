@@ -25,6 +25,7 @@ from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
 from neocord.internal.missing import MISSING
 
+import neocord
 import datetime
 import base64
 
@@ -110,3 +111,11 @@ def parse_message_create_payload(client, *,
             payload['allowed_mentions'] = {'replied_user': True}
 
     return payload
+
+def get_permissions(data, key='permissions'):
+    try:
+        permissions = int(data[key])
+    except (ValueError, KeyError):
+        permissions = 0
+
+    return neocord.Permissions(permissions)

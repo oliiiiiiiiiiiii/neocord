@@ -56,14 +56,10 @@ class flag:
 
 
 class BaseFlags:
+    VALID_FLAGS: Set[str]
+
     def __init__(self, value: Optional[int] = None, **flags: Any):
-        self._valid_flags = set()
-
-        for item in self.__class__.__dict__.values():
-            if isinstance(item, flag):
-                self._valid_flags.add(item.__name__)
-
-        invalid = set(flags.keys()) - self._valid_flags
+        invalid = set(flags.keys()) - self.VALID_FLAGS
         if invalid:
             raise TypeError('Invalid keyword arguments {0} for {1}()'.format(invalid, self.__class__.__name__))
 
@@ -85,3 +81,21 @@ class BaseFlags:
             raise TypeError('new value must be an int.')
 
         self._value = new
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return other.value == self.value
+
+        return False
+
+    def __ge__(self, other):
+        if isinstance(other, self.__class__):
+            return other.value >= self.value
+
+        return False
+
+    def __le__(self, other):
+        if isinstance(other, self.__class__):
+            return other.value <= self.value
+
+        return False

@@ -202,7 +202,7 @@ class Message(DiscordModel, _MessageReferenceMixin):
                 # resolve it to user.
                 self.author = self.guild.get_member(int(author['id']))
 
-            else:
+            if self.author is None:
                 self.author = self._state.get_user(int(author['id'])) or self._state.add_user(author)
 
         self.interaction = None

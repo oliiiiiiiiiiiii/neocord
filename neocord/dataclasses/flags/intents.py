@@ -88,6 +88,13 @@ class GatewayIntents(BaseFlags):
     scheduled_events: :class:`bool`
         Returns ``True`` if the scheduled events intents are enabled.
     """
+    VALID_FLAGS = {
+        'messages', 'reactions', 'typing', 'guilds', 'members', 'bans', 'emojis_and_stickers',
+        'integrations', 'webhooks', 'invites', 'voice_states', 'presences', 'guild_messages',
+        'guild_messages_typing', 'guild_messages_reactions', 'direct_messages',
+        'direct_messages_typing', 'direct_messages_reactions', 'scheduled_events'
+    }
+
     def __init__(self, **intents):
         super().__init__(**intents)
 
@@ -101,7 +108,7 @@ class GatewayIntents(BaseFlags):
         -------
         :class:`GatewayIntents`
         """
-        intents = {intent: True for intent in cls._valid_flags}
+        intents = {flag: True for flag in cls.VALID_FLAGS}
         return cls(**intents)
 
     @classmethod

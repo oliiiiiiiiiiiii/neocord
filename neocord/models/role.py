@@ -108,7 +108,7 @@ class Role(DiscordModel):
     __slots__ = (
         '_guild', '_state', 'id', 'name', 'hoist', 'position',
         'managed', 'mentionable', 'unicode_emoji', 'color', 'tags',
-        '_icon'
+        '_icon', 'permissions'
     )
 
     def __init__(self, data: RolePayload, guild: Guild):
@@ -128,6 +128,7 @@ class Role(DiscordModel):
         self.tags = RoleTags(data.get('tags', {})) # type: ignore
 
         self._icon = data.get('icon')
+        self.permissions = helpers.get_permissions(data)
 
     @property
     def icon(self) -> Optional[CDNAsset]:
