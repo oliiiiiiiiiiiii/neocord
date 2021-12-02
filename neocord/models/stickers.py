@@ -21,10 +21,11 @@
 # SOFTWARE.
 
 from __future__ import annotations
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 
 from neocord.models.base import DiscordModel
 from neocord.models.asset import CDNAsset
+from neocord.errors.core import ResourceNotIncluded
 
 if TYPE_CHECKING:
     from neocord.api.state import State
@@ -244,8 +245,7 @@ class StandardSticker(BaseSticker):
                 sticker_pack = pack
 
         if sticker_pack is None:
-            # FIXME: Add some exception class for this.
-            raise Exception(f'Sticker pack with ID {self.pack_id} could not be fetched.')
+            raise ResourceNotIncluded(f'Sticker pack with ID {self.pack_id} could not be fetched.')
 
 
         pack = StickerPack(sticker_pack, state=self._state)
