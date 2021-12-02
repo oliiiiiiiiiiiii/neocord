@@ -36,11 +36,11 @@ if TYPE_CHECKING:
 
 
 __all__ = (
-    'Sticker',
+    'StickerType',
     'StickerFormatType',
-    'BaseSticker',
-    'StandardSticker',
+    'Sticker',
     'StickerPack'
+    'StandardSticker',
 )
 
 class StickerType:
@@ -52,7 +52,28 @@ class StickerFormatType:
     APNG = 2
     LOTTIE = 3
 
-class BaseSticker(DiscordModel):
+class Sticker(DiscordModel):
+    """Represents a sticker.
+
+    This class is a base class for sticker types. Currently following are the
+    available types of stickers:
+
+    - :class:`StandardSticker`
+    - :class:`GuildSticker`
+
+    Attributes
+    ----------
+    id: :class:`int`
+        The sticker ID.
+    name: :class:`str`
+        The name of sticker.
+    description: :class:`str`
+        The description of sticker.
+    type: :class:`StickerType`
+        The type of sticker.
+    format_type: :class:`StickerFormatType`
+        The format type of sticker.
+    """
     __slots__ = ('_state', 'id', 'name', 'description', 'type', 'format_type', '_tags')
 
     def __init__(self, data: StickerPayload, state: State):
@@ -167,22 +188,11 @@ class StickerPack(DiscordModel):
 
         return f'{CDNAsset.BASE_URL}/app-assets/710982414301790216/store/{self.banner_asset_id}.{format}?size={size}'
 
-class StandardSticker(BaseSticker):
+class StandardSticker(Sticker):
     """Represents a "standard" Discord sticker that can be used by Nitro users.
 
     Attributes
     ----------
-    id: :class:`int`
-        The sticker ID.
-    name: :class:`str`
-        The name of sticker.
-    description: :class:`str`
-        The description of sticker.
-    type: :class:`StickerType`
-        The type of sticker. Always :attr:`~StickerType.STANDARD` in this
-        case.
-    format_type: :class:`StickerFormatType`
-        The format type of sticker.
     pack_id: :class:`int`
         The ID of pack that this sticker belongs to.
     sort_value: :class:`int`
