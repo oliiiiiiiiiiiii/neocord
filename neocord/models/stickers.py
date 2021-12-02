@@ -192,6 +192,11 @@ class StandardSticker(BaseSticker):
     pack_id: int
     sort_value: int
 
+    def __init__(self, *args, **kwargs):
+        self._pack: Optional[StickerPack] = None
+
+        super().__init__(*args, **kwargs)
+
     def _update(self, data: StickerPayload):
         super()._update(data)
 
@@ -204,8 +209,13 @@ class StandardSticker(BaseSticker):
         else:
             self.sort_value = sort_value
 
-    async def pack(self):
+    async def pack(self, use_cache: bool = True):
         """Fetches the pack that this standard sticker belongs to.
+
+        Parameters
+        ----------
+        use_cache: :class:`bool`
+            Whether to use cache if available. Defaults to True.
 
         Returns
         -------
@@ -222,6 +232,9 @@ class StandardSticker(BaseSticker):
         # https://github.com/discord/discord-api-docs/pull/4193
         # TODO: Use /sticker-packs/{pack.id} when the PR is merged.
 
+        if self._pack is not None and use_cache:
+            return self._pack
+
         packs = await self._state.http.get_sticker_packs()
 
         sticker_pack = None
@@ -234,4 +247,7 @@ class StandardSticker(BaseSticker):
             # FIXME: Add some exception class for this.
             raise Exception(f'Sticker pack with ID {self.pack_id} could not be fetched.')
 
-        return StickerPack(sticker_pack, state=self._state)
+
+        pack = StickerPack(sticker_pack, state=self._state)
+        self._pack = pack
+        return pack
