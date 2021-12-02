@@ -39,7 +39,7 @@ __all__ = (
     'StickerType',
     'StickerFormatType',
     'Sticker',
-    'StickerPack'
+    'StickerPack',
     'StandardSticker',
 )
 
