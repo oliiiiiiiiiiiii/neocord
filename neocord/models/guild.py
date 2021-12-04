@@ -32,6 +32,7 @@ from neocord.models.events import ScheduledEvent, EventPrivacyLevel
 from neocord.models.channels.voice import VoiceChannel
 from neocord.models.channels.stage import StageChannel
 from neocord.models.stage_instance import StageInstance
+from neocord.models.stickers import GuildSticker
 from neocord.internal.factories import channel_factory
 from neocord.internal import helpers
 from neocord.dataclasses.flags.system import SystemChannelFlags
@@ -46,6 +47,7 @@ if TYPE_CHECKING:
     from neocord.typings.emoji import Emoji as EmojiPayload
     from neocord.typings.events import GuildScheduledEvent as GuildScheduledEventPayload
     from neocord.typings.stage_instance import StageInstance as StageInstancePayload
+    from neocord.typings.stickers import Sticker as StickerPayload
     from neocord.api.state import State
     from datetime import datetime
 
@@ -132,8 +134,8 @@ class Guild(DiscordModel):
         self._voice_states = {}
         self._threads = {}
         self._presences = {}
-        self._stickers = {}
 
+        self._stickers: Dict[int, GuildSticker] = {}
         self._members: Dict[int, GuildMember] = {}
         self._channels: Dict[int, GuildChannel] = {}
         self._emojis: Dict[int, Emoji] = {}
@@ -155,6 +157,7 @@ class Guild(DiscordModel):
             self._add_stage_instance(stage_instance)
 
         self._bulk_overwrite_emojis(data.get('emojis', []))
+        self._bulk_overwrite_stickers(data.get('stickers', []))
 
     def _update(self, data: GuildPayload):
         self.name = data.get('name')
@@ -850,3 +853,42 @@ class Guild(DiscordModel):
         this guild.
         """
         return list(self._stage_instances.values())
+
+    def _bulk_overwrite_stickers(self, stickers: List[StickerPayload]):
+        self._stickers.clear()
+
+        for sticker in stickers:
+            self._add_sticker(sticker)
+
+    def _add_sticker(self, data: StickerPayload) -> GuildSticker:
+        sticker = GuildSticker(data, state=self._state)
+        self._stickers[sticker.id] = sticker
+        return sticker
+
+    def _remove_sticker(self, id: int, /) -> Optional[GuildSticker]:
+        return self._stickers.pop(id, None)
+
+
+    def get_sticker(self, id: int, /) -> Optional[GuildSticker]:
+        """
+        Gets a sticker from the guild. This method returns None is no sticker
+        with provided ID is not found.
+
+        Parameters
+        ----------
+        id: :class:`int`
+            The ID of the sticker.
+
+        Returns
+        -------
+        Optional[:class:`GuildSticker`]
+            The requested sticker, if found.
+        """
+        return self._stickers.get(id)
+
+    @property
+    def stickers(self) -> List[GuildSticker]:
+        """
+        List[:class:`GuildSticker`]: Returns the list of stickers in this guild.
+        """
+        return list(self._stickers.values())

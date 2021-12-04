@@ -365,5 +365,13 @@ class Parsers:
 
         self.dispatch('stage_instance_delete', instance)
 
+    def parse_guild_stickers_update(self, event):
+        guild = self.state.get_guild(int(event['guild_id']))
+        if guild is None:
+            logger.debug('GUILD_STICKERS_UPDATE was sent with unknown guild {}, Discarding.'.format(event['guild_id']))
+            return
 
+        before = guild._stickers.copy()
+        guild._bulk_overwrite_stickers(event['stickers'])
 
+        self.dispatch('stickers_update', before.values(), guild.stickers)
