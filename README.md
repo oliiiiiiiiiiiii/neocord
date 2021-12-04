@@ -3,6 +3,8 @@
 # NeoCord
 An elegant asynchronous API wrapper around [Discord Bot API](https://discord.dev)
 
+> :warning: **Alpha**: This project is currently alpha!
+
 ## :bulb: Features
 
 - Pythonic API interface using asyncio.
