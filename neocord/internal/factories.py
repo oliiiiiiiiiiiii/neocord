@@ -38,6 +38,7 @@ from neocord.models.stickers import (
     StickerType,
     Sticker,
     StandardSticker,
+    GuildSticker,
 )
 
 def channel_factory(ctype: int) -> Type[GuildChannel]:
@@ -49,11 +50,13 @@ def channel_factory(ctype: int) -> Type[GuildChannel]:
         return VoiceChannel
     if ctype == ChannelType.STAGE:
         return StageChannel
-    else:
-        return GuildChannel
+
+    return GuildChannel
 
 def sticker_factory(stype: int) -> Type[Sticker]:
     if stype == StickerType.STANDARD:
         return StandardSticker
-    else:
-        return Sticker
+    if stype == StickerType.GUILD:
+        return GuildSticker
+
+    return Sticker

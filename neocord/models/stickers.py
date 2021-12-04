@@ -27,6 +27,8 @@ from neocord.models.base import DiscordModel
 from neocord.models.asset import CDNAsset
 from neocord.errors.core import ResourceNotIncluded
 
+from neocord.utils import get_one
+
 if TYPE_CHECKING:
     from neocord.api.state import State
     from neocord.typings.stickers import (
@@ -41,6 +43,7 @@ __all__ = (
     'Sticker',
     'StickerPack',
     'StandardSticker',
+    'GuildSticker',
 )
 
 class StickerType:
@@ -146,9 +149,7 @@ class StickerPack(DiscordModel):
         """
         :class:`StandardSticker`: The sticker that is shown as icon of this pack.
         """
-        for sticker in self.stickers:
-            if sticker.id == self.cover_sticker_id:
-                return sticker
+        return get_one(self.stickers, cover_sticker_id=self.cover_sticker_id)
 
     def banner_asset_url(self, size: int = 512, format: str = 'png') -> str:
         """Returns the URL of the banner asset that this pack has.
@@ -261,3 +262,43 @@ class StandardSticker(Sticker):
         pack = StickerPack(sticker_pack, state=self._state)
         self._pack = pack
         return pack
+
+class GuildSticker(Sticker):
+    """Represents a sticker in a :class:`Guild`.
+
+    Attributes
+    ----------
+    available: :class:`bool`
+        Whether this sticker is available. A sticker may not be available
+        due to loss of server boosts.
+    guild_id: :class:`int`
+        The ID of guild that this sticker belongs to.
+    user: :class:`User`
+        The user that uploaded this sticker. Only available if the user
+        has :attr:`Permissions.manage_emojis_and_stickers` permission in
+        parent guild.
+    emoji: :class:`str`
+        The relevant unicode emoji of this sticker.
+    """
+    __slots__ = ('guild_id', 'available', 'emoji', 'user')
+
+    def _update(self, data: StickerPayload):
+        super()._update(data)
+
+        self.guild_id = int(data['guild_id'])
+        self.available = data.get('available', True)
+        self.emoji = data.get('tags')
+
+        try:
+            user = data['user']
+        except KeyError:
+            self.user = None
+        else:
+            self.user = self._state.add_user(user)
+
+    @property
+    def guild(self) -> Optional[Guild]:
+        """
+        Optional[:class:`Guild`]: The guild this sticker belongs to.
+        """
+        return self._state.get_guild(self.guild_id)
